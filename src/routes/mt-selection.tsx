@@ -1,25 +1,32 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight } from "lucide-react";
 
 import { PageHeader } from "@/components/dashboard/page-header";
-import { Section, SectionCard } from "@/components/dashboard/section";
+import { Section } from "@/components/dashboard/section";
 import { KpiCard, KpiGrid } from "@/components/dashboard/kpi-card";
-import { StatusPill } from "@/components/dashboard/status-pill";
+import { StatusPill, type StatusTone } from "@/components/dashboard/status-pill";
 import { DataTable, type Column } from "@/components/dashboard/data-table";
-import { FunnelChart } from "@/components/dashboard/funnel-chart";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { FilterSelect } from "@/components/dashboard/filter-bar";
+import {
+  HierarchicalBreakdownTable,
+  type HierRow,
+} from "@/components/dashboard/hierarchical-breakdown-table";
+import { SplitSnapshotPanel } from "@/components/dashboard/split-snapshot-panel";
+import {
+  DivisionStatusPanel,
+  type ActiveDivisionEntry,
+} from "@/components/dashboard/division-status-panel";
+import { AchievedTarget } from "@/components/dashboard/achieved-target";
 
 import {
-  MT_NOMINATIONS,
-  SELECTED_MTS,
-  selectionFunnel,
-  geographyBreakdown,
-  departmentBreakdown,
-  type BreakdownRow,
-  type MTNomination,
-} from "@/data/mt-selection";
+  MASTER_TRAINERS,
+  TALUKA_TARGETS,
+  bucketDivision,
+  divisionRollups,
+  type MasterTrainer,
+  type SelectionStatus,
+} from "@/data/capacity-building";
+import { DISTRICTS, DIVISIONS } from "@/data/geography";
 
 export const Route = createFileRoute("/mt-selection")({
   head: () => ({
@@ -28,225 +35,334 @@ export const Route = createFileRoute("/mt-selection")({
       {
         name: "description",
         content:
-          "Master Trainer nomination and selection pipeline: KPIs, conversion funnel, geography and department performance, selected MT directory.",
+          "Nomination-to-Selection funnel and status across Master Trainer candidates in the Capacity Building stage.",
       },
     ],
   }),
   component: MTSelectionDashboard,
 });
 
+const SELECTION_TONE: Record<SelectionStatus, StatusTone> = {
+  Nominated: "neutral",
+  Assessed: "info",
+  Selected: "success",
+  Rejected: "critical",
+};
+
 function MTSelectionDashboard() {
-  const funnel = useMemo(() => selectionFunnel(MT_NOMINATIONS), []);
-  const selectionRate = funnel.nominated
-    ? Math.round((funnel.selected / funnel.nominated) * 1000) / 10
-    : 0;
+  // Section 3 filters — independent per spec
+  const [tblDivision, setTblDivision] = useState("All");
+  const [tblDistrict, setTblDistrict] = useState("All");
+  const [tblStatus, setTblStatus] = useState("All");
+
+  const rollups = useMemo(() => divisionRollups(), []);
+  const totals = useMemo(() => {
+    const targets = TALUKA_TARGETS.filter((t) => t.active);
+    const nominated = MASTER_TRAINERS.length;
+    const assessed = MASTER_TRAINERS.filter(
+      (m) => m.selectionStatus !== "Nominated",
+    ).length;
+    const selected = MASTER_TRAINERS.filter(
+      (m) => m.selectionStatus === "Selected",
+    ).length;
+    const target = targets.reduce((s, t) => s + t.targetSelected, 0);
+    const completion = target ? Math.round((selected / target) * 100) : 0;
+    return { nominated, assessed, selected, target, completion };
+  }, []);
+
+  const activeList: ActiveDivisionEntry[] = rollups
+    .filter((r) => bucketDivision(r, "selected") === "active")
+    .map((r) => ({
+      division: r.division,
+      target: r.targetSelected,
+      achieved: r.selected,
+      completion: r.completionSelected,
+    }));
+  const completedList = rollups
+    .filter((r) => bucketDivision(r, "selected") === "completed")
+    .map((r) => r.division);
+  const yetToStartList = rollups
+    .filter((r) => bucketDivision(r, "selected") === "yet_to_start")
+    .map((r) => r.division);
+
+  const filteredDirectory = useMemo(
+    () =>
+      MASTER_TRAINERS.filter((m) => {
+        if (tblDivision !== "All" && m.division !== tblDivision) return false;
+        if (tblDistrict !== "All" && m.district !== tblDistrict) return false;
+        if (tblStatus !== "All" && m.selectionStatus !== tblStatus) return false;
+        return true;
+      }),
+    [tblDivision, tblDistrict, tblStatus],
+  );
 
   return (
     <div className="pb-16">
       <PageHeader
-        title="Master Trainer Selection"
-        description="Visibility into the MT Nomination and Selection stage. Monitor the health of the selection pipeline and identify Master Trainers ready to progress into Certification."
+        title="MT Selection"
+        description="Nomination to Selection funnel and division-level rollout status."
       />
 
       <div className="px-8 pt-8 space-y-10">
-        {/* Section 1 — Snapshot KPIs */}
-        <Section title="Snapshot KPIs">
-          <KpiGrid>
-            <KpiCard
-              title="Total Nominated MTs"
-              value={funnel.nominated.toLocaleString("en-IN")}
-              context="Across all divisions and departments"
-              accent="info"
-            />
-            <KpiCard
-              title="Total Assessed MTs"
-              value={funnel.appeared.toLocaleString("en-IN")}
-              context={`${Math.round((funnel.appeared / funnel.nominated) * 100)}% of nominated`}
-              accent="info"
-            />
-            <KpiCard
-              title="Total Selected MTs"
-              value={funnel.selected.toLocaleString("en-IN")}
-              context={`${Math.round((funnel.selected / (funnel.appeared || 1)) * 100)}% of assessed`}
-              accent="success"
-            />
-            <KpiCard
-              title="Overall Selection Rate"
-              value={`${selectionRate}%`}
-              context="Selected / Nominated"
-              accent={selectionRate >= 50 ? "success" : selectionRate >= 35 ? "warning" : "critical"}
-            />
-          </KpiGrid>
+        {/* Section 1 — Snapshot */}
+        <Section title="Snapshot">
+          <SplitSnapshotPanel
+            left={
+              <KpiGrid cols={4}>
+                <KpiCard
+                  title="Nominated"
+                  value={totals.nominated.toLocaleString("en-IN")}
+                  accent="info"
+                />
+                <KpiCard
+                  title="Assessed"
+                  value={totals.assessed.toLocaleString("en-IN")}
+                  accent="info"
+                />
+                <KpiCard
+                  title="Selected"
+                  value={
+                    <AchievedTarget
+                      achieved={totals.selected}
+                      target={totals.target}
+                    />
+                  }
+                  accent="success"
+                />
+                <KpiCard
+                  title="Target Completion"
+                  value={`${totals.completion}%`}
+                  accent={
+                    totals.completion >= 75
+                      ? "success"
+                      : totals.completion >= 50
+                        ? "warning"
+                        : "critical"
+                  }
+                />
+              </KpiGrid>
+            }
+            rightTitle="Division Status"
+            right={
+              <DivisionStatusPanel
+                achievedLabel="Selected"
+                active={activeList}
+                completed={completedList}
+                yetToStart={yetToStartList}
+              />
+            }
+          />
         </Section>
 
-        {/* Section 2 — Funnel */}
+        {/* Section 2 — Selection Summary */}
         <Section
-          title="Nomination to Selection Funnel"
-          description="Conversion through each stage of the selection process. Drop-offs indicate stages requiring intervention."
+          title="Selection Summary"
+          description="Geography drill-down: Division → District → Taluka. Inactive rows show '-' for metric columns."
         >
-          <SectionCard>
-            <FunnelChart
-              stages={[
-                { label: "Nominated", value: funnel.nominated, tone: "info" },
-                { label: "Appeared for Assessment", value: funnel.appeared, tone: "info" },
-                { label: "Selected", value: funnel.selected, tone: "success" },
-                { label: "Not Selected", value: funnel.notSelected, tone: "critical" },
+          <SelectionSummaryTable />
+        </Section>
+
+        {/* Section 3 — MT Selection Status */}
+        <Section
+          title="MT Selection Status"
+          description="Individual Master Trainer records. Section-level filters operate independently of the dashboard scope."
+        >
+          <div className="flex flex-wrap items-end gap-3 mb-4">
+            <FilterSelect
+              label="Division"
+              value={tblDivision}
+              onChange={(v) => {
+                setTblDivision(v);
+                setTblDistrict("All");
+              }}
+              options={[
+                { label: "All Divisions", value: "All" },
+                ...DIVISIONS.map((d) => ({ label: d, value: d })),
               ]}
             />
-          </SectionCard>
-        </Section>
-
-        {/* Section 3 — Breakdown */}
-        <Section
-          title="Selection Performance Breakdown"
-          description="Compare selection performance across organizational dimensions to quickly identify areas performing well or requiring intervention."
-        >
-          <Tabs defaultValue="geography">
-            <TabsList>
-              <TabsTrigger value="geography">Geography</TabsTrigger>
-              <TabsTrigger value="department">Department</TabsTrigger>
-            </TabsList>
-            <TabsContent value="geography" className="mt-4">
-              <GeographyBreakdownTable />
-            </TabsContent>
-            <TabsContent value="department" className="mt-4">
-              <DepartmentBreakdownTable />
-            </TabsContent>
-          </Tabs>
-        </Section>
-
-        {/* Section 4 — Directory */}
-        <Section
-          title="Selected Master Trainer Directory"
-          description="Master Trainers who have successfully cleared the assessment and are ready to progress into MT Certification."
-        >
-          <SelectedMTDirectory />
+            <FilterSelect
+              label="District"
+              value={tblDistrict}
+              onChange={setTblDistrict}
+              width={220}
+              options={[
+                { label: "All Districts", value: "All" },
+                ...DISTRICTS.filter(
+                  (d) => tblDivision === "All" || d.division === tblDivision,
+                ).map((d) => ({ label: d.name, value: d.name })),
+              ]}
+            />
+            <FilterSelect
+              label="Selection Status"
+              value={tblStatus}
+              onChange={setTblStatus}
+              width={200}
+              options={[
+                { label: "All Statuses", value: "All" },
+                { label: "Nominated", value: "Nominated" },
+                { label: "Assessed", value: "Assessed" },
+                { label: "Selected", value: "Selected" },
+                { label: "Rejected", value: "Rejected" },
+              ]}
+            />
+          </div>
+          <MTDirectory rows={filteredDirectory} />
         </Section>
       </div>
     </div>
   );
 }
 
-/* -------------------- Breakdown tables -------------------- */
-
-function GeographyBreakdownTable() {
-  const rows = useMemo(() => geographyBreakdown(MT_NOMINATIONS), []);
-  return <HierarchicalBreakdownTable rows={rows} firstColHeader="Geography (Division → District → Taluka)" />;
+// -------- Selection Summary drill-down --------
+function selectionRow(target: {
+  targetNominated: number;
+  targetSelected: number;
+  active: boolean;
+  lastDate: string;
+}, rows: MasterTrainer[]): (React.ReactNode | number | string)[] {
+  if (!target.active) {
+    return [
+      <StatusPill key="s" tone="neutral">
+        Not Active
+      </StatusPill>,
+      "-",
+      "-",
+      "-",
+      "-",
+      "-",
+      target.lastDate,
+    ];
+  }
+  const nominated = rows.length;
+  const assessed = rows.filter((r) => r.selectionStatus !== "Nominated").length;
+  const selected = rows.filter((r) => r.selectionStatus === "Selected").length;
+  const selectionRate = assessed ? Math.round((selected / assessed) * 100) : 0;
+  const completion = target.targetSelected
+    ? Math.round((selected / target.targetSelected) * 100)
+    : 0;
+  return [
+    <StatusPill key="s" tone="success">
+      Active
+    </StatusPill>,
+    <AchievedTarget key="n" achieved={nominated} target={target.targetNominated} />,
+    assessed,
+    <AchievedTarget key="sel" achieved={selected} target={target.targetSelected} />,
+    `${selectionRate}%`,
+    `${completion}%`,
+    target.lastDate,
+  ];
 }
 
-function DepartmentBreakdownTable() {
-  const rows = useMemo(() => departmentBreakdown(MT_NOMINATIONS), []);
-  return <HierarchicalBreakdownTable rows={rows} firstColHeader="Department" allowExpand={false} />;
-}
+function SelectionSummaryTable() {
+  const rows = useMemo<HierRow[]>(() => {
+    return DIVISIONS.map((division) => {
+      const divTalukas = TALUKA_TARGETS.filter((t) => t.division === division);
+      const divTrainers = MASTER_TRAINERS.filter((m) => m.division === division);
+      const divTargets = divTalukas.reduce(
+        (acc, t) => {
+          if (t.active) {
+            acc.targetNominated += t.targetNominated;
+            acc.targetSelected += t.targetSelected;
+          }
+          return acc;
+        },
+        { targetNominated: 0, targetSelected: 0 },
+      );
+      const divActive = divTalukas.some((t) => t.active);
+      const divLast =
+        divTalukas
+          .map((t) => t.lastDate)
+          .sort()
+          .at(-1) ?? "-";
 
-function HierarchicalBreakdownTable({
-  rows,
-  firstColHeader,
-  allowExpand = true,
-}: {
-  rows: BreakdownRow[];
-  firstColHeader: string;
-  allowExpand?: boolean;
-}) {
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const toggle = (key: string) => setExpanded((p) => ({ ...p, [key]: !p[key] }));
+      const districts = DISTRICTS.filter((d) => d.division === division).map(
+        (dist) => {
+          const dTalukas = divTalukas.filter((t) => t.district === dist.name);
+          const dTrainers = divTrainers.filter((m) => m.district === dist.name);
+          const dTargets = dTalukas.reduce(
+            (acc, t) => {
+              if (t.active) {
+                acc.targetNominated += t.targetNominated;
+                acc.targetSelected += t.targetSelected;
+              }
+              return acc;
+            },
+            { targetNominated: 0, targetSelected: 0 },
+          );
+          const dActive = dTalukas.some((t) => t.active);
+          const dLast =
+            dTalukas
+              .map((t) => t.lastDate)
+              .sort()
+              .at(-1) ?? "-";
+          const talukas: HierRow[] = dTalukas.map((t) => {
+            const tRows = dTrainers.filter((m) => m.taluka === t.taluka);
+            return {
+              key: `${division}/${dist.name}/${t.taluka}`,
+              label: t.taluka,
+              values: selectionRow(t, tRows),
+            };
+          });
+          return {
+            key: `${division}/${dist.name}`,
+            label: `${dist.name} (District)`,
+            values: selectionRow(
+              {
+                targetNominated: dTargets.targetNominated,
+                targetSelected: dTargets.targetSelected,
+                active: dActive,
+                lastDate: dLast,
+              },
+              dTrainers,
+            ),
+            children: talukas,
+          };
+        },
+      );
 
-  const flat: Array<{ row: BreakdownRow; depth: number }> = [];
-  const walk = (list: BreakdownRow[], depth: number) => {
-    for (const r of list) {
-      flat.push({ row: r, depth });
-      if (allowExpand && expanded[r.key] && r.children?.length) {
-        walk(r.children, depth + 1);
-      }
-    }
-  };
-  walk(rows, 0);
+      return {
+        key: division,
+        label: `${division} (Division)`,
+        values: selectionRow(
+          {
+            targetNominated: divTargets.targetNominated,
+            targetSelected: divTargets.targetSelected,
+            active: divActive,
+            lastDate: divLast,
+          },
+          divTrainers,
+        ),
+        children: districts,
+      };
+    });
+  }, []);
 
   return (
-    <div className="rounded-lg border bg-card overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
-            <tr>
-              <th className="px-4 py-2.5 text-left font-medium">{firstColHeader}</th>
-              <th className="px-4 py-2.5 text-right font-medium">Nominated</th>
-              <th className="px-4 py-2.5 text-right font-medium">Assessed</th>
-              <th className="px-4 py-2.5 text-right font-medium">Selected</th>
-              <th className="px-4 py-2.5 text-right font-medium">Selection Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {flat.map(({ row, depth }) => {
-              const hasChildren = allowExpand && !!row.children?.length;
-              const isOpen = expanded[row.key];
-              return (
-                <tr key={row.key} className="border-t hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-2.5">
-                    <div
-                      className="flex items-center gap-1.5"
-                      style={{ paddingLeft: `${depth * 20}px` }}
-                    >
-                      {hasChildren ? (
-                        <button
-                          type="button"
-                          onClick={() => toggle(row.key)}
-                          className="h-5 w-5 inline-flex items-center justify-center rounded hover:bg-muted"
-                          aria-label={isOpen ? "Collapse" : "Expand"}
-                        >
-                          {isOpen ? (
-                            <ChevronDown className="h-4 w-4" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4" />
-                          )}
-                        </button>
-                      ) : (
-                        <span className="w-5" />
-                      )}
-                      <span
-                        className={cn(
-                          depth === 0
-                            ? "font-medium text-foreground"
-                            : depth === 1
-                              ? "text-foreground"
-                              : "text-muted-foreground",
-                        )}
-                      >
-                        {row.label}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-2.5 text-right tabular-nums">{row.nominated}</td>
-                  <td className="px-4 py-2.5 text-right tabular-nums">{row.assessed}</td>
-                  <td className="px-4 py-2.5 text-right tabular-nums">{row.selected}</td>
-                  <td className="px-4 py-2.5 text-right">
-                    <RateBadge rate={row.selectionRate} />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <HierarchicalBreakdownTable
+      rows={rows}
+      firstColHeader="Geography"
+      columns={[
+        { header: "Activation Status" },
+        { header: "Nominated", align: "right" },
+        { header: "Assessed", align: "right" },
+        { header: "Selected", align: "right" },
+        { header: "Selection Rate", align: "right" },
+        { header: "Target Completion", align: "right" },
+        { header: "Last Date", align: "right" },
+      ]}
+    />
   );
 }
 
-function RateBadge({ rate }: { rate: number }) {
-  const tone = rate >= 55 ? "success" : rate >= 40 ? "warning" : "critical";
-  return <StatusPill tone={tone}>{rate}%</StatusPill>;
-}
-
-/* -------------------- Directory -------------------- */
-
-function SelectedMTDirectory() {
-  const columns: Column<MTNomination>[] = [
+function MTDirectory({ rows }: { rows: MasterTrainer[] }) {
+  const columns: Column<MasterTrainer>[] = [
     {
       key: "name",
       header: "Master Trainer",
       accessor: (r) => (
         <div className="flex flex-col">
           <span className="font-medium text-foreground">{r.name}</span>
-          <span className="text-xs text-muted-foreground">{r.designation}</span>
+          <span className="text-xs text-muted-foreground">{r.id}</span>
         </div>
       ),
       sortValue: (r) => r.name,
@@ -282,31 +398,34 @@ function SelectedMTDirectory() {
     },
     {
       key: "score",
-      header: "Assessment Score",
+      header: "Selection Test Score",
       accessor: (r) => (
-        <span className="tabular-nums font-medium text-foreground">
-          {r.assessmentScore ?? "—"}
+        <span className="tabular-nums">
+          {r.selectionScore != null ? `${r.selectionScore}%` : "—"}
         </span>
       ),
-      sortValue: (r) => r.assessmentScore ?? -1,
-      exportValue: (r) => r.assessmentScore ?? "",
+      sortValue: (r) => r.selectionScore ?? -1,
+      exportValue: (r) => r.selectionScore ?? "",
       align: "right",
     },
     {
       key: "status",
       header: "Selection Status",
-      accessor: () => <StatusPill tone="success">Selected</StatusPill>,
-      sortValue: (r) => r.status,
-      exportValue: (r) => r.status,
+      accessor: (r) => (
+        <StatusPill tone={SELECTION_TONE[r.selectionStatus]}>
+          {r.selectionStatus}
+        </StatusPill>
+      ),
+      sortValue: (r) => r.selectionStatus,
+      exportValue: (r) => r.selectionStatus,
     },
   ];
-
   return (
     <DataTable
-      data={SELECTED_MTS}
+      data={rows}
       columns={columns}
-      searchKeys={["name", "department", "division", "district", "taluka", "designation"]}
-      pageSize={12}
+      searchKeys={["name", "district", "taluka", "department"]}
+      pageSize={15}
       getRowId={(r) => r.id}
     />
   );

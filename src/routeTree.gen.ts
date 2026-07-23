@@ -9,34 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TrainerPerformanceRouteImport } from './routes/trainer-performance'
-import { Route as StudentCertificationRouteImport } from './routes/student-certification'
-import { Route as PerformanceInsightsRouteImport } from './routes/performance-insights'
 import { Route as MtSelectionRouteImport } from './routes/mt-selection'
+import { Route as MtProcessAdherenceRouteImport } from './routes/mt-process-adherence'
+import { Route as MtLearningCognitiveRouteImport } from './routes/mt-learning-cognitive'
 import { Route as MtCertificationRouteImport } from './routes/mt-certification'
-import { Route as DeploymentReadinessRouteImport } from './routes/deployment-readiness'
-import { Route as BatchQualityRouteImport } from './routes/batch-quality'
-import { Route as BatchOperationsRouteImport } from './routes/batch-operations'
+import { Route as MtCapacityFunnelRouteImport } from './routes/mt-capacity-funnel'
+import { Route as MtBatchPerformanceRouteImport } from './routes/mt-batch-performance'
 import { Route as IndexRouteImport } from './routes/index'
 
-const TrainerPerformanceRoute = TrainerPerformanceRouteImport.update({
-  id: '/trainer-performance',
-  path: '/trainer-performance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentCertificationRoute = StudentCertificationRouteImport.update({
-  id: '/student-certification',
-  path: '/student-certification',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PerformanceInsightsRoute = PerformanceInsightsRouteImport.update({
-  id: '/performance-insights',
-  path: '/performance-insights',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MtSelectionRoute = MtSelectionRouteImport.update({
   id: '/mt-selection',
   path: '/mt-selection',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtProcessAdherenceRoute = MtProcessAdherenceRouteImport.update({
+  id: '/mt-process-adherence',
+  path: '/mt-process-adherence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtLearningCognitiveRoute = MtLearningCognitiveRouteImport.update({
+  id: '/mt-learning-cognitive',
+  path: '/mt-learning-cognitive',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MtCertificationRoute = MtCertificationRouteImport.update({
@@ -44,19 +37,14 @@ const MtCertificationRoute = MtCertificationRouteImport.update({
   path: '/mt-certification',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DeploymentReadinessRoute = DeploymentReadinessRouteImport.update({
-  id: '/deployment-readiness',
-  path: '/deployment-readiness',
+const MtCapacityFunnelRoute = MtCapacityFunnelRouteImport.update({
+  id: '/mt-capacity-funnel',
+  path: '/mt-capacity-funnel',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BatchQualityRoute = BatchQualityRouteImport.update({
-  id: '/batch-quality',
-  path: '/batch-quality',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BatchOperationsRoute = BatchOperationsRouteImport.update({
-  id: '/batch-operations',
-  path: '/batch-operations',
+const MtBatchPerformanceRoute = MtBatchPerformanceRouteImport.update({
+  id: '/mt-batch-performance',
+  path: '/mt-batch-performance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -67,114 +55,93 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/batch-operations': typeof BatchOperationsRoute
-  '/batch-quality': typeof BatchQualityRoute
-  '/deployment-readiness': typeof DeploymentReadinessRoute
+  '/mt-batch-performance': typeof MtBatchPerformanceRoute
+  '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
+  '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
+  '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
-  '/performance-insights': typeof PerformanceInsightsRoute
-  '/student-certification': typeof StudentCertificationRoute
-  '/trainer-performance': typeof TrainerPerformanceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/batch-operations': typeof BatchOperationsRoute
-  '/batch-quality': typeof BatchQualityRoute
-  '/deployment-readiness': typeof DeploymentReadinessRoute
+  '/mt-batch-performance': typeof MtBatchPerformanceRoute
+  '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
+  '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
+  '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
-  '/performance-insights': typeof PerformanceInsightsRoute
-  '/student-certification': typeof StudentCertificationRoute
-  '/trainer-performance': typeof TrainerPerformanceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/batch-operations': typeof BatchOperationsRoute
-  '/batch-quality': typeof BatchQualityRoute
-  '/deployment-readiness': typeof DeploymentReadinessRoute
+  '/mt-batch-performance': typeof MtBatchPerformanceRoute
+  '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
+  '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
+  '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
-  '/performance-insights': typeof PerformanceInsightsRoute
-  '/student-certification': typeof StudentCertificationRoute
-  '/trainer-performance': typeof TrainerPerformanceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/batch-operations'
-    | '/batch-quality'
-    | '/deployment-readiness'
+    | '/mt-batch-performance'
+    | '/mt-capacity-funnel'
     | '/mt-certification'
+    | '/mt-learning-cognitive'
+    | '/mt-process-adherence'
     | '/mt-selection'
-    | '/performance-insights'
-    | '/student-certification'
-    | '/trainer-performance'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/batch-operations'
-    | '/batch-quality'
-    | '/deployment-readiness'
+    | '/mt-batch-performance'
+    | '/mt-capacity-funnel'
     | '/mt-certification'
+    | '/mt-learning-cognitive'
+    | '/mt-process-adherence'
     | '/mt-selection'
-    | '/performance-insights'
-    | '/student-certification'
-    | '/trainer-performance'
   id:
     | '__root__'
     | '/'
-    | '/batch-operations'
-    | '/batch-quality'
-    | '/deployment-readiness'
+    | '/mt-batch-performance'
+    | '/mt-capacity-funnel'
     | '/mt-certification'
+    | '/mt-learning-cognitive'
+    | '/mt-process-adherence'
     | '/mt-selection'
-    | '/performance-insights'
-    | '/student-certification'
-    | '/trainer-performance'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BatchOperationsRoute: typeof BatchOperationsRoute
-  BatchQualityRoute: typeof BatchQualityRoute
-  DeploymentReadinessRoute: typeof DeploymentReadinessRoute
+  MtBatchPerformanceRoute: typeof MtBatchPerformanceRoute
+  MtCapacityFunnelRoute: typeof MtCapacityFunnelRoute
   MtCertificationRoute: typeof MtCertificationRoute
+  MtLearningCognitiveRoute: typeof MtLearningCognitiveRoute
+  MtProcessAdherenceRoute: typeof MtProcessAdherenceRoute
   MtSelectionRoute: typeof MtSelectionRoute
-  PerformanceInsightsRoute: typeof PerformanceInsightsRoute
-  StudentCertificationRoute: typeof StudentCertificationRoute
-  TrainerPerformanceRoute: typeof TrainerPerformanceRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/trainer-performance': {
-      id: '/trainer-performance'
-      path: '/trainer-performance'
-      fullPath: '/trainer-performance'
-      preLoaderRoute: typeof TrainerPerformanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student-certification': {
-      id: '/student-certification'
-      path: '/student-certification'
-      fullPath: '/student-certification'
-      preLoaderRoute: typeof StudentCertificationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/performance-insights': {
-      id: '/performance-insights'
-      path: '/performance-insights'
-      fullPath: '/performance-insights'
-      preLoaderRoute: typeof PerformanceInsightsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/mt-selection': {
       id: '/mt-selection'
       path: '/mt-selection'
       fullPath: '/mt-selection'
       preLoaderRoute: typeof MtSelectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-process-adherence': {
+      id: '/mt-process-adherence'
+      path: '/mt-process-adherence'
+      fullPath: '/mt-process-adherence'
+      preLoaderRoute: typeof MtProcessAdherenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-learning-cognitive': {
+      id: '/mt-learning-cognitive'
+      path: '/mt-learning-cognitive'
+      fullPath: '/mt-learning-cognitive'
+      preLoaderRoute: typeof MtLearningCognitiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mt-certification': {
@@ -184,25 +151,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MtCertificationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/deployment-readiness': {
-      id: '/deployment-readiness'
-      path: '/deployment-readiness'
-      fullPath: '/deployment-readiness'
-      preLoaderRoute: typeof DeploymentReadinessRouteImport
+    '/mt-capacity-funnel': {
+      id: '/mt-capacity-funnel'
+      path: '/mt-capacity-funnel'
+      fullPath: '/mt-capacity-funnel'
+      preLoaderRoute: typeof MtCapacityFunnelRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/batch-quality': {
-      id: '/batch-quality'
-      path: '/batch-quality'
-      fullPath: '/batch-quality'
-      preLoaderRoute: typeof BatchQualityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/batch-operations': {
-      id: '/batch-operations'
-      path: '/batch-operations'
-      fullPath: '/batch-operations'
-      preLoaderRoute: typeof BatchOperationsRouteImport
+    '/mt-batch-performance': {
+      id: '/mt-batch-performance'
+      path: '/mt-batch-performance'
+      fullPath: '/mt-batch-performance'
+      preLoaderRoute: typeof MtBatchPerformanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -217,25 +177,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BatchOperationsRoute: BatchOperationsRoute,
-  BatchQualityRoute: BatchQualityRoute,
-  DeploymentReadinessRoute: DeploymentReadinessRoute,
+  MtBatchPerformanceRoute: MtBatchPerformanceRoute,
+  MtCapacityFunnelRoute: MtCapacityFunnelRoute,
   MtCertificationRoute: MtCertificationRoute,
+  MtLearningCognitiveRoute: MtLearningCognitiveRoute,
+  MtProcessAdherenceRoute: MtProcessAdherenceRoute,
   MtSelectionRoute: MtSelectionRoute,
-  PerformanceInsightsRoute: PerformanceInsightsRoute,
-  StudentCertificationRoute: StudentCertificationRoute,
-  TrainerPerformanceRoute: TrainerPerformanceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -3,11 +3,9 @@ import {
   UserCheck,
   BadgeCheck,
   CalendarRange,
-  Gauge,
   ClipboardCheck,
-  GraduationCap,
-  Users,
-  LineChart,
+  Brain,
+  Filter,
 } from "lucide-react";
 
 import {
@@ -28,40 +26,23 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
 };
 
-type NavGroup = {
-  label: string;
-  items: NavItem[];
-};
-
-const NAV: NavGroup[] = [
+const NAV: { label: string; items: NavItem[] }[] = [
   {
-    label: "Master Trainers",
+    label: "Phase 1 — Capacity Building",
     items: [
       { title: "MT Selection", url: "/mt-selection", icon: UserCheck },
       { title: "MT Certification", url: "/mt-certification", icon: BadgeCheck },
-    ],
-  },
-  {
-    label: "Operations",
-    items: [
-      { title: "Batch Operations", url: "/batch-operations", icon: CalendarRange },
-      { title: "Batch Quality", url: "/batch-quality", icon: ClipboardCheck },
-    ],
-  },
-  {
-    label: "Deployment Rollout",
-    items: [
-      { title: "Deployment Readiness", url: "/deployment-readiness", icon: Gauge },
-      { title: "Student Certification", url: "/student-certification", icon: GraduationCap },
-      { title: "Trainer Performance", url: "/trainer-performance", icon: Users },
-      { title: "Performance Insights", url: "/performance-insights", icon: LineChart },
+      { title: "MT Batch Performance", url: "/mt-batch-performance", icon: CalendarRange },
+      { title: "MT Process Adherence", url: "/mt-process-adherence", icon: ClipboardCheck },
+      { title: "MT Learning & Cognitive", url: "/mt-learning-cognitive", icon: Brain },
+      { title: "Capacity Building Funnel", url: "/mt-capacity-funnel", icon: Filter },
     ],
   },
 ];
 
 export function AppSidebar() {
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
-  const isActive = (url: string) => currentPath === url || currentPath.startsWith(url + "/");
+  const isActive = (url: string) => currentPath === url;
 
   return (
     <Sidebar collapsible="icon">
