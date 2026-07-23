@@ -8,7 +8,7 @@ export function ColumnChart({
   data,
   yFormat = (v) => `${v}%`,
   labelFormat = (v) => `${v}%`,
-  barColor = "hsl(var(--primary))",
+  barColor = "var(--primary)",
   height = 260,
 }: {
   data: { label: string; value: number }[];
@@ -91,8 +91,8 @@ export function StackedColumnChart100({
   return (
     <div className="w-full">
       <div className="flex items-center gap-4 mb-3 text-xs">
-        <LegendDot color="hsl(var(--success))" label={primaryLabel} />
-        <LegendDot color="hsl(var(--critical))" label={secondaryLabel} />
+        <LegendDot color="var(--success)" label={primaryLabel} />
+        <LegendDot color="var(--critical)" label={secondaryLabel} />
       </div>
       <div className="w-full" style={{ height }}>
         <div className="flex h-full items-end justify-around gap-3 border-l border-b px-3 pt-2">
@@ -110,7 +110,7 @@ export function StackedColumnChart100({
                     className="flex items-center justify-center rounded-t-sm text-[10px] font-medium text-critical-foreground"
                     style={{
                       height: `${notPct}%`,
-                      backgroundColor: "hsl(var(--critical))",
+                      backgroundColor: "var(--critical)",
                     }}
                   >
                     {notPct >= 12 ? `${notPct}%` : ""}
@@ -119,7 +119,7 @@ export function StackedColumnChart100({
                     className="flex items-center justify-center rounded-b-sm text-[10px] font-medium text-success-foreground"
                     style={{
                       height: `${metPct}%`,
-                      backgroundColor: "hsl(var(--success))",
+                      backgroundColor: "var(--success)",
                     }}
                   >
                     {metPct >= 12 ? `${metPct}%` : ""}
