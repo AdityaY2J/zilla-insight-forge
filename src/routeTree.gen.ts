@@ -10,7 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as MtSelectionRouteImport } from './routes/mt-selection'
+import { Route as MtProcessAdherenceRouteImport } from './routes/mt-process-adherence'
+import { Route as MtLearningCognitiveRouteImport } from './routes/mt-learning-cognitive'
 import { Route as MtCertificationRouteImport } from './routes/mt-certification'
+import { Route as MtCapacityFunnelRouteImport } from './routes/mt-capacity-funnel'
+import { Route as MtBatchPerformanceRouteImport } from './routes/mt-batch-performance'
 import { Route as IndexRouteImport } from './routes/index'
 
 const MtSelectionRoute = MtSelectionRouteImport.update({
@@ -18,9 +22,29 @@ const MtSelectionRoute = MtSelectionRouteImport.update({
   path: '/mt-selection',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MtProcessAdherenceRoute = MtProcessAdherenceRouteImport.update({
+  id: '/mt-process-adherence',
+  path: '/mt-process-adherence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtLearningCognitiveRoute = MtLearningCognitiveRouteImport.update({
+  id: '/mt-learning-cognitive',
+  path: '/mt-learning-cognitive',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MtCertificationRoute = MtCertificationRouteImport.update({
   id: '/mt-certification',
   path: '/mt-certification',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtCapacityFunnelRoute = MtCapacityFunnelRouteImport.update({
+  id: '/mt-capacity-funnel',
+  path: '/mt-capacity-funnel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtBatchPerformanceRoute = MtBatchPerformanceRouteImport.update({
+  id: '/mt-batch-performance',
+  path: '/mt-batch-performance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,31 +55,69 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/mt-batch-performance': typeof MtBatchPerformanceRoute
+  '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
+  '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
+  '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mt-batch-performance': typeof MtBatchPerformanceRoute
+  '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
+  '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
+  '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/mt-batch-performance': typeof MtBatchPerformanceRoute
+  '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
+  '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
+  '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/mt-certification' | '/mt-selection'
+  fullPaths:
+    | '/'
+    | '/mt-batch-performance'
+    | '/mt-capacity-funnel'
+    | '/mt-certification'
+    | '/mt-learning-cognitive'
+    | '/mt-process-adherence'
+    | '/mt-selection'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/mt-certification' | '/mt-selection'
-  id: '__root__' | '/' | '/mt-certification' | '/mt-selection'
+  to:
+    | '/'
+    | '/mt-batch-performance'
+    | '/mt-capacity-funnel'
+    | '/mt-certification'
+    | '/mt-learning-cognitive'
+    | '/mt-process-adherence'
+    | '/mt-selection'
+  id:
+    | '__root__'
+    | '/'
+    | '/mt-batch-performance'
+    | '/mt-capacity-funnel'
+    | '/mt-certification'
+    | '/mt-learning-cognitive'
+    | '/mt-process-adherence'
+    | '/mt-selection'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MtBatchPerformanceRoute: typeof MtBatchPerformanceRoute
+  MtCapacityFunnelRoute: typeof MtCapacityFunnelRoute
   MtCertificationRoute: typeof MtCertificationRoute
+  MtLearningCognitiveRoute: typeof MtLearningCognitiveRoute
+  MtProcessAdherenceRoute: typeof MtProcessAdherenceRoute
   MtSelectionRoute: typeof MtSelectionRoute
 }
 
@@ -68,11 +130,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MtSelectionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mt-process-adherence': {
+      id: '/mt-process-adherence'
+      path: '/mt-process-adherence'
+      fullPath: '/mt-process-adherence'
+      preLoaderRoute: typeof MtProcessAdherenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-learning-cognitive': {
+      id: '/mt-learning-cognitive'
+      path: '/mt-learning-cognitive'
+      fullPath: '/mt-learning-cognitive'
+      preLoaderRoute: typeof MtLearningCognitiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mt-certification': {
       id: '/mt-certification'
       path: '/mt-certification'
       fullPath: '/mt-certification'
       preLoaderRoute: typeof MtCertificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-capacity-funnel': {
+      id: '/mt-capacity-funnel'
+      path: '/mt-capacity-funnel'
+      fullPath: '/mt-capacity-funnel'
+      preLoaderRoute: typeof MtCapacityFunnelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-batch-performance': {
+      id: '/mt-batch-performance'
+      path: '/mt-batch-performance'
+      fullPath: '/mt-batch-performance'
+      preLoaderRoute: typeof MtBatchPerformanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -87,7 +177,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MtBatchPerformanceRoute: MtBatchPerformanceRoute,
+  MtCapacityFunnelRoute: MtCapacityFunnelRoute,
   MtCertificationRoute: MtCertificationRoute,
+  MtLearningCognitiveRoute: MtLearningCognitiveRoute,
+  MtProcessAdherenceRoute: MtProcessAdherenceRoute,
   MtSelectionRoute: MtSelectionRoute,
 }
 export const routeTree = rootRouteImport
