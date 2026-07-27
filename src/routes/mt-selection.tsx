@@ -17,11 +17,13 @@ import {
   type ActiveDivisionEntry,
 } from "@/components/dashboard/division-status-panel";
 import { AchievedTarget } from "@/components/dashboard/achieved-target";
+import { MetricPanel } from "@/components/dashboard/metric-panel";
 
 import {
   MASTER_TRAINERS,
   TALUKA_TARGETS,
   bucketDivision,
+  divisionLastDate,
   divisionRollups,
   type MasterTrainer,
   type SelectionStatus,
