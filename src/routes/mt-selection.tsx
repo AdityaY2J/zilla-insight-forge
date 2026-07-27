@@ -336,7 +336,7 @@ function SelectionSummaryTable() {
       rows={rows}
       firstColHeader="Geography"
       exportable
-      exportFilename="mt-selection-summary"
+      exportFileName="mt-selection-summary"
       columns={[
         { header: "Activation Status" },
         { header: "Nominated", align: "right" },
