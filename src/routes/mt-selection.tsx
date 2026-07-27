@@ -335,13 +335,23 @@ function SelectionSummaryTable() {
     <HierarchicalBreakdownTable
       rows={rows}
       firstColHeader="Geography"
+      exportable
+      exportFilename="mt-selection-summary"
       columns={[
         { header: "Activation Status" },
         { header: "Nominated", align: "right" },
         { header: "Assessed", align: "right" },
         { header: "Selected", align: "right" },
-        { header: "Selection Rate", align: "right" },
-        { header: "Target Completion", align: "right" },
+        {
+          header: "Selection Rate",
+          formula: "(Selected/Assessed)",
+          align: "right",
+        },
+        {
+          header: "Target Completion",
+          formula: "(Selected/Target)",
+          align: "right",
+        },
         { header: "Last Date", align: "right" },
       ]}
     />
@@ -351,16 +361,25 @@ function SelectionSummaryTable() {
 function MTDirectory({ rows }: { rows: MasterTrainer[] }) {
   const columns: Column<MasterTrainer>[] = [
     {
+      key: "id",
+      header: "MT ID",
+      accessor: (r) => <span className="text-xs tabular-nums">{r.id}</span>,
+      sortValue: (r) => r.id,
+      exportValue: (r) => r.id,
+    },
+    {
       key: "name",
-      header: "Master Trainer",
-      accessor: (r) => (
-        <div className="flex flex-col">
-          <span className="font-medium text-foreground">{r.name}</span>
-          <span className="text-xs text-muted-foreground">{r.id}</span>
-        </div>
-      ),
+      header: "MT Name",
+      accessor: (r) => <span className="font-medium text-foreground">{r.name}</span>,
       sortValue: (r) => r.name,
       exportValue: (r) => r.name,
+    },
+    {
+      key: "designation",
+      header: "Designation",
+      accessor: (r) => r.designation,
+      sortValue: (r) => r.designation,
+      exportValue: (r) => r.designation,
     },
     {
       key: "department",
