@@ -10,18 +10,31 @@ export function ColumnChart({
   labelFormat = (v) => `${v}%`,
   barColor = "var(--primary)",
   height = 260,
+  xAxisTitle,
+  yAxisTitle,
 }: {
-  data: { label: string; value: number }[];
+  data: { label: string; value: number; labelText?: string }[];
   yFormat?: (v: number) => string;
   labelFormat?: (v: number) => string;
   barColor?: string;
   height?: number;
+  xAxisTitle?: string;
+  yAxisTitle?: string;
 }) {
   const max = Math.max(10, ...data.map((d) => d.value));
   const yMax = Math.ceil(max / 10) * 10;
   const gridLines = 5;
   return (
-    <div className="w-full" style={{ height }}>
+    <div className="w-full">
+    <div className="flex">
+      {yAxisTitle ? (
+        <div className="flex items-center justify-center pr-1">
+          <span className="text-[11px] font-medium text-muted-foreground [writing-mode:vertical-rl] rotate-180">
+            {yAxisTitle}
+          </span>
+        </div>
+      ) : null}
+      <div className="flex-1 min-w-0" style={{ height }}>
       <div className="flex h-full w-full">
         <div className="flex flex-col justify-between text-[10px] text-muted-foreground pr-2 py-4">
           {Array.from({ length: gridLines + 1 }).map((_, i) => (
