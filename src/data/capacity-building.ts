@@ -19,7 +19,9 @@ import {
 } from "./geography";
 
 export type SelectionStatus = "Nominated" | "Assessed" | "Selected" | "Rejected";
-export type CertificationStatus = "Pending" | "In Training" | "Certified" | "Failed";
+/** Certification categories per Phase 1 change set: Certified / Pending / Not Certified. */
+export type CertificationStatus = "Pending" | "Certified" | "Not Certified";
+export type CertificationGrade = "A" | "B" | "C" | "D";
 
 export type MasterTrainer = {
   id: string;
@@ -34,6 +36,9 @@ export type MasterTrainer = {
   selectionStatus: SelectionStatus;
   assessment1: number | null;
   assessment2: number | null;
+  /** Has attended MT training (independent of certification outcome). */
+  trained: boolean;
+  certificationGrade: CertificationGrade | null;
   certificationStatus: CertificationStatus;
 };
 
