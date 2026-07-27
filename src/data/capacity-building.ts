@@ -141,6 +141,8 @@ function generateMasterTrainers(): MasterTrainer[] {
       let selectionStatus: SelectionStatus = "Nominated";
       let selectionScore: number | null = null;
       let certificationStatus: CertificationStatus = "Pending";
+      let certificationGrade: CertificationGrade | null = null;
+      let trained = false;
       let asmt1: number | null = null;
       let asmt2: number | null = null;
 
@@ -154,13 +156,16 @@ function generateMasterTrainers(): MasterTrainer[] {
           // Cert progression among selected
           const c = r();
           if (c > 0.35) {
+            trained = true;
             asmt1 = 55 + Math.floor(r() * 40);
             if (c > 0.55) {
               asmt2 = 55 + Math.floor(r() * 40);
-              certificationStatus =
-                (asmt1 + asmt2) / 2 >= 65 ? "Certified" : "Failed";
+              const avg = (asmt1 + asmt2) / 2;
+              certificationStatus = avg >= 65 ? "Certified" : "Not Certified";
+              certificationGrade =
+                avg >= 85 ? "A" : avg >= 75 ? "B" : avg >= 65 ? "C" : "D";
             } else {
-              certificationStatus = "In Training";
+              certificationStatus = "Pending";
             }
           } else {
             certificationStatus = "Pending";
@@ -183,6 +188,8 @@ function generateMasterTrainers(): MasterTrainer[] {
         selectionStatus,
         assessment1: asmt1,
         assessment2: asmt2,
+        trained,
+        certificationGrade,
         certificationStatus,
       });
     }
