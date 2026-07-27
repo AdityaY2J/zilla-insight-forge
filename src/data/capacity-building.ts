@@ -468,3 +468,64 @@ export function aggregateLearning(batches: Batch[]): LearningAgg {
     batches: n,
   };
 }
+
+// --------------------------------------------------------------------------
+// Division-level last activity date (dd/mm/yyyy, latest across its talukas)
+// --------------------------------------------------------------------------
+export function divisionLastDate(division: Division): string {
+  const dates = TALUKA_TARGETS.filter((t) => t.division === division).map(
+    (t) => t.lastDate,
+  );
+  if (dates.length === 0) return "-";
+  const toSortable = (d: string) => d.split("/").reverse().join("-");
+  return dates.sort((a, b) => (toSortable(a) < toSortable(b) ? -1 : 1)).at(-1)!;
+}
+
+// --------------------------------------------------------------------------
+// Exercise-wise process adherence (Module → Exercise)
+// --------------------------------------------------------------------------
+export type ExerciseAdherence = {
+  name: string;
+  benchmarkMins: number;
+  avgMins: number;
+  pctBelowBenchmark: number;
+};
+export type ModuleAdherence = {
+  moduleId: ModuleId;
+  name: string;
+  benchmarkMins: number;
+  avgMins: number;
+  pctBelowBenchmark: number;
+  exercises: ExerciseAdherence[];
+};
+
+export const MODULE_EXERCISE_ADHERENCE: ModuleAdherence[] = MODULES.map(
+  (m, mi) => {
+    const r = mulberry32(41000 + mi);
+    const count = 2 + Math.floor(r() * 2);
+    const exercises: ExerciseAdherence[] = Array.from({ length: count }).map(
+      (_, ei) => {
+        const benchmark = 15 + Math.floor(r() * 20);
+        const avg = Math.max(6, benchmark - Math.floor(r() * 12));
+        return {
+          name: `Exercise ${ei + 1}`,
+          benchmarkMins: benchmark,
+          avgMins: avg,
+          pctBelowBenchmark: 15 + Math.floor(r() * 45),
+        };
+      },
+    );
+    const benchmarkMins = exercises.reduce((s, e) => s + e.benchmarkMins, 0);
+    const avgMins = exercises.reduce((s, e) => s + e.avgMins, 0);
+    return {
+      moduleId: m.id,
+      name: `Module ${mi + 1} — ${m.name}`,
+      benchmarkMins,
+      avgMins,
+      pctBelowBenchmark: Math.round(
+        exercises.reduce((s, e) => s + e.pctBelowBenchmark, 0) / exercises.length,
+      ),
+      exercises,
+    };
+  },
+);
