@@ -5,11 +5,13 @@ export type ActiveDivisionEntry = {
   target: number;
   achieved: number;
   completion: number; // %
+  lastDate: string;
 };
 
 /**
- * Categorized division list used in the Section 1 RHS of MT Selection and
- * MT Certification dashboards. Each division falls into exactly one bucket.
+ * Categorized division panel used in the Section 1 RHS of MT Selection and
+ * MT Certification dashboards. "Active" divisions render as a table; the
+ * Completed / Yet to Start buckets remain simple lists.
  */
 export function DivisionStatusPanel({
   achievedLabel,
@@ -31,38 +33,57 @@ export function DivisionStatusPanel({
         {active.length === 0 ? (
           <p className="text-xs text-muted-foreground">No active divisions.</p>
         ) : (
-          <ul className="space-y-1.5">
-            {active.map((d) => (
-              <li
-                key={d.division}
-                className="flex items-baseline justify-between gap-3"
-              >
-                <span className="font-medium text-foreground">{d.division}</span>
-                <span className="text-xs text-muted-foreground tabular-nums">
-                  {d.target}
-                  <span className="mx-1 opacity-40">|</span>
-                  <span className="text-foreground">{d.achieved}</span>
-                  <span className="mx-1 opacity-40">|</span>
-                  <span
-                    className={cn(
-                      "font-medium",
-                      d.completion >= 80
-                        ? "text-success"
-                        : d.completion >= 50
-                          ? "text-warning"
-                          : "text-critical",
-                    )}
-                  >
-                    {d.completion}%
-                  </span>
-                </span>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto rounded-md border">
+            <table className="w-full text-xs">
+              <thead className="bg-muted/40 text-[10px] uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="px-2.5 py-2 text-left font-medium">Active</th>
+                  <th className="px-2.5 py-2 text-right font-medium">Target</th>
+                  <th className="px-2.5 py-2 text-right font-medium">
+                    {achievedLabel}
+                  </th>
+                  <th className="px-2.5 py-2 text-right font-medium">
+                    Completion
+                    <span className="block normal-case text-[9px] font-normal text-muted-foreground/70">
+                      ({achievedLabel}/Target)
+                    </span>
+                  </th>
+                  <th className="px-2.5 py-2 text-right font-medium">Last Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {active.map((d) => (
+                  <tr key={d.division} className="border-t">
+                    <td className="px-2.5 py-2 font-medium text-foreground">
+                      {d.division}
+                    </td>
+                    <td className="px-2.5 py-2 text-right tabular-nums">
+                      {d.target}
+                    </td>
+                    <td className="px-2.5 py-2 text-right tabular-nums">
+                      {d.achieved}
+                    </td>
+                    <td
+                      className={cn(
+                        "px-2.5 py-2 text-right tabular-nums font-medium",
+                        d.completion >= 80
+                          ? "text-success"
+                          : d.completion >= 50
+                            ? "text-warning-foreground"
+                            : "text-critical",
+                      )}
+                    >
+                      {d.completion}%
+                    </td>
+                    <td className="px-2.5 py-2 text-right tabular-nums text-muted-foreground">
+                      {d.lastDate}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-        <p className="mt-1.5 text-[10px] text-muted-foreground/70 uppercase tracking-wide">
-          Target | {achievedLabel} | Target Completion
-        </p>
       </div>
 
       <BucketList label="Completed" items={completed} tone="success" />

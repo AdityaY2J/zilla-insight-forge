@@ -17,11 +17,13 @@ import {
   type ActiveDivisionEntry,
 } from "@/components/dashboard/division-status-panel";
 import { AchievedTarget } from "@/components/dashboard/achieved-target";
+import { MetricPanel } from "@/components/dashboard/metric-panel";
 
 import {
   MASTER_TRAINERS,
   TALUKA_TARGETS,
   bucketDivision,
+  divisionLastDate,
   divisionRollups,
   type MasterTrainer,
   type SelectionStatus,
@@ -77,6 +79,7 @@ function MTSelectionDashboard() {
       target: r.targetSelected,
       achieved: r.selected,
       completion: r.completionSelected,
+      lastDate: divisionLastDate(r.division),
     }));
   const completedList = rollups
     .filter((r) => bucketDivision(r, "selected") === "completed")
@@ -108,39 +111,36 @@ function MTSelectionDashboard() {
         <Section title="Snapshot">
           <SplitSnapshotPanel
             left={
-              <KpiGrid cols={4}>
-                <KpiCard
-                  title="Nominated"
-                  value={totals.nominated.toLocaleString("en-IN")}
-                  accent="info"
-                />
-                <KpiCard
-                  title="Assessed"
-                  value={totals.assessed.toLocaleString("en-IN")}
-                  accent="info"
-                />
-                <KpiCard
-                  title="Selected"
-                  value={
-                    <AchievedTarget
-                      achieved={totals.selected}
-                      target={totals.target}
-                    />
-                  }
-                  accent="success"
-                />
-                <KpiCard
-                  title="Target Completion"
-                  value={`${totals.completion}%`}
-                  accent={
-                    totals.completion >= 75
-                      ? "success"
-                      : totals.completion >= 50
-                        ? "warning"
-                        : "critical"
-                  }
-                />
-              </KpiGrid>
+              <MetricPanel
+                title="Overall"
+                groups={[
+                  {
+                    items: [
+                      {
+                        label: "Target",
+                        value: totals.target.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Nominated",
+                        value: totals.nominated.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Assessed",
+                        value: totals.assessed.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Selected",
+                        value: totals.selected.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Target Completion",
+                        formula: "Selected/Target",
+                        value: `${totals.completion}%`,
+                      },
+                    ],
+                  },
+                ]}
+              />
             }
             rightTitle="Division Status"
             right={
@@ -155,18 +155,12 @@ function MTSelectionDashboard() {
         </Section>
 
         {/* Section 2 — Selection Summary */}
-        <Section
-          title="Selection Summary"
-          description="Geography drill-down: Division → District → Taluka. Inactive rows show '-' for metric columns."
-        >
+        <Section title="Selection Summary">
           <SelectionSummaryTable />
         </Section>
 
         {/* Section 3 — MT Selection Status */}
-        <Section
-          title="MT Selection Status"
-          description="Individual Master Trainer records. Section-level filters operate independently of the dashboard scope."
-        >
+        <Section title="MT Selection Status">
           <div className="flex flex-wrap items-end gap-3 mb-4">
             <FilterSelect
               label="Division"
@@ -198,7 +192,7 @@ function MTSelectionDashboard() {
               onChange={setTblStatus}
               width={200}
               options={[
-                { label: "All Statuses", value: "All" },
+                { label: "All", value: "All" },
                 { label: "Nominated", value: "Nominated" },
                 { label: "Assessed", value: "Assessed" },
                 { label: "Selected", value: "Selected" },
@@ -341,13 +335,23 @@ function SelectionSummaryTable() {
     <HierarchicalBreakdownTable
       rows={rows}
       firstColHeader="Geography"
+      exportable
+      exportFileName="mt-selection-summary"
       columns={[
         { header: "Activation Status" },
         { header: "Nominated", align: "right" },
         { header: "Assessed", align: "right" },
         { header: "Selected", align: "right" },
-        { header: "Selection Rate", align: "right" },
-        { header: "Target Completion", align: "right" },
+        {
+          header: "Selection Rate",
+          formula: "(Selected/Assessed)",
+          align: "right",
+        },
+        {
+          header: "Target Completion",
+          formula: "(Selected/Target)",
+          align: "right",
+        },
         { header: "Last Date", align: "right" },
       ]}
     />
@@ -357,16 +361,25 @@ function SelectionSummaryTable() {
 function MTDirectory({ rows }: { rows: MasterTrainer[] }) {
   const columns: Column<MasterTrainer>[] = [
     {
+      key: "id",
+      header: "MT ID",
+      accessor: (r) => <span className="text-xs tabular-nums">{r.id}</span>,
+      sortValue: (r) => r.id,
+      exportValue: (r) => r.id,
+    },
+    {
       key: "name",
-      header: "Master Trainer",
-      accessor: (r) => (
-        <div className="flex flex-col">
-          <span className="font-medium text-foreground">{r.name}</span>
-          <span className="text-xs text-muted-foreground">{r.id}</span>
-        </div>
-      ),
+      header: "MT Name",
+      accessor: (r) => <span className="font-medium text-foreground">{r.name}</span>,
       sortValue: (r) => r.name,
       exportValue: (r) => r.name,
+    },
+    {
+      key: "designation",
+      header: "Designation",
+      accessor: (r) => r.designation,
+      sortValue: (r) => r.designation,
+      exportValue: (r) => r.designation,
     },
     {
       key: "department",

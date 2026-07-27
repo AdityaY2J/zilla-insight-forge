@@ -19,7 +19,9 @@ import {
 } from "./geography";
 
 export type SelectionStatus = "Nominated" | "Assessed" | "Selected" | "Rejected";
-export type CertificationStatus = "Pending" | "In Training" | "Certified" | "Failed";
+/** Certification categories per Phase 1 change set: Certified / Pending / Not Certified. */
+export type CertificationStatus = "Pending" | "Certified" | "Not Certified";
+export type CertificationGrade = "A" | "B" | "C" | "D";
 
 export type MasterTrainer = {
   id: string;
@@ -34,6 +36,9 @@ export type MasterTrainer = {
   selectionStatus: SelectionStatus;
   assessment1: number | null;
   assessment2: number | null;
+  /** Has attended MT training (independent of certification outcome). */
+  trained: boolean;
+  certificationGrade: CertificationGrade | null;
   certificationStatus: CertificationStatus;
 };
 
@@ -75,6 +80,12 @@ export type Batch = {
   day2Participants: number;
   day1AssessmentAvg: number; // %
   day2AssessmentAvg: number; // %
+  day1RedPct: number;
+  day1OrangePct: number;
+  day1GreenPct: number;
+  day2RedPct: number;
+  day2OrangePct: number;
+  day2GreenPct: number;
   redPct: number;
   orangePct: number;
   greenPct: number;
@@ -136,6 +147,8 @@ function generateMasterTrainers(): MasterTrainer[] {
       let selectionStatus: SelectionStatus = "Nominated";
       let selectionScore: number | null = null;
       let certificationStatus: CertificationStatus = "Pending";
+      let certificationGrade: CertificationGrade | null = null;
+      let trained = false;
       let asmt1: number | null = null;
       let asmt2: number | null = null;
 
@@ -149,13 +162,16 @@ function generateMasterTrainers(): MasterTrainer[] {
           // Cert progression among selected
           const c = r();
           if (c > 0.35) {
+            trained = true;
             asmt1 = 55 + Math.floor(r() * 40);
             if (c > 0.55) {
               asmt2 = 55 + Math.floor(r() * 40);
-              certificationStatus =
-                (asmt1 + asmt2) / 2 >= 65 ? "Certified" : "Failed";
+              const avg = (asmt1 + asmt2) / 2;
+              certificationStatus = avg >= 65 ? "Certified" : "Not Certified";
+              certificationGrade =
+                avg >= 85 ? "A" : avg >= 75 ? "B" : avg >= 65 ? "C" : "D";
             } else {
-              certificationStatus = "In Training";
+              certificationStatus = "Pending";
             }
           } else {
             certificationStatus = "Pending";
@@ -178,6 +194,8 @@ function generateMasterTrainers(): MasterTrainer[] {
         selectionStatus,
         assessment1: asmt1,
         assessment2: asmt2,
+        trained,
+        certificationGrade,
         certificationStatus,
       });
     }
@@ -223,8 +241,14 @@ function generateBatches(): Batch[] {
       const d2 = d1 - Math.floor(r() * 4);
       const d1Avg = 70 + Math.floor(r() * 25);
       const d2Avg = 65 + Math.floor(r() * 30);
-      const red = 5 + Math.floor(r() * 20);
-      const green = 40 + Math.floor(r() * 40);
+      const d1Red = 5 + Math.floor(r() * 20);
+      const d1Green = 40 + Math.floor(r() * 40);
+      const d1Orange = Math.max(0, 100 - d1Red - d1Green);
+      const d2Red = 3 + Math.floor(r() * 18);
+      const d2Green = 45 + Math.floor(r() * 40);
+      const d2Orange = Math.max(0, 100 - d2Red - d2Green);
+      const red = Math.round((d1Red + d2Red) / 2);
+      const green = Math.round((d1Green + d2Green) / 2);
       const orange = Math.max(0, 100 - red - green);
       const moduleMet = {} as Record<ModuleId, boolean>;
       let met = 0;
@@ -251,6 +275,12 @@ function generateBatches(): Batch[] {
         day2Participants: d2,
         day1AssessmentAvg: d1Avg,
         day2AssessmentAvg: d2Avg,
+        day1RedPct: d1Red,
+        day1OrangePct: d1Orange,
+        day1GreenPct: d1Green,
+        day2RedPct: d2Red,
+        day2OrangePct: d2Orange,
+        day2GreenPct: d2Green,
         redPct: red,
         orangePct: orange,
         greenPct: green,
@@ -335,14 +365,9 @@ export function divisionRollups(): DivisionRollup[] {
     const nominated = trainers.length;
     const assessed = trainers.filter((t) => t.selectionStatus !== "Nominated").length;
     const selected = trainers.filter(
-      (t) =>
-        t.selectionStatus === "Selected" ||
-        t.certificationStatus !== "Pending" ||
-        t.assessment1 != null,
+      (t) => t.selectionStatus === "Selected",
     ).length;
-    const trained = trainers.filter(
-      (t) => t.certificationStatus !== "Pending",
-    ).length;
+    const trained = trainers.filter((t) => t.trained).length;
     const certified = trainers.filter((t) => t.certificationStatus === "Certified").length;
     return {
       division,
@@ -443,3 +468,64 @@ export function aggregateLearning(batches: Batch[]): LearningAgg {
     batches: n,
   };
 }
+
+// --------------------------------------------------------------------------
+// Division-level last activity date (dd/mm/yyyy, latest across its talukas)
+// --------------------------------------------------------------------------
+export function divisionLastDate(division: Division): string {
+  const dates = TALUKA_TARGETS.filter((t) => t.division === division).map(
+    (t) => t.lastDate,
+  );
+  if (dates.length === 0) return "-";
+  const toSortable = (d: string) => d.split("/").reverse().join("-");
+  return dates.sort((a, b) => (toSortable(a) < toSortable(b) ? -1 : 1)).at(-1)!;
+}
+
+// --------------------------------------------------------------------------
+// Exercise-wise process adherence (Module → Exercise)
+// --------------------------------------------------------------------------
+export type ExerciseAdherence = {
+  name: string;
+  benchmarkMins: number;
+  avgMins: number;
+  pctBelowBenchmark: number;
+};
+export type ModuleAdherence = {
+  moduleId: ModuleId;
+  name: string;
+  benchmarkMins: number;
+  avgMins: number;
+  pctBelowBenchmark: number;
+  exercises: ExerciseAdherence[];
+};
+
+export const MODULE_EXERCISE_ADHERENCE: ModuleAdherence[] = MODULES.map(
+  (m, mi) => {
+    const r = mulberry32(41000 + mi);
+    const count = 2 + Math.floor(r() * 2);
+    const exercises: ExerciseAdherence[] = Array.from({ length: count }).map(
+      (_, ei) => {
+        const benchmark = 15 + Math.floor(r() * 20);
+        const avg = Math.max(6, benchmark - Math.floor(r() * 12));
+        return {
+          name: `Exercise ${ei + 1}`,
+          benchmarkMins: benchmark,
+          avgMins: avg,
+          pctBelowBenchmark: 15 + Math.floor(r() * 45),
+        };
+      },
+    );
+    const benchmarkMins = exercises.reduce((s, e) => s + e.benchmarkMins, 0);
+    const avgMins = exercises.reduce((s, e) => s + e.avgMins, 0);
+    return {
+      moduleId: m.id,
+      name: `Module ${mi + 1} — ${m.name}`,
+      benchmarkMins,
+      avgMins,
+      pctBelowBenchmark: Math.round(
+        exercises.reduce((s, e) => s + e.pctBelowBenchmark, 0) / exercises.length,
+      ),
+      exercises,
+    };
+  },
+);
