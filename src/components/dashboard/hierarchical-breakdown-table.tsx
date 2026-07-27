@@ -1,18 +1,24 @@
 import { useState, type ReactNode } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export type HierRow = {
   key: string;
   label: string;
   values: (ReactNode | number | string)[];
+  /** Plain-text values used for CSV export (falls back to `values` when strings). */
+  exportValues?: (string | number)[];
   children?: HierRow[];
 };
 
 export type HierColumn = {
   header: string;
+  /** Formula shown under the header for calculated rate/ratio columns. */
+  formula?: string;
   align?: "left" | "right" | "center";
 };
+
 
 /**
  * Generic expandable hierarchical breakdown table. Used across dashboards
