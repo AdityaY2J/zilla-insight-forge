@@ -365,14 +365,9 @@ export function divisionRollups(): DivisionRollup[] {
     const nominated = trainers.length;
     const assessed = trainers.filter((t) => t.selectionStatus !== "Nominated").length;
     const selected = trainers.filter(
-      (t) =>
-        t.selectionStatus === "Selected" ||
-        t.certificationStatus !== "Pending" ||
-        t.assessment1 != null,
+      (t) => t.selectionStatus === "Selected",
     ).length;
-    const trained = trainers.filter(
-      (t) => t.certificationStatus !== "Pending",
-    ).length;
+    const trained = trainers.filter((t) => t.trained).length;
     const certified = trainers.filter((t) => t.certificationStatus === "Certified").length;
     return {
       division,
