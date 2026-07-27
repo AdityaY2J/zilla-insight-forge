@@ -241,8 +241,14 @@ function generateBatches(): Batch[] {
       const d2 = d1 - Math.floor(r() * 4);
       const d1Avg = 70 + Math.floor(r() * 25);
       const d2Avg = 65 + Math.floor(r() * 30);
-      const red = 5 + Math.floor(r() * 20);
-      const green = 40 + Math.floor(r() * 40);
+      const d1Red = 5 + Math.floor(r() * 20);
+      const d1Green = 40 + Math.floor(r() * 40);
+      const d1Orange = Math.max(0, 100 - d1Red - d1Green);
+      const d2Red = 3 + Math.floor(r() * 18);
+      const d2Green = 45 + Math.floor(r() * 40);
+      const d2Orange = Math.max(0, 100 - d2Red - d2Green);
+      const red = Math.round((d1Red + d2Red) / 2);
+      const green = Math.round((d1Green + d2Green) / 2);
       const orange = Math.max(0, 100 - red - green);
       const moduleMet = {} as Record<ModuleId, boolean>;
       let met = 0;
