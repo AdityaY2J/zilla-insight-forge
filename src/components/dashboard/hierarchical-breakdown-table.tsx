@@ -31,12 +31,16 @@ export function HierarchicalBreakdownTable({
   columns,
   allowExpand = true,
   defaultExpanded = false,
+  exportable = false,
+  exportFileName = "export.csv",
 }: {
   rows: HierRow[];
   firstColHeader: string;
   columns: HierColumn[];
   allowExpand?: boolean;
   defaultExpanded?: boolean;
+  exportable?: boolean;
+  exportFileName?: string;
 }) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
     if (!defaultExpanded) return {};
@@ -63,8 +67,46 @@ export function HierarchicalBreakdownTable({
   };
   walk(rows, 0);
 
+  const handleExport = () => {
+    const all: Array<{ row: HierRow; depth: number }> = [];
+    const walkAll = (list: HierRow[], depth: number) => {
+      for (const r of list) {
+        all.push({ row: r, depth });
+        if (r.children?.length) walkAll(r.children, depth + 1);
+      }
+    };
+    walkAll(rows, 0);
+    const esc = (v: unknown) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header = [firstColHeader, ...columns.map((c) => c.header)];
+    const lines = all.map(({ row, depth }) => {
+      const vals =
+        row.exportValues ??
+        row.values.map((v) => (typeof v === "object" ? "" : String(v ?? "")));
+      return [`${"  ".repeat(depth)}${row.label}`, ...vals].map(esc).join(",");
+    });
+    const csv = [header.map(esc).join(","), ...lines].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = exportFileName;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="rounded-lg border bg-card overflow-hidden">
+      {exportable ? (
+        <div className="flex justify-end border-b px-4 py-3">
+          <Button variant="outline" size="sm" onClick={handleExport} className="h-9">
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
+        </div>
+      ) : null}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
@@ -83,6 +125,11 @@ export function HierarchicalBreakdownTable({
                   )}
                 >
                   {c.header}
+                  {c.formula ? (
+                    <span className="block normal-case text-[10px] font-normal text-muted-foreground/70">
+                      ({c.formula})
+                    </span>
+                  ) : null}
                 </th>
               ))}
             </tr>
