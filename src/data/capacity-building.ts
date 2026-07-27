@@ -80,6 +80,12 @@ export type Batch = {
   day2Participants: number;
   day1AssessmentAvg: number; // %
   day2AssessmentAvg: number; // %
+  day1RedPct: number;
+  day1OrangePct: number;
+  day1GreenPct: number;
+  day2RedPct: number;
+  day2OrangePct: number;
+  day2GreenPct: number;
   redPct: number;
   orangePct: number;
   greenPct: number;
