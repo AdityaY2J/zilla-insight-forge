@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Section } from "@/components/dashboard/section";
-import { KpiCard, KpiGrid } from "@/components/dashboard/kpi-card";
 import { StatusPill, type StatusTone } from "@/components/dashboard/status-pill";
 import { DataTable, type Column } from "@/components/dashboard/data-table";
 import {
@@ -15,12 +14,13 @@ import {
   DivisionStatusPanel,
   type ActiveDivisionEntry,
 } from "@/components/dashboard/division-status-panel";
-import { AchievedTarget } from "@/components/dashboard/achieved-target";
+import { MetricPanel } from "@/components/dashboard/metric-panel";
 
 import {
   MASTER_TRAINERS,
   TALUKA_TARGETS,
   bucketDivision,
+  divisionLastDate,
   divisionRollups,
   type CertificationStatus,
   type MasterTrainer,
@@ -43,9 +43,8 @@ export const Route = createFileRoute("/mt-certification")({
 
 const CERT_TONE: Record<CertificationStatus, StatusTone> = {
   Pending: "neutral",
-  "In Training": "info",
   Certified: "success",
-  Failed: "critical",
+  "Not Certified": "critical",
 };
 
 function MTCertificationDashboard() {
@@ -55,9 +54,7 @@ function MTCertificationDashboard() {
       (s, t) => s + t.targetCertified,
       0,
     );
-    const trained = MASTER_TRAINERS.filter(
-      (m) => m.certificationStatus !== "Pending",
-    ).length;
+    const trained = MASTER_TRAINERS.filter((m) => m.trained).length;
     const certified = MASTER_TRAINERS.filter(
       (m) => m.certificationStatus === "Certified",
     ).length;
@@ -72,6 +69,7 @@ function MTCertificationDashboard() {
       target: r.targetCertified,
       achieved: r.certified,
       completion: r.completionCertified,
+      lastDate: divisionLastDate(r.division),
     }));
   const completedList = rollups
     .filter((r) => bucketDivision(r, "certified") === "completed")
@@ -91,30 +89,32 @@ function MTCertificationDashboard() {
         <Section title="Snapshot">
           <SplitSnapshotPanel
             left={
-              <KpiGrid cols={4}>
-                <KpiCard title="Target" value={totals.target.toLocaleString("en-IN")} />
-                <KpiCard
-                  title="Trained"
-                  value={totals.trained.toLocaleString("en-IN")}
-                  accent="info"
-                />
-                <KpiCard
-                  title="Certified"
-                  value={totals.certified.toLocaleString("en-IN")}
-                  accent="success"
-                />
-                <KpiCard
-                  title="Target Completion"
-                  value={`${totals.completion}%`}
-                  accent={
-                    totals.completion >= 75
-                      ? "success"
-                      : totals.completion >= 50
-                        ? "warning"
-                        : "critical"
-                  }
-                />
-              </KpiGrid>
+              <MetricPanel
+                title="Overall"
+                groups={[
+                  {
+                    items: [
+                      {
+                        label: "Target",
+                        value: totals.target.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Trained",
+                        value: totals.trained.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Certified",
+                        value: totals.certified.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Target Completion",
+                        formula: "Certified/Target",
+                        value: `${totals.completion}%`,
+                      },
+                    ],
+                  },
+                ]}
+              />
             }
             rightTitle="Division Status"
             right={
@@ -130,13 +130,13 @@ function MTCertificationDashboard() {
 
         <Section
           title="Certification Summary"
-          description="Geography drill-down (Division → District → Taluka). Drill-down assumed per Dashboard 1 pattern (flagged in spec)."
+          description="Geography drill-down (Division → District → Taluka)."
         >
           <CertificationSummaryTable />
         </Section>
 
         <Section
-          title="MT Certification Directory"
+          title="MT Certification Status"
           description="Individual Master Trainer certification records."
         >
           <CertDirectory />
@@ -163,21 +163,24 @@ function certRow(
       "-",
       "-",
       "-",
+      "-",
       target.lastDate,
     ];
   }
-  const trained = rows.filter((r) => r.certificationStatus !== "Pending").length;
+  const trained = rows.filter((r) => r.trained).length;
   const certified = rows.filter((r) => r.certificationStatus === "Certified").length;
   const completion = target.targetCertified
     ? Math.round((certified / target.targetCertified) * 100)
     : 0;
+  const certRate = trained ? Math.round((certified / trained) * 100) : 0;
   return [
     <StatusPill key="s" tone="success">
       Active
     </StatusPill>,
+    target.targetCertified,
     trained,
     certified,
-    target.targetCertified,
+    `${certRate}%`,
     `${completion}%`,
     target.lastDate,
   ];
@@ -192,11 +195,7 @@ function CertificationSummaryTable() {
         (s, t) => s + (t.active ? t.targetCertified : 0),
         0,
       );
-      const divLast =
-        divTalukas
-          .map((t) => t.lastDate)
-          .sort()
-          .at(-1) ?? "-";
+      const divLast = divisionLastDate(division);
 
       const districts = DISTRICTS.filter((d) => d.division === division).map(
         (dist) => {
@@ -255,12 +254,23 @@ function CertificationSummaryTable() {
     <HierarchicalBreakdownTable
       rows={rows}
       firstColHeader="Geography"
+      exportable
+      exportFileName="mt-certification-summary"
       columns={[
         { header: "Activation Status" },
+        { header: "Target", align: "right" },
         { header: "Trained", align: "right" },
         { header: "Certified", align: "right" },
-        { header: "Target", align: "right" },
-        { header: "Target Completion", align: "right" },
+        {
+          header: "Certification Rate",
+          formula: "(Certified/Trained)",
+          align: "right",
+        },
+        {
+          header: "Target Completion",
+          formula: "(Certified/Target)",
+          align: "right",
+        },
         { header: "Last Date", align: "right" },
       ]}
     />
@@ -274,16 +284,32 @@ function CertDirectory() {
   );
   const columns: Column<MasterTrainer>[] = [
     {
+      key: "id",
+      header: "MT ID",
+      accessor: (r) => <span className="text-xs tabular-nums">{r.id}</span>,
+      sortValue: (r) => r.id,
+      exportValue: (r) => r.id,
+    },
+    {
       key: "name",
-      header: "Master Trainer",
-      accessor: (r) => (
-        <div className="flex flex-col">
-          <span className="font-medium text-foreground">{r.name}</span>
-          <span className="text-xs text-muted-foreground">{r.id}</span>
-        </div>
-      ),
+      header: "MT Name",
+      accessor: (r) => <span className="font-medium text-foreground">{r.name}</span>,
       sortValue: (r) => r.name,
       exportValue: (r) => r.name,
+    },
+    {
+      key: "designation",
+      header: "Designation",
+      accessor: (r) => r.designation,
+      sortValue: (r) => r.designation,
+      exportValue: (r) => r.designation,
+    },
+    {
+      key: "department",
+      header: "Department",
+      accessor: (r) => r.department,
+      sortValue: (r) => r.department,
+      exportValue: (r) => r.department,
     },
     {
       key: "division",
@@ -305,20 +331,6 @@ function CertDirectory() {
       accessor: (r) => r.taluka,
       sortValue: (r) => r.taluka,
       exportValue: (r) => r.taluka,
-    },
-    {
-      key: "department",
-      header: "Department",
-      accessor: (r) => r.department,
-      sortValue: (r) => r.department,
-      exportValue: (r) => r.department,
-    },
-    {
-      key: "designation",
-      header: "Designation",
-      accessor: (r) => r.designation,
-      sortValue: (r) => r.designation,
-      exportValue: (r) => r.designation,
     },
     {
       key: "phone",
@@ -349,6 +361,16 @@ function CertDirectory() {
       sortValue: (r) => r.assessment2 ?? -1,
       exportValue: (r) => r.assessment2 ?? "",
       align: "right",
+    },
+    {
+      key: "grade",
+      header: "Certification Grade",
+      accessor: (r) => (
+        <span className="font-medium">{r.certificationGrade ?? "—"}</span>
+      ),
+      sortValue: (r) => r.certificationGrade ?? "Z",
+      exportValue: (r) => r.certificationGrade ?? "",
+      align: "center",
     },
     {
       key: "status",
