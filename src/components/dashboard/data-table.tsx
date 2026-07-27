@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 export type Column<T> = {
   key: string;
   header: string;
+  /** Formula shown under the header for calculated rate/ratio columns. */
+  formula?: string;
   accessor: (row: T) => ReactNode;
   sortValue?: (row: T) => string | number;
   exportValue?: (row: T) => string | number;
