@@ -77,6 +77,7 @@ function MTSelectionDashboard() {
       target: r.targetSelected,
       achieved: r.selected,
       completion: r.completionSelected,
+      lastDate: divisionLastDate(r.division),
     }));
   const completedList = rollups
     .filter((r) => bucketDivision(r, "selected") === "completed")
@@ -108,39 +109,36 @@ function MTSelectionDashboard() {
         <Section title="Snapshot">
           <SplitSnapshotPanel
             left={
-              <KpiGrid cols={4}>
-                <KpiCard
-                  title="Nominated"
-                  value={totals.nominated.toLocaleString("en-IN")}
-                  accent="info"
-                />
-                <KpiCard
-                  title="Assessed"
-                  value={totals.assessed.toLocaleString("en-IN")}
-                  accent="info"
-                />
-                <KpiCard
-                  title="Selected"
-                  value={
-                    <AchievedTarget
-                      achieved={totals.selected}
-                      target={totals.target}
-                    />
-                  }
-                  accent="success"
-                />
-                <KpiCard
-                  title="Target Completion"
-                  value={`${totals.completion}%`}
-                  accent={
-                    totals.completion >= 75
-                      ? "success"
-                      : totals.completion >= 50
-                        ? "warning"
-                        : "critical"
-                  }
-                />
-              </KpiGrid>
+              <MetricPanel
+                title="Overall"
+                groups={[
+                  {
+                    items: [
+                      {
+                        label: "Target",
+                        value: totals.target.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Nominated",
+                        value: totals.nominated.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Assessed",
+                        value: totals.assessed.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Selected",
+                        value: totals.selected.toLocaleString("en-IN"),
+                      },
+                      {
+                        label: "Target Completion",
+                        formula: "Selected/Target",
+                        value: `${totals.completion}%`,
+                      },
+                    ],
+                  },
+                ]}
+              />
             }
             rightTitle="Division Status"
             right={
@@ -155,18 +153,12 @@ function MTSelectionDashboard() {
         </Section>
 
         {/* Section 2 — Selection Summary */}
-        <Section
-          title="Selection Summary"
-          description="Geography drill-down: Division → District → Taluka. Inactive rows show '-' for metric columns."
-        >
+        <Section title="Selection Summary">
           <SelectionSummaryTable />
         </Section>
 
         {/* Section 3 — MT Selection Status */}
-        <Section
-          title="MT Selection Status"
-          description="Individual Master Trainer records. Section-level filters operate independently of the dashboard scope."
-        >
+        <Section title="MT Selection Status">
           <div className="flex flex-wrap items-end gap-3 mb-4">
             <FilterSelect
               label="Division"
@@ -198,7 +190,7 @@ function MTSelectionDashboard() {
               onChange={setTblStatus}
               width={200}
               options={[
-                { label: "All Statuses", value: "All" },
+                { label: "All", value: "All" },
                 { label: "Nominated", value: "Nominated" },
                 { label: "Assessed", value: "Assessed" },
                 { label: "Selected", value: "Selected" },
