@@ -179,6 +179,11 @@ export function DataTable<T>({
                     ) : (
                       col.header
                     )}
+                    {col.formula ? (
+                      <span className="block normal-case text-[10px] font-normal text-muted-foreground/70">
+                        ({col.formula})
+                      </span>
+                    ) : null}
                   </th>
                 );
               })}
