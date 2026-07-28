@@ -163,7 +163,7 @@ function MTProcessAdherenceDashboard() {
 
       <div className="px-8 pt-8 space-y-10">
         <Section title="Snapshot">
-          <KpiGrid cols={2}>
+          <KpiGrid cols={3}>
             <KpiCard
               title="Average Process Adherence"
               value={`${avgAdherence.toFixed(1)}/8`}
