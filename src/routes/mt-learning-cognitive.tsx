@@ -3,9 +3,9 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Section } from "@/components/dashboard/section";
-import { KpiCard, KpiGrid } from "@/components/dashboard/kpi-card";
 import { DataTable, type Column } from "@/components/dashboard/data-table";
 import { FilterSelect } from "@/components/dashboard/filter-bar";
+import { MetricPanel, type MetricGroup } from "@/components/dashboard/metric-panel";
 import {
   HierarchicalBreakdownTable,
   type HierRow,
@@ -33,6 +33,12 @@ export const Route = createFileRoute("/mt-learning-cognitive")({
         content:
           "Learning scores and cognitive belief shift for Master Trainers across geographies and batches.",
       },
+      { property: "og:title", content: "MT Learning & Cognitive · Zilla Analytics" },
+      {
+        property: "og:description",
+        content:
+          "Day 1, Day 2 and overall learning scores plus cognitive pre/post scores and belief shift for Master Trainers.",
+      },
     ],
   }),
   component: MTLearningCognitiveDashboard,
@@ -43,23 +49,127 @@ function signed(n: number) {
   return `${sign}${n}%`;
 }
 
+function avg(nums: number[]) {
+  if (nums.length === 0) return 0;
+  return Math.round(nums.reduce((s, n) => s + n, 0) / nums.length);
+}
+
 function MTLearningCognitiveDashboard() {
+  const agg = useMemo(() => aggregateLearning(BATCHES), []);
+
+  const groups = useMemo<MetricGroup[]>(() => {
+    const dayGroup = (
+      heading: string,
+      score: number,
+      red: number,
+      orange: number,
+      green: number,
+    ): MetricGroup => ({
+      heading,
+      items: [
+        { label: "Avg. Learning Score", value: `${score}%` },
+        {
+          label: "Score Distribution",
+          value: <ScoreDistribution red={red} orange={orange} green={green} />,
+          sub: <ScoreDistributionBar red={red} orange={orange} green={green} />,
+        },
+      ],
+    });
+    return [
+      dayGroup(
+        "Day 1",
+        agg.d1Avg,
+        avg(BATCHES.map((b) => b.day1RedPct)),
+        avg(BATCHES.map((b) => b.day1OrangePct)),
+        avg(BATCHES.map((b) => b.day1GreenPct)),
+      ),
+      dayGroup(
+        "Day 2",
+        agg.d2Avg,
+        avg(BATCHES.map((b) => b.day2RedPct)),
+        avg(BATCHES.map((b) => b.day2OrangePct)),
+        avg(BATCHES.map((b) => b.day2GreenPct)),
+      ),
+      dayGroup(
+        "Overall",
+        Math.round((agg.d1Avg + agg.d2Avg) / 2),
+        agg.redPct,
+        agg.orangePct,
+        agg.greenPct,
+      ),
+    ];
+  }, [agg]);
+
+  const cognitiveGroups = useMemo<MetricGroup[]>(
+    () => [
+      {
+        heading: "Cognitive Scores",
+        items: [
+          {
+            label: "Avg. Cognitive Pre Score",
+            value: agg.pre.toFixed(1),
+            sub: (
+              <span className="text-xs text-muted-foreground">Scale 0 – 10</span>
+            ),
+          },
+          {
+            label: "Avg. Cognitive Post Score",
+            value: agg.post.toFixed(1),
+            sub: (
+              <span className="text-xs text-muted-foreground">Scale 0 – 10</span>
+            ),
+          },
+        ],
+      },
+      {
+        heading: "Belief Shift",
+        items: [
+          { label: "Disabling Belief Shift", value: signed(agg.disabling) },
+          { label: "Confused Belief Shift", value: signed(agg.confused) },
+          { label: "Enabling Belief Shift", value: signed(agg.enabling) },
+        ],
+      },
+    ],
+    [agg],
+  );
+
+  return (
+    <div className="pb-16">
+      <PageHeader
+        title="MT Learning & Cognitive"
+        description="Learning outcomes and cognitive belief shift across the Capacity Building stage."
+      />
+
+      <div className="px-8 pt-8 space-y-10">
+        <Section title="Snapshot">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <MetricPanel title="Learning" groups={groups} />
+            <MetricPanel title="Cognitive" groups={cognitiveGroups} />
+          </div>
+        </Section>
+
+        <GeographySection />
+
+        <Section title="Batch-wise Learning & Cognitive Summary">
+          <BatchLearningTable rows={BATCHES} />
+        </Section>
+
+        <Section title="Master Trainer-wise Learning & Cognitive Summary">
+          <MTLearningTable
+            rows={MASTER_TRAINERS.filter(
+              (m) => m.certificationStatus !== "Pending",
+            )}
+          />
+        </Section>
+      </div>
+    </div>
+  );
+}
+
+function GeographySection() {
   const [division, setDivision] = useState("All");
   const [district, setDistrict] = useState("All");
   const [taluka, setTaluka] = useState("All");
-
-  const filteredBatches = useMemo(
-    () =>
-      BATCHES.filter((b) => {
-        if (division !== "All" && b.division !== division) return false;
-        if (district !== "All" && b.district !== district) return false;
-        if (taluka !== "All" && b.taluka !== taluka) return false;
-        return true;
-      }),
-    [division, district, taluka],
-  );
-
-  const agg = useMemo(() => aggregateLearning(filteredBatches), [filteredBatches]);
 
   const talukaOptions = useMemo(() => {
     const set = new Set<string>();
@@ -71,147 +181,65 @@ function MTLearningCognitiveDashboard() {
     return Array.from(set);
   }, [division, district]);
 
+  const rows = useMemo(
+    () =>
+      BATCHES.filter((b) => {
+        if (division !== "All" && b.division !== division) return false;
+        if (district !== "All" && b.district !== district) return false;
+        if (taluka !== "All" && b.taluka !== taluka) return false;
+        return true;
+      }),
+    [division, district, taluka],
+  );
+
   return (
-    <div className="pb-16">
-      <PageHeader
-        title="MT Learning & Cognitive"
-        description="Learning outcomes and cognitive belief shift across the Capacity Building stage."
-        filters={
-          <>
-            <FilterSelect
-              label="Division"
-              value={division}
-              onChange={(v) => {
-                setDivision(v);
-                setDistrict("All");
-                setTaluka("All");
-              }}
-              options={[
-                { label: "All Divisions", value: "All" },
-                ...DIVISIONS.map((d) => ({ label: d, value: d })),
-              ]}
-            />
-            <FilterSelect
-              label="District"
-              value={district}
-              onChange={(v) => {
-                setDistrict(v);
-                setTaluka("All");
-              }}
-              width={220}
-              options={[
-                { label: "All Districts", value: "All" },
-                ...DISTRICTS.filter(
-                  (d) => division === "All" || d.division === division,
-                ).map((d) => ({ label: d.name, value: d.name })),
-              ]}
-            />
-            <FilterSelect
-              label="Taluka"
-              value={taluka}
-              onChange={setTaluka}
-              width={200}
-              options={[
-                { label: "All Talukas", value: "All" },
-                ...talukaOptions.map((t) => ({ label: t, value: t })),
-              ]}
-            />
-          </>
-        }
-      />
-
-      <div className="px-8 pt-8 space-y-10">
-        <Section
-          title="Snapshot"
-          description="Overall learning and cognitive performance for the selected geography."
-        >
-          <KpiGrid cols={4}>
-            <KpiCard
-              title="Average Learning Score"
-              value={`${Math.round((agg.d1Avg + agg.d2Avg) / 2)}%`}
-              accent="info"
-            />
-            <KpiCard
-              title="Learning Score Distribution"
-              value={
-                <ScoreDistribution
-                  red={agg.redPct}
-                  orange={agg.orangePct}
-                  green={agg.greenPct}
-                  size="md"
-                />
-              }
-              context={
-                <ScoreDistributionBar
-                  red={agg.redPct}
-                  orange={agg.orangePct}
-                  green={agg.greenPct}
-                />
-              }
-            />
-            <KpiCard
-              title="Avg. Cognitive Pre Score"
-              value={agg.pre.toFixed(1)}
-              context="Scale 0 – 10"
-            />
-            <KpiCard
-              title="Avg. Cognitive Post Score"
-              value={agg.post.toFixed(1)}
-              context={`Shift ${signed(agg.cognitiveShiftPct)}`}
-              accent="success"
-            />
-          </KpiGrid>
-          <KpiGrid cols={3}>
-            <KpiCard
-              title="Disabling Belief Shift"
-              value={signed(agg.disabling)}
-              context="Lower is better"
-              accent={agg.disabling < 0 ? "success" : "warning"}
-            />
-            <KpiCard
-              title="Confused Belief Shift"
-              value={signed(agg.confused)}
-              context="Lower is better"
-              accent={agg.confused < 0 ? "success" : "warning"}
-            />
-            <KpiCard
-              title="Enabling Belief Shift"
-              value={signed(agg.enabling)}
-              context="Higher is better"
-              accent="success"
-            />
-          </KpiGrid>
-        </Section>
-
-        <Section
-          title="Geography-wise Learning & Cognitive Summary"
-          description="Division → District → Taluka drill-down."
-        >
-          <GeographyLearningTable rows={filteredBatches} />
-        </Section>
-
-        <Section
-          title="Batch-wise Learning & Cognitive Summary"
-          description="One row per MT Capacity Building batch."
-        >
-          <BatchLearningTable rows={filteredBatches} />
-        </Section>
-
-        <Section
-          title="Master Trainer-wise Learning & Cognitive Summary"
-          description="Individual MT learning and cognitive performance."
-        >
-          <MTLearningTable
-            rows={MASTER_TRAINERS.filter((m) => {
-              if (division !== "All" && m.division !== division) return false;
-              if (district !== "All" && m.district !== district) return false;
-              if (taluka !== "All" && m.taluka !== taluka) return false;
-              return m.certificationStatus !== "Pending";
-            })}
+    <Section
+      title="Geography-wise Learning & Cognitive Summary"
+      actions={
+        <div className="flex flex-wrap items-end gap-3">
+          <FilterSelect
+            label="Division"
+            value={division}
+            onChange={(v) => {
+              setDivision(v);
+              setDistrict("All");
+              setTaluka("All");
+            }}
+            options={[
+              { label: "All Divisions", value: "All" },
+              ...DIVISIONS.map((d) => ({ label: d, value: d })),
+            ]}
           />
-        </Section>
-      </div>
-    </div>
+          <FilterSelect
+            label="District"
+            value={district}
+            onChange={(v) => {
+              setDistrict(v);
+              setTaluka("All");
+            }}
+            width={220}
+            options={[
+              { label: "All Districts", value: "All" },
+              ...DISTRICTS.filter(
+                (d) => division === "All" || d.division === division,
+              ).map((d) => ({ label: d.name, value: d.name })),
+            ]}
+          />
+          <FilterSelect
+            label="Taluka"
+            value={taluka}
+            onChange={setTaluka}
+            width={200}
+            options={[
+              { label: "All Talukas", value: "All" },
+              ...talukaOptions.map((t) => ({ label: t, value: t })),
+            ]}
+          />
+        </div>
+      }
+    >
+      <GeographyLearningTable rows={rows} />
+    </Section>
   );
 }
 
@@ -327,8 +355,8 @@ function BatchLearningTable({ rows }: { rows: Batch[] }) {
 
 function MTLearningTable({ rows }: { rows: MasterTrainer[] }) {
   const columns: Column<MasterTrainer>[] = [
-    { key: "id", header: "MT ID", accessor: (r) => r.id, sortValue: (r) => r.id, exportValue: (r) => r.id },
-    { key: "name", header: "Master Trainer", accessor: (r) => <span className="font-medium">{r.name}</span>, sortValue: (r) => r.name, exportValue: (r) => r.name },
+    { key: "id", header: "_id", accessor: (r) => <span className="text-xs tabular-nums">{r.id}</span>, sortValue: (r) => r.id, exportValue: (r) => r.id },
+    { key: "name", header: "Master Trainer Name", accessor: (r) => <span className="font-medium">{r.name}</span>, sortValue: (r) => r.name, exportValue: (r) => r.name },
     { key: "des", header: "Designation", accessor: (r) => r.designation, exportValue: (r) => r.designation },
     { key: "dept", header: "Department", accessor: (r) => r.department, exportValue: (r) => r.department },
     { key: "div", header: "Division", accessor: (r) => r.division, exportValue: (r) => r.division },
