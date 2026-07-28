@@ -2,17 +2,22 @@ import { useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader } from "@/components/dashboard/page-header";
-import { Section, SectionCard } from "@/components/dashboard/section";
-import { KpiCard, KpiGrid } from "@/components/dashboard/kpi-card";
+import { Section } from "@/components/dashboard/section";
 import { StatusPill } from "@/components/dashboard/status-pill";
-import { DataTable, type Column } from "@/components/dashboard/data-table";
 import { SplitSnapshotPanel } from "@/components/dashboard/split-snapshot-panel";
+import { MetricPanel, type MetricGroup } from "@/components/dashboard/metric-panel";
+import { BatchPerformanceTable } from "@/components/dashboard/batch-performance-table";
+import {
+  HierarchicalBreakdownTable,
+  type HierRow,
+} from "@/components/dashboard/hierarchical-breakdown-table";
 import {
   ScoreDistribution,
   ScoreDistributionBar,
 } from "@/components/dashboard/score-distribution";
 
 import { BATCHES, type Batch } from "@/data/capacity-building";
+import { DISTRICTS, DIVISIONS } from "@/data/geography";
 
 export const Route = createFileRoute("/mt-batch-performance")({
   head: () => ({
@@ -23,39 +28,97 @@ export const Route = createFileRoute("/mt-batch-performance")({
         content:
           "Live and historical MT batch performance: participation, assessment scores, score distribution, and process adherence.",
       },
+      { property: "og:title", content: "MT Batch Performance · Zilla Analytics" },
+      {
+        property: "og:description",
+        content:
+          "Day 1, Day 2 and overall batch scores, score distribution, and process adherence across Maharashtra.",
+      },
     ],
   }),
   component: MTBatchPerformanceDashboard,
 });
 
+function avg(nums: number[]) {
+  if (nums.length === 0) return 0;
+  return Math.round(nums.reduce((s, n) => s + n, 0) / nums.length);
+}
+
 function MTBatchPerformanceDashboard() {
   const stats = useMemo(() => {
     const n = BATCHES.length;
-    const avgScore =
-      n === 0
-        ? 0
-        : Math.round(
-            BATCHES.reduce(
-              (s, b) => s + (b.day1AssessmentAvg + b.day2AssessmentAvg) / 2,
-              0,
-            ) / n,
-          );
-    const red = Math.round(BATCHES.reduce((s, b) => s + b.redPct, 0) / (n || 1));
-    const orange = Math.round(
-      BATCHES.reduce((s, b) => s + b.orangePct, 0) / (n || 1),
-    );
-    const green = Math.max(0, 100 - red - orange);
-    const avgProcess =
-      n === 0
-        ? 0
-        : Math.round(
-            (BATCHES.reduce((s, b) => s + b.processAdherence, 0) / (n * 8)) *
-              100,
-          );
-    return { n, avgScore, red, orange, green, avgProcess };
+    const day1 = {
+      score: avg(BATCHES.map((b) => b.day1AssessmentAvg)),
+      red: avg(BATCHES.map((b) => b.day1RedPct)),
+      orange: avg(BATCHES.map((b) => b.day1OrangePct)),
+      green: avg(BATCHES.map((b) => b.day1GreenPct)),
+    };
+    const day2 = {
+      score: avg(BATCHES.map((b) => b.day2AssessmentAvg)),
+      red: avg(BATCHES.map((b) => b.day2RedPct)),
+      orange: avg(BATCHES.map((b) => b.day2OrangePct)),
+      green: avg(BATCHES.map((b) => b.day2GreenPct)),
+    };
+    const overall = {
+      score: avg(
+        BATCHES.map((b) => (b.day1AssessmentAvg + b.day2AssessmentAvg) / 2),
+      ),
+      red: avg(BATCHES.map((b) => b.redPct)),
+      orange: avg(BATCHES.map((b) => b.orangePct)),
+      green: avg(BATCHES.map((b) => b.greenPct)),
+    };
+    const processFraction =
+      n === 0 ? 0 : BATCHES.reduce((s, b) => s + b.processAdherence, 0) / n;
+    return { n, day1, day2, overall, processFraction };
   }, []);
 
   const activeBatches = useMemo(() => BATCHES.filter((b) => b.active), []);
+
+  const groups = useMemo<MetricGroup[]>(() => {
+    const dayGroup = (
+      heading: string,
+      d: { score: number; red: number; orange: number; green: number },
+    ): MetricGroup => ({
+      heading,
+      items: [
+        { label: "Average Score", value: `${d.score}%` },
+        {
+          label: "Score Distribution",
+          value: (
+            <ScoreDistribution red={d.red} orange={d.orange} green={d.green} />
+          ),
+          sub: (
+            <ScoreDistributionBar
+              red={d.red}
+              orange={d.orange}
+              green={d.green}
+            />
+          ),
+        },
+      ],
+    });
+    return [
+      {
+        items: [
+          {
+            label: "Batches Conducted",
+            value: stats.n.toLocaleString("en-IN"),
+          },
+        ],
+      },
+      dayGroup("Day 1", stats.day1),
+      dayGroup("Day 2", stats.day2),
+      dayGroup("Overall", stats.overall),
+      {
+        items: [
+          {
+            label: "Average Process Score",
+            value: `${stats.processFraction.toFixed(1)}/8`,
+          },
+        ],
+      },
+    ];
+  }, [stats]);
 
   return (
     <div className="pb-16">
@@ -67,59 +130,18 @@ function MTBatchPerformanceDashboard() {
       <div className="px-8 pt-8 space-y-10">
         <Section title="Snapshot">
           <SplitSnapshotPanel
-            left={
-              <KpiGrid cols={4}>
-                <KpiCard
-                  title="Batches Conducted"
-                  value={stats.n.toLocaleString("en-IN")}
-                  accent="info"
-                />
-                <KpiCard
-                  title="Average Score"
-                  value={`${stats.avgScore}%`}
-                  accent={stats.avgScore >= 80 ? "success" : "warning"}
-                />
-                <KpiCard
-                  title="Score Distribution"
-                  value={
-                    <ScoreDistribution
-                      red={stats.red}
-                      orange={stats.orange}
-                      green={stats.green}
-                      size="md"
-                    />
-                  }
-                  context={
-                    <ScoreDistributionBar
-                      red={stats.red}
-                      orange={stats.orange}
-                      green={stats.green}
-                    />
-                  }
-                />
-                <KpiCard
-                  title="Average Process Score"
-                  value={`${stats.avgProcess}%`}
-                  accent={
-                    stats.avgProcess >= 80
-                      ? "success"
-                      : stats.avgProcess >= 60
-                        ? "warning"
-                        : "critical"
-                  }
-                />
-              </KpiGrid>
-            }
+            left={<MetricPanel groups={groups} />}
             rightTitle={`Active Batches (${activeBatches.length})`}
             right={<ActiveBatchesList batches={activeBatches} />}
           />
         </Section>
 
-        <Section
-          title="Batch Summary"
-          description="Operational-detail view of every batch — coaches, participation, scores, and process adherence."
-        >
-          <BatchTable rows={BATCHES} />
+        <Section title="Division Summary">
+          <DivisionSummaryTable rows={BATCHES} />
+        </Section>
+
+        <Section title="Batch Performance">
+          <BatchPerformanceTable rows={BATCHES} />
         </Section>
       </div>
     </div>
@@ -135,7 +157,7 @@ function ActiveBatchesList({ batches }: { batches: Batch[] }) {
     );
   }
   return (
-    <ul className="space-y-2.5 max-h-[280px] overflow-auto pr-1">
+    <ul className="space-y-2.5 max-h-[420px] overflow-auto pr-1">
       {batches.map((b) => (
         <li
           key={b.id}
@@ -156,125 +178,68 @@ function ActiveBatchesList({ batches }: { batches: Batch[] }) {
   );
 }
 
-function BatchTable({ rows }: { rows: Batch[] }) {
-  const columns: Column<Batch>[] = [
-    {
-      key: "id",
-      header: "Batch ID",
-      accessor: (r) => <span className="text-xs tabular-nums">{r.id}</span>,
-      sortValue: (r) => r.id,
-      exportValue: (r) => r.id,
-    },
-    {
-      key: "name",
-      header: "Batch Name",
-      accessor: (r) => <span className="font-medium">{r.name}</span>,
-      sortValue: (r) => r.name,
-      exportValue: (r) => r.name,
-    },
-    {
-      key: "c1id",
-      header: "Coach 1 ID",
-      accessor: (r) => <span className="text-xs tabular-nums">{r.coach1Id}</span>,
-      exportValue: (r) => r.coach1Id,
-    },
-    {
-      key: "c2id",
-      header: "Coach 2 ID",
-      accessor: (r) => <span className="text-xs tabular-nums">{r.coach2Id}</span>,
-      exportValue: (r) => r.coach2Id,
-    },
-    {
-      key: "c1",
-      header: "Coach 1 Name",
-      accessor: (r) => r.coach1Name,
-      sortValue: (r) => r.coach1Name,
-      exportValue: (r) => r.coach1Name,
-    },
-    {
-      key: "c2",
-      header: "Coach 2 Name",
-      accessor: (r) => r.coach2Name,
-      exportValue: (r) => r.coach2Name,
-    },
-    {
-      key: "d1p",
-      header: "Day 1 Part.",
-      accessor: (r) => <span className="tabular-nums">{r.day1Participants}</span>,
-      sortValue: (r) => r.day1Participants,
-      exportValue: (r) => r.day1Participants,
-      align: "right",
-    },
-    {
-      key: "d2p",
-      header: "Day 2 Part.",
-      accessor: (r) => <span className="tabular-nums">{r.day2Participants}</span>,
-      sortValue: (r) => r.day2Participants,
-      exportValue: (r) => r.day2Participants,
-      align: "right",
-    },
-    {
-      key: "d1a",
-      header: "Day 1 Avg.",
-      accessor: (r) => <span className="tabular-nums">{r.day1AssessmentAvg}%</span>,
-      sortValue: (r) => r.day1AssessmentAvg,
-      exportValue: (r) => r.day1AssessmentAvg,
-      align: "right",
-    },
-    {
-      key: "d2a",
-      header: "Day 2 Avg.",
-      accessor: (r) => <span className="tabular-nums">{r.day2AssessmentAvg}%</span>,
-      sortValue: (r) => r.day2AssessmentAvg,
-      exportValue: (r) => r.day2AssessmentAvg,
-      align: "right",
-    },
-    {
-      key: "red",
-      header: "Red %",
-      accessor: (r) => <span className="tabular-nums text-critical">{r.redPct}%</span>,
-      sortValue: (r) => r.redPct,
-      exportValue: (r) => r.redPct,
-      align: "right",
-    },
-    {
-      key: "orange",
-      header: "Orange %",
-      accessor: (r) => (
-        <span className="tabular-nums text-warning-foreground">{r.orangePct}%</span>
-      ),
-      sortValue: (r) => r.orangePct,
-      exportValue: (r) => r.orangePct,
-      align: "right",
-    },
-    {
-      key: "green",
-      header: "Green %",
-      accessor: (r) => <span className="tabular-nums text-success">{r.greenPct}%</span>,
-      sortValue: (r) => r.greenPct,
-      exportValue: (r) => r.greenPct,
-      align: "right",
-    },
-    {
-      key: "adh",
-      header: "Process Adherence",
-      accessor: (r) => (
-        <span className="tabular-nums font-medium">{r.processAdherence}/8</span>
-      ),
-      sortValue: (r) => r.processAdherence,
-      exportValue: (r) => `${r.processAdherence}/8`,
-      align: "right",
-    },
+function summaryRow(batches: Batch[]): (string | number)[] {
+  if (batches.length === 0) return [0, "-", "-", "-", "-", "-", "-"];
+  const adherence =
+    batches.reduce((s, b) => s + b.processAdherence, 0) / batches.length;
+  return [
+    batches.length,
+    `${avg(batches.map((b) => b.day1AssessmentAvg))}%`,
+    `${avg(batches.map((b) => b.day2AssessmentAvg))}%`,
+    `${avg(batches.map((b) => b.redPct))}%`,
+    `${avg(batches.map((b) => b.orangePct))}%`,
+    `${avg(batches.map((b) => b.greenPct))}%`,
+    `${adherence.toFixed(1)}/8`,
   ];
+}
+
+function DivisionSummaryTable({ rows }: { rows: Batch[] }) {
+  const hier = useMemo<HierRow[]>(
+    () =>
+      DIVISIONS.map((division) => {
+        const divBatches = rows.filter((b) => b.division === division);
+        return {
+          key: division,
+          label: `${division} (Division)`,
+          values: summaryRow(divBatches),
+          children: DISTRICTS.filter((d) => d.division === division).map(
+            (dist) => {
+              const dBatches = divBatches.filter(
+                (b) => b.district === dist.name,
+              );
+              return {
+                key: `${division}/${dist.name}`,
+                label: `${dist.name} (District)`,
+                values: summaryRow(dBatches),
+                children: dist.talukas.map((tk) => ({
+                  key: `${division}/${dist.name}/${tk}`,
+                  label: tk,
+                  values: summaryRow(
+                    dBatches.filter((b) => b.taluka === tk),
+                  ),
+                })),
+              };
+            },
+          ),
+        };
+      }),
+    [rows],
+  );
   return (
-    <DataTable
-      data={rows}
-      columns={columns}
-      searchKeys={["id", "name", "coach1Name", "coach2Name", "district"]}
-      pageSize={15}
-      getRowId={(r) => r.id}
+    <HierarchicalBreakdownTable
+      rows={hier}
+      firstColHeader="Geography"
+      exportable
+      exportFileName="division-summary.csv"
+      columns={[
+        { header: "Batches Conducted", align: "right" },
+        { header: "Day 1 Avg.", align: "right" },
+        { header: "Day 2 Avg.", align: "right" },
+        { header: "Red %", align: "right" },
+        { header: "Orange %", align: "right" },
+        { header: "Green %", align: "right" },
+        { header: "Process Adherence", align: "right" },
+      ]}
     />
   );
 }
-// SectionCard imported for future filter-panel additions
-void SectionCard;
