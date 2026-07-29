@@ -127,6 +127,11 @@ const DASHBOARD_NAMES: Record<string, string> = {
   "/mt-process-adherence": "MT Process Adherence",
   "/mt-learning-cognitive": "MT Learning & Cognitive",
   "/mt-capacity-funnel": "MT Capacity Building Funnel",
+  "/fs-certification": "Field Staff Certification",
+  "/fs-batch-performance": "Field Staff Batch Performance",
+  "/fs-process-adherence": "Field Staff Process Adherence",
+  "/fs-learning-cognitive": "Field Staff Learning & Cognitive",
+  "/batch-composition": "Batch Composition",
 };
 
 function HeaderBreadcrumb() {
@@ -134,7 +139,11 @@ function HeaderBreadcrumb() {
   const name = DASHBOARD_NAMES[pathname];
   return (
     <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
-      <span className="text-muted-foreground">Capacity Building Stage</span>
+      <span className="text-muted-foreground">
+        {pathname.startsWith("/fs-") || pathname === "/batch-composition"
+          ? "Deployment Rollout"
+          : "Capacity Building Stage"}
+      </span>
       {name ? (
         <>
           <span className="text-muted-foreground/50">→</span>

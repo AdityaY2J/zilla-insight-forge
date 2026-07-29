@@ -10,6 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BatchCompositionRouteImport } from './routes/batch-composition'
+import { Route as FsBatchPerformanceRouteImport } from './routes/fs-batch-performance'
+import { Route as FsCertificationRouteImport } from './routes/fs-certification'
+import { Route as FsLearningCognitiveRouteImport } from './routes/fs-learning-cognitive'
+import { Route as FsProcessAdherenceRouteImport } from './routes/fs-process-adherence'
 import { Route as MtBatchPerformanceRouteImport } from './routes/mt-batch-performance'
 import { Route as MtCapacityFunnelRouteImport } from './routes/mt-capacity-funnel'
 import { Route as MtCertificationRouteImport } from './routes/mt-certification'
@@ -20,6 +25,31 @@ import { Route as MtSelectionRouteImport } from './routes/mt-selection'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BatchCompositionRoute = BatchCompositionRouteImport.update({
+  id: '/batch-composition',
+  path: '/batch-composition',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FsBatchPerformanceRoute = FsBatchPerformanceRouteImport.update({
+  id: '/fs-batch-performance',
+  path: '/fs-batch-performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FsCertificationRoute = FsCertificationRouteImport.update({
+  id: '/fs-certification',
+  path: '/fs-certification',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FsLearningCognitiveRoute = FsLearningCognitiveRouteImport.update({
+  id: '/fs-learning-cognitive',
+  path: '/fs-learning-cognitive',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FsProcessAdherenceRoute = FsProcessAdherenceRouteImport.update({
+  id: '/fs-process-adherence',
+  path: '/fs-process-adherence',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MtBatchPerformanceRoute = MtBatchPerformanceRouteImport.update({
@@ -55,6 +85,11 @@ const MtSelectionRoute = MtSelectionRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/batch-composition': typeof BatchCompositionRoute
+  '/fs-batch-performance': typeof FsBatchPerformanceRoute
+  '/fs-certification': typeof FsCertificationRoute
+  '/fs-learning-cognitive': typeof FsLearningCognitiveRoute
+  '/fs-process-adherence': typeof FsProcessAdherenceRoute
   '/mt-batch-performance': typeof MtBatchPerformanceRoute
   '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
@@ -64,6 +99,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/batch-composition': typeof BatchCompositionRoute
+  '/fs-batch-performance': typeof FsBatchPerformanceRoute
+  '/fs-certification': typeof FsCertificationRoute
+  '/fs-learning-cognitive': typeof FsLearningCognitiveRoute
+  '/fs-process-adherence': typeof FsProcessAdherenceRoute
   '/mt-batch-performance': typeof MtBatchPerformanceRoute
   '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
@@ -74,6 +114,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/batch-composition': typeof BatchCompositionRoute
+  '/fs-batch-performance': typeof FsBatchPerformanceRoute
+  '/fs-certification': typeof FsCertificationRoute
+  '/fs-learning-cognitive': typeof FsLearningCognitiveRoute
+  '/fs-process-adherence': typeof FsProcessAdherenceRoute
   '/mt-batch-performance': typeof MtBatchPerformanceRoute
   '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
@@ -85,6 +130,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/batch-composition'
+    | '/fs-batch-performance'
+    | '/fs-certification'
+    | '/fs-learning-cognitive'
+    | '/fs-process-adherence'
     | '/mt-batch-performance'
     | '/mt-capacity-funnel'
     | '/mt-certification'
@@ -94,6 +144,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/batch-composition'
+    | '/fs-batch-performance'
+    | '/fs-certification'
+    | '/fs-learning-cognitive'
+    | '/fs-process-adherence'
     | '/mt-batch-performance'
     | '/mt-capacity-funnel'
     | '/mt-certification'
@@ -103,6 +158,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/batch-composition'
+    | '/fs-batch-performance'
+    | '/fs-certification'
+    | '/fs-learning-cognitive'
+    | '/fs-process-adherence'
     | '/mt-batch-performance'
     | '/mt-capacity-funnel'
     | '/mt-certification'
@@ -113,6 +173,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BatchCompositionRoute: typeof BatchCompositionRoute
+  FsBatchPerformanceRoute: typeof FsBatchPerformanceRoute
+  FsCertificationRoute: typeof FsCertificationRoute
+  FsLearningCognitiveRoute: typeof FsLearningCognitiveRoute
+  FsProcessAdherenceRoute: typeof FsProcessAdherenceRoute
   MtBatchPerformanceRoute: typeof MtBatchPerformanceRoute
   MtCapacityFunnelRoute: typeof MtCapacityFunnelRoute
   MtCertificationRoute: typeof MtCertificationRoute
@@ -128,6 +193,41 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/batch-composition': {
+      id: '/batch-composition'
+      path: '/batch-composition'
+      fullPath: '/batch-composition'
+      preLoaderRoute: typeof BatchCompositionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fs-batch-performance': {
+      id: '/fs-batch-performance'
+      path: '/fs-batch-performance'
+      fullPath: '/fs-batch-performance'
+      preLoaderRoute: typeof FsBatchPerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fs-certification': {
+      id: '/fs-certification'
+      path: '/fs-certification'
+      fullPath: '/fs-certification'
+      preLoaderRoute: typeof FsCertificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fs-learning-cognitive': {
+      id: '/fs-learning-cognitive'
+      path: '/fs-learning-cognitive'
+      fullPath: '/fs-learning-cognitive'
+      preLoaderRoute: typeof FsLearningCognitiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fs-process-adherence': {
+      id: '/fs-process-adherence'
+      path: '/fs-process-adherence'
+      fullPath: '/fs-process-adherence'
+      preLoaderRoute: typeof FsProcessAdherenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mt-batch-performance': {
@@ -177,6 +277,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BatchCompositionRoute: BatchCompositionRoute,
+  FsBatchPerformanceRoute: FsBatchPerformanceRoute,
+  FsCertificationRoute: FsCertificationRoute,
+  FsLearningCognitiveRoute: FsLearningCognitiveRoute,
+  FsProcessAdherenceRoute: FsProcessAdherenceRoute,
   MtBatchPerformanceRoute: MtBatchPerformanceRoute,
   MtCapacityFunnelRoute: MtCapacityFunnelRoute,
   MtCertificationRoute: MtCertificationRoute,

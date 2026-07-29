@@ -38,6 +38,16 @@ const NAV: { label: string; items: NavItem[] }[] = [
       { title: "Capacity Building Funnel", url: "/mt-capacity-funnel", icon: Filter },
     ],
   },
+  {
+    label: "Phase 2 — Deployment Rollout",
+    items: [
+      { title: "Field Staff Certification", url: "/fs-certification", icon: BadgeCheck },
+      { title: "Field Staff Batch Performance", url: "/fs-batch-performance", icon: CalendarRange },
+      { title: "Field Staff Process Adherence", url: "/fs-process-adherence", icon: ClipboardCheck },
+      { title: "Field Staff Learning & Cognitive", url: "/fs-learning-cognitive", icon: Brain },
+      { title: "Batch Composition", url: "/batch-composition", icon: Filter },
+    ],
+  },
 ];
 
 export function AppSidebar() {
