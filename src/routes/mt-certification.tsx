@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -15,6 +15,10 @@ import {
   type ActiveDivisionEntry,
 } from "@/components/dashboard/division-status-panel";
 import { MetricPanel } from "@/components/dashboard/metric-panel";
+import {
+  ViewSwitch,
+  type SummaryView,
+} from "@/components/dashboard/view-switch";
 
 import {
   MASTER_TRAINERS,
@@ -22,10 +26,9 @@ import {
   bucketDivision,
   divisionLastDate,
   divisionRollups,
-  type CertificationStatus,
   type MasterTrainer,
 } from "@/data/capacity-building";
-import { DISTRICTS, DIVISIONS } from "@/data/geography";
+import { DEPARTMENTS, DISTRICTS, DIVISIONS } from "@/data/geography";
 
 export const Route = createFileRoute("/mt-certification")({
   head: () => ({
@@ -41,13 +44,37 @@ export const Route = createFileRoute("/mt-certification")({
   component: MTCertificationDashboard,
 });
 
-const CERT_TONE: Record<CertificationStatus, StatusTone> = {
+type CertificationRecommendation =
+  | "Recommended"
+  | "Not Recommended"
+  | "Not Recommended-Pending"
+  | "Pending";
+
+const CERT_TONE: Record<CertificationRecommendation, StatusTone> = {
   Pending: "neutral",
-  Certified: "success",
-  "Not Certified": "critical",
+  Recommended: "success",
+  "Not Recommended": "critical",
+  "Not Recommended-Pending": "warning",
 };
 
+function recommendationFor(
+  trainer: MasterTrainer,
+): CertificationRecommendation {
+  switch (trainer.certificationGrade) {
+    case "A":
+    case "B":
+      return "Recommended";
+    case "C":
+      return "Not Recommended";
+    case "D":
+      return "Not Recommended-Pending";
+    default:
+      return "Pending";
+  }
+}
+
 function MTCertificationDashboard() {
+  const [summaryView, setSummaryView] = useState<SummaryView>("geography");
   const rollups = useMemo(() => divisionRollups(), []);
   const totals = useMemo(() => {
     const target = TALUKA_TARGETS.filter((t) => t.active).reduce(
@@ -130,9 +157,15 @@ function MTCertificationDashboard() {
 
         <Section
           title="Certification Summary"
-          description="Geography drill-down (Division → District → Taluka)."
+          actions={
+            <ViewSwitch value={summaryView} onChange={setSummaryView} />
+          }
         >
-          <CertificationSummaryTable />
+          {summaryView === "geography" ? (
+            <CertificationSummaryTable />
+          ) : (
+            <CertificationDepartmentTable />
+          )}
         </Section>
 
         <Section
@@ -149,7 +182,7 @@ function MTCertificationDashboard() {
 function certRow(
   target: {
     active: boolean;
-    targetCertified: number;
+    targetCertified: number | null;
     lastDate: string;
   },
   rows: MasterTrainer[],
@@ -169,22 +202,40 @@ function certRow(
   }
   const trained = rows.filter((r) => r.trained).length;
   const certified = rows.filter((r) => r.certificationStatus === "Certified").length;
-  const completion = target.targetCertified
+  const completion = target.targetCertified != null
     ? Math.round((certified / target.targetCertified) * 100)
-    : 0;
+    : null;
   const certRate = trained ? Math.round((certified / trained) * 100) : 0;
   return [
     <StatusPill key="s" tone="success">
       Active
     </StatusPill>,
-    target.targetCertified,
+    target.targetCertified ?? "–",
     trained,
     certified,
     `${certRate}%`,
-    `${completion}%`,
+    completion != null ? `${completion}%` : "–",
     target.lastDate,
   ];
 }
+
+const CERTIFICATION_SUMMARY_COLUMNS = [
+  { header: "Activation Status" },
+  { header: "Target", align: "right" as const },
+  { header: "Trained", align: "right" as const },
+  { header: "Certified", align: "right" as const },
+  {
+    header: "Certification Rate",
+    formula: "(Certified/Trained)",
+    align: "right" as const,
+  },
+  {
+    header: "Target Completion",
+    formula: "(Certified/Target)",
+    align: "right" as const,
+  },
+  { header: "Last Date", align: "right" as const },
+];
 
 function CertificationSummaryTable() {
   const rows = useMemo<HierRow[]>(() => {
@@ -256,23 +307,44 @@ function CertificationSummaryTable() {
       firstColHeader="Geography"
       exportable
       exportFileName="mt-certification-summary"
-      columns={[
-        { header: "Activation Status" },
-        { header: "Target", align: "right" },
-        { header: "Trained", align: "right" },
-        { header: "Certified", align: "right" },
-        {
-          header: "Certification Rate",
-          formula: "(Certified/Trained)",
-          align: "right",
-        },
-        {
-          header: "Target Completion",
-          formula: "(Certified/Target)",
-          align: "right",
-        },
-        { header: "Last Date", align: "right" },
-      ]}
+      columns={CERTIFICATION_SUMMARY_COLUMNS}
+    />
+  );
+}
+
+function CertificationDepartmentTable() {
+  const rows = useMemo<HierRow[]>(
+    () =>
+      DEPARTMENTS.map((department) => {
+        const trainers = MASTER_TRAINERS.filter(
+          (trainer) =>
+            trainer.selectionStatus === "Selected" &&
+            trainer.department === department,
+        );
+        // Targets exist only at geography level; department targets are not set.
+        return {
+          key: department,
+          label: department,
+          values: certRow(
+            {
+              active: trainers.length > 0,
+              targetCertified: null,
+              lastDate: "—",
+            },
+            trainers,
+          ),
+        };
+      }),
+    [],
+  );
+
+  return (
+    <HierarchicalBreakdownTable
+      rows={rows}
+      firstColHeader="Department"
+      exportable
+      exportFileName="mt-certification-department-summary"
+      columns={CERTIFICATION_SUMMARY_COLUMNS}
     />
   );
 }
@@ -375,13 +447,16 @@ function CertDirectory() {
     {
       key: "status",
       header: "Certification Status",
-      accessor: (r) => (
-        <StatusPill tone={CERT_TONE[r.certificationStatus]}>
-          {r.certificationStatus}
-        </StatusPill>
-      ),
-      sortValue: (r) => r.certificationStatus,
-      exportValue: (r) => r.certificationStatus,
+      accessor: (r) => {
+        const recommendation = recommendationFor(r);
+        return (
+          <StatusPill tone={CERT_TONE[recommendation]}>
+            {recommendation}
+          </StatusPill>
+        );
+      },
+      sortValue: (r) => recommendationFor(r),
+      exportValue: (r) => recommendationFor(r),
     },
   ];
   return (

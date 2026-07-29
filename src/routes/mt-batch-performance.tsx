@@ -5,16 +5,13 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { Section } from "@/components/dashboard/section";
 import { StatusPill } from "@/components/dashboard/status-pill";
 import { SplitSnapshotPanel } from "@/components/dashboard/split-snapshot-panel";
-import { MetricPanel, type MetricGroup } from "@/components/dashboard/metric-panel";
+import { KpiCard } from "@/components/dashboard/kpi-card";
+import { LearningScoreSnapshots } from "@/components/dashboard/learning-score-snapshot";
 import { BatchPerformanceTable } from "@/components/dashboard/batch-performance-table";
 import {
   HierarchicalBreakdownTable,
   type HierRow,
 } from "@/components/dashboard/hierarchical-breakdown-table";
-import {
-  ScoreDistribution,
-  ScoreDistributionBar,
-} from "@/components/dashboard/score-distribution";
 
 import { BATCHES, type Batch } from "@/data/capacity-building";
 import { DISTRICTS, DIVISIONS } from "@/data/geography";
@@ -44,6 +41,11 @@ function avg(nums: number[]) {
   return Math.round(nums.reduce((s, n) => s + n, 0) / nums.length);
 }
 
+function avgOneDecimal(nums: number[]) {
+  if (nums.length === 0) return 0;
+  return Math.round((nums.reduce((s, n) => s + n, 0) / nums.length) * 10) / 10;
+}
+
 function MTBatchPerformanceDashboard() {
   const stats = useMemo(() => {
     const n = BATCHES.length;
@@ -69,56 +71,12 @@ function MTBatchPerformanceDashboard() {
     };
     const processFraction =
       n === 0 ? 0 : BATCHES.reduce((s, b) => s + b.processAdherence, 0) / n;
-    return { n, day1, day2, overall, processFraction };
+    const pre = avgOneDecimal(BATCHES.map((b) => b.avgPreScore));
+    const post = avgOneDecimal(BATCHES.map((b) => b.avgPostScore));
+    return { n, day1, day2, overall, processFraction, pre, post };
   }, []);
 
   const activeBatches = useMemo(() => BATCHES.filter((b) => b.active), []);
-
-  const groups = useMemo<MetricGroup[]>(() => {
-    const dayGroup = (
-      heading: string,
-      d: { score: number; red: number; orange: number; green: number },
-    ): MetricGroup => ({
-      heading,
-      items: [
-        { label: "Average Score", value: `${d.score}%` },
-        {
-          label: "Score Distribution",
-          value: (
-            <ScoreDistribution red={d.red} orange={d.orange} green={d.green} />
-          ),
-          sub: (
-            <ScoreDistributionBar
-              red={d.red}
-              orange={d.orange}
-              green={d.green}
-            />
-          ),
-        },
-      ],
-    });
-    return [
-      {
-        items: [
-          {
-            label: "Batches Conducted",
-            value: stats.n.toLocaleString("en-IN"),
-          },
-        ],
-      },
-      dayGroup("Day 1", stats.day1),
-      dayGroup("Day 2", stats.day2),
-      dayGroup("Overall", stats.overall),
-      {
-        items: [
-          {
-            label: "Average Process Score",
-            value: `${stats.processFraction.toFixed(1)}/8`,
-          },
-        ],
-      },
-    ];
-  }, [stats]);
 
   return (
     <div className="pb-16">
@@ -130,7 +88,53 @@ function MTBatchPerformanceDashboard() {
       <div className="px-8 pt-8 space-y-10">
         <Section title="Snapshot">
           <SplitSnapshotPanel
-            left={<MetricPanel groups={groups} />}
+            left={
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <KpiCard
+                    title="Batches Conducted"
+                    value={stats.n.toLocaleString("en-IN")}
+                  />
+                  <KpiCard
+                    title="Average Process Score"
+                    value={`${stats.processFraction.toFixed(1)}/8`}
+                  />
+                  <KpiCard
+                    title="Average Pre Score"
+                    value={`${stats.pre.toFixed(1)} / 10`}
+                  />
+                  <KpiCard
+                    title="Average Post Score"
+                    value={`${stats.post.toFixed(1)} / 10`}
+                  />
+                </div>
+                <LearningScoreSnapshots
+                  snapshots={[
+                    {
+                      label: "Day 1",
+                      averageScore: stats.day1.score,
+                      red: stats.day1.red,
+                      orange: stats.day1.orange,
+                      green: stats.day1.green,
+                    },
+                    {
+                      label: "Day 2",
+                      averageScore: stats.day2.score,
+                      red: stats.day2.red,
+                      orange: stats.day2.orange,
+                      green: stats.day2.green,
+                    },
+                    {
+                      label: "Overall",
+                      averageScore: stats.overall.score,
+                      red: stats.overall.red,
+                      orange: stats.overall.orange,
+                      green: stats.overall.green,
+                    },
+                  ]}
+                />
+              </div>
+            }
             rightTitle={`Active Batches (${activeBatches.length})`}
             right={<ActiveBatchesList batches={activeBatches} />}
           />

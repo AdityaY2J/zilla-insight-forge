@@ -5,12 +5,15 @@ export function Section({
   title,
   description,
   actions,
+  actionsClassName,
   children,
   className,
 }: {
   title: string;
   description?: string;
   actions?: ReactNode;
+  /** Optional layout class for the action wrapper. */
+  actionsClassName?: string;
   children: ReactNode;
   className?: string;
 }) {
@@ -25,7 +28,11 @@ export function Section({
             <p className="mt-1 text-sm text-muted-foreground">{description}</p>
           ) : null}
         </div>
-        {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+        {actions ? (
+          <div className={cn("flex items-center gap-2", actionsClassName)}>
+            {actions}
+          </div>
+        ) : null}
       </div>
       {children}
     </section>

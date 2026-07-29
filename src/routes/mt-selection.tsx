@@ -363,9 +363,13 @@ function MTDirectory({ rows }: { rows: MasterTrainer[] }) {
     {
       key: "id",
       header: "MT ID",
-      accessor: (r) => <span className="text-xs tabular-nums">{r.id}</span>,
-      sortValue: (r) => r.id,
-      exportValue: (r) => r.id,
+      // IDs are created only once a participant progresses beyond nomination.
+      accessor: (r) =>
+        r.selectionStatus === "Nominated" ? "" : (
+          <span className="text-xs tabular-nums">{r.id}</span>
+        ),
+      sortValue: (r) => (r.selectionStatus === "Nominated" ? "" : r.id),
+      exportValue: (r) => (r.selectionStatus === "Nominated" ? "" : r.id),
     },
     {
       key: "name",

@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type FunnelStage = {
@@ -9,8 +9,8 @@ export type FunnelStage = {
 };
 
 /**
- * Horizontal funnel: proportional bars per stage with the stage-to-stage
- * conversion shown between consecutive stages.
+ * Horizontal funnel: proportional bars per stage with every conversion
+ * measured against the initial Nominated baseline.
  */
 export function FunnelChart({ stages }: { stages: FunnelStage[] }) {
   const max = Math.max(1, ...stages.map((s) => s.value));
@@ -19,21 +19,21 @@ export function FunnelChart({ stages }: { stages: FunnelStage[] }) {
       <div className="space-y-1">
         {stages.map((s, i) => {
           const width = Math.max(8, (s.value / max) * 100);
-          const prev = i > 0 ? stages[i - 1] : null;
+          const baseline = stages[0];
           const conversion =
-            prev && prev.value > 0
-              ? Math.round((s.value / prev.value) * 100)
+            i > 0 && baseline.value > 0
+              ? Math.round((s.value / baseline.value) * 100)
               : null;
           return (
             <div key={s.label}>
               {conversion != null ? (
                 <div className="flex items-center gap-1.5 py-1 pl-[168px] text-[11px] text-muted-foreground">
-                  <ChevronRight className="h-3 w-3" />
+                  <ChevronDown className="h-3 w-3" />
                   <span className="tabular-nums font-medium text-foreground">
                     {conversion}%
                   </span>
                   <span>
-                    conversion from {prev!.label}
+                    Conversion from Nominated
                   </span>
                 </div>
               ) : null}
@@ -53,14 +53,12 @@ export function FunnelChart({ stages }: { stages: FunnelStage[] }) {
                   >
                     <span className="tabular-nums">
                       {s.value.toLocaleString("en-IN")}
+                      {s.target != null
+                        ? ` / ${s.target.toLocaleString("en-IN")}`
+                        : ""}
                     </span>
                   </div>
                 </div>
-                <span className="w-[150px] shrink-0 text-right text-xs text-muted-foreground tabular-nums">
-                  {s.target != null
-                    ? `Required ${s.target.toLocaleString("en-IN")}`
-                    : ""}
-                </span>
               </div>
             </div>
           );

@@ -85,10 +85,14 @@ function MTProcessAdherenceDashboard() {
 
   const distribution = useMemo(() => {
     const total = filtered.length || 1;
-    return Array.from({ length: 9 }).map((_, i) => {
+    return Array.from({ length: MODULES.length + 1 }).map((_, i) => {
       const count = filtered.filter((b) => b.processAdherence === i).length;
       const pct = Math.round((count / total) * 100);
-      return { label: `${i}/8`, value: pct, labelText: `${count} (${pct}%)` };
+      const label =
+        i === MODULES.length
+          ? "Maximum Modules"
+          : `${i} Module${i === 1 ? "" : "s"}`;
+      return { label, value: pct, labelText: `${count} (${pct}%)` };
     });
   }, [filtered]);
 
@@ -189,23 +193,28 @@ function MTProcessAdherenceDashboard() {
           </KpiGrid>
         </Section>
 
-        <Section title="Process Adherence Distribution">
+        <Section title={`Process Adherence (N = ${filtered.length} Batches)`}>
           <SectionCard>
             <ColumnChart
               data={distribution}
-              xAxisTitle="Process Adherence"
+              xAxisTitle="No. of Modules Adhered To"
               yAxisTitle="% of batches"
             />
           </SectionCard>
         </Section>
 
-        <Section title="Module-wise Benchmark Adherence">
+        <Section title={`Batch Benchmark Adherence by Module (N = ${filtered.length} Batches)`}>
           <SectionCard>
-            <StackedColumnChart100 data={moduleBench} xAxisTitle="Module" />
+            <StackedColumnChart100
+              data={moduleBench}
+              xAxisTitle="Module"
+              primaryLabel="Batches Meeting Benchmark"
+              secondaryLabel="Batches Not Meeting Benchmark"
+            />
           </SectionCard>
         </Section>
 
-        <Section title="Geography Process Adherence Summary">
+        <Section title="Process Adherence Summary by Geography">
           <GeographyAdherenceTable rows={filtered} />
         </Section>
 

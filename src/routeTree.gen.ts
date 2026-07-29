@@ -9,37 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as MtSelectionRouteImport } from './routes/mt-selection'
-import { Route as MtProcessAdherenceRouteImport } from './routes/mt-process-adherence'
-import { Route as MtLearningCognitiveRouteImport } from './routes/mt-learning-cognitive'
-import { Route as MtCertificationRouteImport } from './routes/mt-certification'
-import { Route as MtCapacityFunnelRouteImport } from './routes/mt-capacity-funnel'
-import { Route as MtBatchPerformanceRouteImport } from './routes/mt-batch-performance'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MtBatchPerformanceRouteImport } from './routes/mt-batch-performance'
+import { Route as MtCapacityFunnelRouteImport } from './routes/mt-capacity-funnel'
+import { Route as MtCertificationRouteImport } from './routes/mt-certification'
+import { Route as MtLearningCognitiveRouteImport } from './routes/mt-learning-cognitive'
+import { Route as MtProcessAdherenceRouteImport } from './routes/mt-process-adherence'
+import { Route as MtSelectionRouteImport } from './routes/mt-selection'
 
-const MtSelectionRoute = MtSelectionRouteImport.update({
-  id: '/mt-selection',
-  path: '/mt-selection',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MtProcessAdherenceRoute = MtProcessAdherenceRouteImport.update({
-  id: '/mt-process-adherence',
-  path: '/mt-process-adherence',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MtLearningCognitiveRoute = MtLearningCognitiveRouteImport.update({
-  id: '/mt-learning-cognitive',
-  path: '/mt-learning-cognitive',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MtCertificationRoute = MtCertificationRouteImport.update({
-  id: '/mt-certification',
-  path: '/mt-certification',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MtCapacityFunnelRoute = MtCapacityFunnelRouteImport.update({
-  id: '/mt-capacity-funnel',
-  path: '/mt-capacity-funnel',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MtBatchPerformanceRoute = MtBatchPerformanceRouteImport.update({
@@ -47,9 +27,29 @@ const MtBatchPerformanceRoute = MtBatchPerformanceRouteImport.update({
   path: '/mt-batch-performance',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const MtCapacityFunnelRoute = MtCapacityFunnelRouteImport.update({
+  id: '/mt-capacity-funnel',
+  path: '/mt-capacity-funnel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtCertificationRoute = MtCertificationRouteImport.update({
+  id: '/mt-certification',
+  path: '/mt-certification',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtLearningCognitiveRoute = MtLearningCognitiveRouteImport.update({
+  id: '/mt-learning-cognitive',
+  path: '/mt-learning-cognitive',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtProcessAdherenceRoute = MtProcessAdherenceRouteImport.update({
+  id: '/mt-process-adherence',
+  path: '/mt-process-adherence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtSelectionRoute = MtSelectionRouteImport.update({
+  id: '/mt-selection',
+  path: '/mt-selection',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -123,39 +123,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/mt-selection': {
-      id: '/mt-selection'
-      path: '/mt-selection'
-      fullPath: '/mt-selection'
-      preLoaderRoute: typeof MtSelectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mt-process-adherence': {
-      id: '/mt-process-adherence'
-      path: '/mt-process-adherence'
-      fullPath: '/mt-process-adherence'
-      preLoaderRoute: typeof MtProcessAdherenceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mt-learning-cognitive': {
-      id: '/mt-learning-cognitive'
-      path: '/mt-learning-cognitive'
-      fullPath: '/mt-learning-cognitive'
-      preLoaderRoute: typeof MtLearningCognitiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mt-certification': {
-      id: '/mt-certification'
-      path: '/mt-certification'
-      fullPath: '/mt-certification'
-      preLoaderRoute: typeof MtCertificationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mt-capacity-funnel': {
-      id: '/mt-capacity-funnel'
-      path: '/mt-capacity-funnel'
-      fullPath: '/mt-capacity-funnel'
-      preLoaderRoute: typeof MtCapacityFunnelRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mt-batch-performance': {
@@ -165,11 +137,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MtBatchPerformanceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/mt-capacity-funnel': {
+      id: '/mt-capacity-funnel'
+      path: '/mt-capacity-funnel'
+      fullPath: '/mt-capacity-funnel'
+      preLoaderRoute: typeof MtCapacityFunnelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-certification': {
+      id: '/mt-certification'
+      path: '/mt-certification'
+      fullPath: '/mt-certification'
+      preLoaderRoute: typeof MtCertificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-learning-cognitive': {
+      id: '/mt-learning-cognitive'
+      path: '/mt-learning-cognitive'
+      fullPath: '/mt-learning-cognitive'
+      preLoaderRoute: typeof MtLearningCognitiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-process-adherence': {
+      id: '/mt-process-adherence'
+      path: '/mt-process-adherence'
+      fullPath: '/mt-process-adherence'
+      preLoaderRoute: typeof MtProcessAdherenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-selection': {
+      id: '/mt-selection'
+      path: '/mt-selection'
+      fullPath: '/mt-selection'
+      preLoaderRoute: typeof MtSelectionRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -187,3 +187,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
