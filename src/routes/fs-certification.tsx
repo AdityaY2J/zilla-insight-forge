@@ -11,6 +11,7 @@ import { StatusPill } from "@/components/dashboard/status-pill";
 import { ViewSwitch, type SummaryView } from "@/components/dashboard/view-switch";
 import { FIELD_STAFF, type FieldStaff } from "@/data/deployment-rollout";
 import { DEPARTMENTS, DISTRICTS, DIVISIONS } from "@/data/geography";
+import { formatProgramAverage, programAverage } from "@/lib/program-average";
 
 export const Route = createFileRoute("/fs-certification")({ component: FieldStaffCertificationDashboard });
 
@@ -70,7 +71,7 @@ function DepartmentSummary() {
 
 function FieldStaffDirectory() {
   const columns: Column<FieldStaff>[] = [
-    { key: "id", header: "F ID", accessor: (r) => r.id, exportValue: (r) => r.id }, { key: "name", header: "FS Name", accessor: (r) => <span className="font-medium">{r.name}</span>, exportValue: (r) => r.name }, { key: "designation", header: "Designation", accessor: (r) => r.designation }, { key: "department", header: "Department", accessor: (r) => r.department }, { key: "division", header: "Division", accessor: (r) => r.division }, { key: "district", header: "District", accessor: (r) => r.district }, { key: "taluka", header: "Taluka", accessor: (r) => r.taluka }, { key: "phone", header: "Phone No.", accessor: (r) => r.phone }, { key: "a1", header: "Assessment 1", accessor: (r) => r.assessment1 != null ? `${r.assessment1}%` : "–", align: "right" }, { key: "a2", header: "Assessment 2", accessor: (r) => r.assessment2 != null ? `${r.assessment2}%` : "–", align: "right" }, { key: "status", header: "Certification Status", accessor: (r) => <StatusPill tone={r.certificationStatus === "Certified" ? "success" : "neutral"}>{r.certificationStatus}</StatusPill> },
+    { key: "id", header: "F ID", accessor: (r) => r.id, exportValue: (r) => r.id }, { key: "name", header: "FS Name", accessor: (r) => <span className="font-medium">{r.name}</span>, exportValue: (r) => r.name }, { key: "designation", header: "Designation", accessor: (r) => r.designation }, { key: "department", header: "Department", accessor: (r) => r.department }, { key: "division", header: "Division", accessor: (r) => r.division }, { key: "district", header: "District", accessor: (r) => r.district }, { key: "taluka", header: "Taluka", accessor: (r) => r.taluka }, { key: "phone", header: "Phone No.", accessor: (r) => r.phone }, { key: "a1", header: "Assessment 1", accessor: (r) => r.assessment1 != null ? `${r.assessment1}%` : "–", align: "right" }, { key: "a2", header: "Assessment 2", accessor: (r) => r.assessment2 != null ? `${r.assessment2}%` : "–", align: "right" }, { key: "programAverage", header: "Program Average", accessor: (r) => formatProgramAverage(r.assessment1, r.assessment2), sortValue: (r) => programAverage(r.assessment1, r.assessment2) ?? -1, align: "right" }, { key: "status", header: "Certification Status", accessor: (r) => <StatusPill tone={r.certificationStatus === "Certified" ? "success" : "neutral"}>{r.certificationStatus}</StatusPill> },
   ];
   return <DataTable data={FIELD_STAFF} columns={columns} searchKeys={["id", "name", "department", "district"]} pageSize={15} getRowId={(row) => row.id} />;
 }

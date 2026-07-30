@@ -1,5 +1,6 @@
 import { DataTable, type Column } from "@/components/dashboard/data-table";
 import type { Batch } from "@/data/capacity-building";
+import { formatProgramAverage, programAverage } from "@/lib/program-average";
 
 /**
  * Shared "Batch Performance" table — used by the MT Batch Performance
@@ -20,6 +21,13 @@ export function BatchPerformanceTable({ rows }: { rows: Batch[] }) {
       accessor: (r) => <span className="font-medium">{r.name}</span>,
       sortValue: (r) => r.name,
       exportValue: (r) => r.name,
+    },
+    {
+      key: "division",
+      header: "Division",
+      accessor: (r) => r.division,
+      sortValue: (r) => r.division,
+      exportValue: (r) => r.division,
     },
     {
       key: "c1id",
@@ -76,6 +84,14 @@ export function BatchPerformanceTable({ rows }: { rows: Batch[] }) {
       accessor: (r) => <span className="tabular-nums">{r.day2AssessmentAvg}%</span>,
       sortValue: (r) => r.day2AssessmentAvg,
       exportValue: (r) => r.day2AssessmentAvg,
+      align: "right",
+    },
+    {
+      key: "programAverage",
+      header: "Program Average",
+      accessor: (r) => <span className="tabular-nums">{formatProgramAverage(r.day1AssessmentAvg, r.day2AssessmentAvg)}</span>,
+      sortValue: (r) => programAverage(r.day1AssessmentAvg, r.day2AssessmentAvg) ?? -1,
+      exportValue: (r) => programAverage(r.day1AssessmentAvg, r.day2AssessmentAvg) ?? "",
       align: "right",
     },
     {

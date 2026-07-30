@@ -6,6 +6,7 @@ import { Section } from "@/components/dashboard/section";
 import { StatusPill } from "@/components/dashboard/status-pill";
 import { SplitSnapshotPanel } from "@/components/dashboard/split-snapshot-panel";
 import { KpiCard } from "@/components/dashboard/kpi-card";
+import { MetricPanel } from "@/components/dashboard/metric-panel";
 import { LearningScoreSnapshots } from "@/components/dashboard/learning-score-snapshot";
 import { BatchPerformanceTable } from "@/components/dashboard/batch-performance-table";
 import {
@@ -15,6 +16,7 @@ import {
 
 import { BATCHES, type Batch } from "@/data/capacity-building";
 import { DISTRICTS, DIVISIONS } from "@/data/geography";
+import { formatProgramAverage } from "@/lib/program-average";
 
 export const Route = createFileRoute("/mt-batch-performance")({
   head: () => ({
@@ -88,53 +90,7 @@ function MTBatchPerformanceDashboard() {
       <div className="px-8 pt-8 space-y-10">
         <Section title="Snapshot">
           <SplitSnapshotPanel
-            left={
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <KpiCard
-                    title="Batches Conducted"
-                    value={stats.n.toLocaleString("en-IN")}
-                  />
-                  <KpiCard
-                    title="Average Process Score"
-                    value={`${stats.processFraction.toFixed(1)}/8`}
-                  />
-                  <KpiCard
-                    title="Average Pre Score"
-                    value={`${stats.pre.toFixed(1)} / 10`}
-                  />
-                  <KpiCard
-                    title="Average Post Score"
-                    value={`${stats.post.toFixed(1)} / 10`}
-                  />
-                </div>
-                <LearningScoreSnapshots
-                  snapshots={[
-                    {
-                      label: "Day 1",
-                      averageScore: stats.day1.score,
-                      red: stats.day1.red,
-                      orange: stats.day1.orange,
-                      green: stats.day1.green,
-                    },
-                    {
-                      label: "Day 2",
-                      averageScore: stats.day2.score,
-                      red: stats.day2.red,
-                      orange: stats.day2.orange,
-                      green: stats.day2.green,
-                    },
-                    {
-                      label: "Overall",
-                      averageScore: stats.overall.score,
-                      red: stats.overall.red,
-                      orange: stats.overall.orange,
-                      green: stats.overall.green,
-                    },
-                  ]}
-                />
-              </div>
-            }
+            left={<div className="space-y-4"><MetricPanel title="Overall" groups={[{ items: [{ label: "Batches Conducted", value: stats.n.toLocaleString("en-IN") }, { label: "Average Process Score", value: `${stats.processFraction.toFixed(1)}/8` }] }]} /><LearningScoreSnapshots snapshots={[{ label: "Day 1", averageScore: stats.day1.score, red: stats.day1.red, orange: stats.day1.orange, green: stats.day1.green }, { label: "Day 2", averageScore: stats.day2.score, red: stats.day2.red, orange: stats.day2.orange, green: stats.day2.green }, { label: "Overall", averageScore: stats.overall.score, red: stats.overall.red, orange: stats.overall.orange, green: stats.overall.green }]} /><MetricPanel title="Cognitive" groups={[{ items: [{ label: "Average Cognitive Pre Score", value: `${stats.pre.toFixed(1)} / 10` }, { label: "Average Cognitive Post Score", value: `${stats.post.toFixed(1)} / 10` }] }]} /></div>}
             rightTitle={`Active Batches (${activeBatches.length})`}
             right={<ActiveBatchesList batches={activeBatches} />}
           />
@@ -183,13 +139,16 @@ function ActiveBatchesList({ batches }: { batches: Batch[] }) {
 }
 
 function summaryRow(batches: Batch[]): (string | number)[] {
-  if (batches.length === 0) return [0, "-", "-", "-", "-", "-", "-"];
+  if (batches.length === 0) return [0, "-", "-", "-", "-", "-", "-", "-"];
   const adherence =
     batches.reduce((s, b) => s + b.processAdherence, 0) / batches.length;
+  const day1 = avg(batches.map((b) => b.day1AssessmentAvg));
+  const day2 = avg(batches.map((b) => b.day2AssessmentAvg));
   return [
     batches.length,
-    `${avg(batches.map((b) => b.day1AssessmentAvg))}%`,
-    `${avg(batches.map((b) => b.day2AssessmentAvg))}%`,
+    `${day1}%`,
+    `${day2}%`,
+    formatProgramAverage(day1, day2),
     `${avg(batches.map((b) => b.redPct))}%`,
     `${avg(batches.map((b) => b.orangePct))}%`,
     `${avg(batches.map((b) => b.greenPct))}%`,
@@ -239,6 +198,7 @@ function DivisionSummaryTable({ rows }: { rows: Batch[] }) {
         { header: "Batches Conducted", align: "right" },
         { header: "Day 1 Avg.", align: "right" },
         { header: "Day 2 Avg.", align: "right" },
+        { header: "Program Average", align: "right" },
         { header: "Red %", align: "right" },
         { header: "Orange %", align: "right" },
         { header: "Green %", align: "right" },

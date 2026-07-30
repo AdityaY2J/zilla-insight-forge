@@ -23,6 +23,7 @@ import {
   type MasterTrainer,
 } from "@/data/capacity-building";
 import { DEPARTMENTS, DISTRICTS, DIVISIONS } from "@/data/geography";
+import { formatProgramAverage, programAverage } from "@/lib/program-average";
 
 export const Route = createFileRoute("/mt-learning-cognitive")({
   head: () => ({
@@ -199,8 +200,7 @@ function GeographySection() {
       actions={
         <div className="flex w-full flex-wrap items-end justify-between gap-3">
           <ViewSwitch value={summaryView} onChange={setSummaryView} />
-          {summaryView === "geography" ? (
-            <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-wrap items-end gap-3">
               <FilterSelect
                 label="Division"
                 value={division}
@@ -239,15 +239,14 @@ function GeographySection() {
                   ...talukaOptions.map((t) => ({ label: t, value: t })),
                 ]}
               />
-            </div>
-          ) : null}
+          </div>
         </div>
       }
     >
       {summaryView === "geography" ? (
         <GeographyLearningTable rows={rows} />
       ) : (
-        <DepartmentLearningTable />
+        <DepartmentLearningTable rows={rows} />
       )}
     </Section>
   );
@@ -256,13 +255,14 @@ function GeographySection() {
 function learningRow(batches: Batch[]): (React.ReactNode | number | string)[] {
   const a = aggregateLearning(batches);
   if (a.batches === 0) {
-    return ["-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"];
+    return ["-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"];
   }
   return [
     a.d1Participants,
     a.d2Participants,
     `${a.d1Avg}%`,
     `${a.d2Avg}%`,
+    formatProgramAverage(a.d1Avg, a.d2Avg),
     `${a.redPct}%`,
     `${a.orangePct}%`,
     `${a.greenPct}%`,
@@ -279,6 +279,7 @@ const LEARNING_SUMMARY_COLUMNS = [
   { header: "D2 Part.", align: "right" as const },
   { header: "D1 Avg.", align: "right" as const },
   { header: "D2 Avg.", align: "right" as const },
+  { header: "Program Average", align: "right" as const },
   { header: "Red %", align: "right" as const },
   { header: "Orange %", align: "right" as const },
   { header: "Green %", align: "right" as const },
@@ -331,7 +332,7 @@ function GeographyLearningTable({ rows }: { rows: Batch[] }) {
   );
 }
 
-function DepartmentLearningTable() {
+function DepartmentLearningTable({ rows: scopedRows }: { rows: Batch[] }) {
   const coachDepartment = useMemo(
     () => new Map(MASTER_TRAINERS.map((trainer) => [trainer.id, trainer.department])),
     [],
@@ -339,7 +340,7 @@ function DepartmentLearningTable() {
   const rows = useMemo<HierRow[]>(
     () =>
       DEPARTMENTS.map((department) => {
-        const batches = BATCHES.filter(
+        const batches = scopedRows.filter(
           (batch) => coachDepartment.get(batch.coach1Id) === department,
         );
         return {
@@ -348,7 +349,7 @@ function DepartmentLearningTable() {
           values: learningRow(batches),
         };
       }),
-    [coachDepartment],
+    [coachDepartment, scopedRows],
   );
   return (
     <HierarchicalBreakdownTable
@@ -364,7 +365,6 @@ function BatchLearningTable({ rows }: { rows: Batch[] }) {
     { key: "id", header: "Batch ID", accessor: (r) => r.id, sortValue: (r) => r.id, exportValue: (r) => r.id },
     { key: "name", header: "Batch Name", accessor: (r) => <span className="font-medium">{r.name}</span>, sortValue: (r) => r.name, exportValue: (r) => r.name },
     { key: "div", header: "Division", accessor: (r) => r.division, sortValue: (r) => r.division, exportValue: (r) => r.division },
-    { key: "dist", header: "District", accessor: (r) => r.district, sortValue: (r) => r.district, exportValue: (r) => r.district },
     { key: "c1id", header: "Coach 1 ID", accessor: (r) => r.coach1Id, exportValue: (r) => r.coach1Id },
     { key: "c2id", header: "Coach 2 ID", accessor: (r) => r.coach2Id, exportValue: (r) => r.coach2Id },
     { key: "c1", header: "Coach 1", accessor: (r) => r.coach1Name, exportValue: (r) => r.coach1Name },
@@ -373,6 +373,7 @@ function BatchLearningTable({ rows }: { rows: Batch[] }) {
     { key: "d2p", header: "D2 Part.", accessor: (r) => r.day2Participants, align: "right", sortValue: (r) => r.day2Participants, exportValue: (r) => r.day2Participants },
     { key: "d1a", header: "D1 Avg.", accessor: (r) => `${r.day1AssessmentAvg}%`, align: "right", sortValue: (r) => r.day1AssessmentAvg, exportValue: (r) => r.day1AssessmentAvg },
     { key: "d2a", header: "D2 Avg.", accessor: (r) => `${r.day2AssessmentAvg}%`, align: "right", sortValue: (r) => r.day2AssessmentAvg, exportValue: (r) => r.day2AssessmentAvg },
+    { key: "programAverage", header: "Program Average", accessor: (r) => formatProgramAverage(r.day1AssessmentAvg, r.day2AssessmentAvg), align: "right", sortValue: (r) => programAverage(r.day1AssessmentAvg, r.day2AssessmentAvg) ?? -1, exportValue: (r) => programAverage(r.day1AssessmentAvg, r.day2AssessmentAvg) ?? "" },
     { key: "red", header: "Red %", accessor: (r) => <span className="text-critical tabular-nums">{r.redPct}%</span>, align: "right", sortValue: (r) => r.redPct, exportValue: (r) => r.redPct },
     { key: "orange", header: "Orange %", accessor: (r) => <span className="text-warning-foreground tabular-nums">{r.orangePct}%</span>, align: "right", sortValue: (r) => r.orangePct, exportValue: (r) => r.orangePct },
     { key: "green", header: "Green %", accessor: (r) => <span className="text-success tabular-nums">{r.greenPct}%</span>, align: "right", sortValue: (r) => r.greenPct, exportValue: (r) => r.greenPct },
@@ -425,6 +426,14 @@ function MTLearningTable({ rows }: { rows: MasterTrainer[] }) {
       align: "right",
       sortValue: (r) => r.assessment2 ?? -1,
       exportValue: (r) => r.assessment2 ?? "",
+    },
+    {
+      key: "programAverage",
+      header: "Program Average",
+      accessor: (r) => <span className="tabular-nums">{formatProgramAverage(r.assessment1, r.assessment2)}</span>,
+      sortValue: (r) => programAverage(r.assessment1, r.assessment2) ?? -1,
+      exportValue: (r) => programAverage(r.assessment1, r.assessment2) ?? "",
+      align: "right",
     },
     // Pre/Post/Belief shifts are per-MT derived from their coached batches;
     // we surface placeholders here since per-MT rollups aren't formalised yet.

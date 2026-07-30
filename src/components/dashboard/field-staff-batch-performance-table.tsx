@@ -1,10 +1,13 @@
 import { DataTable, type Column } from "@/components/dashboard/data-table";
 import type { FieldStaffBatch } from "@/data/deployment-rollout";
+import { formatProgramAverage, programAverage } from "@/lib/program-average";
 
 export function FieldStaffBatchPerformanceTable({ rows }: { rows: FieldStaffBatch[] }) {
   const columns: Column<FieldStaffBatch>[] = [
     { key: "id", header: "Batch ID", accessor: (r) => r.id, exportValue: (r) => r.id },
     { key: "name", header: "Batch Name", accessor: (r) => <span className="font-medium">{r.name}</span>, exportValue: (r) => r.name },
+    { key: "district", header: "District", accessor: (r) => r.district, exportValue: (r) => r.district },
+    { key: "taluka", header: "Taluka", accessor: (r) => r.taluka, exportValue: (r) => r.taluka },
     { key: "c1id", header: "Coach 1 ID", accessor: (r) => r.coach1Id, exportValue: (r) => r.coach1Id },
     { key: "c2id", header: "Coach 2 ID", accessor: (r) => r.coach2Id, exportValue: (r) => r.coach2Id },
     { key: "c1", header: "Coach 1 Name", accessor: (r) => r.coach1Name, exportValue: (r) => r.coach1Name },
@@ -15,6 +18,7 @@ export function FieldStaffBatchPerformanceTable({ rows }: { rows: FieldStaffBatc
     { key: "d2p", header: "Day 2 Part.", accessor: (r) => r.day2Participants, exportValue: (r) => r.day2Participants, align: "right" },
     { key: "d1a", header: "Day 1 Avg.", accessor: (r) => `${r.day1AssessmentAvg}%`, exportValue: (r) => r.day1AssessmentAvg, align: "right" },
     { key: "d2a", header: "Day 2 Avg.", accessor: (r) => `${r.day2AssessmentAvg}%`, exportValue: (r) => r.day2AssessmentAvg, align: "right" },
+    { key: "programAverage", header: "Program Average", accessor: (r) => formatProgramAverage(r.day1AssessmentAvg, r.day2AssessmentAvg), exportValue: (r) => programAverage(r.day1AssessmentAvg, r.day2AssessmentAvg) ?? "", align: "right" },
     { key: "red", header: "Red %", accessor: (r) => `${r.redPct}%`, exportValue: (r) => r.redPct, align: "right" },
     { key: "orange", header: "Orange %", accessor: (r) => `${r.orangePct}%`, exportValue: (r) => r.orangePct, align: "right" },
     { key: "green", header: "Green %", accessor: (r) => `${r.greenPct}%`, exportValue: (r) => r.greenPct, align: "right" },

@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
-import { ChevronDown, ChevronRight, Download } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 export type HierRow = {
@@ -29,17 +30,21 @@ export function HierarchicalBreakdownTable({
   rows,
   firstColHeader,
   columns,
+  exportColumns,
   allowExpand = true,
   defaultExpanded = false,
   exportable = false,
+  searchable = false,
   exportFileName = "export.csv",
 }: {
   rows: HierRow[];
   firstColHeader: string;
   columns: HierColumn[];
+  exportColumns?: HierColumn[];
   allowExpand?: boolean;
   defaultExpanded?: boolean;
   exportable?: boolean;
+  searchable?: boolean;
   exportFileName?: string;
 }) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
@@ -54,8 +59,19 @@ export function HierarchicalBreakdownTable({
     walk(rows);
     return out;
   });
+  const [query, setQuery] = useState("");
   const toggle = (key: string) => setExpanded((p) => ({ ...p, [key]: !p[key] }));
 
+  const filterRows = (list: HierRow[]): HierRow[] => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return list;
+    return list.flatMap((row) => {
+      const children = row.children ? filterRows(row.children) : undefined;
+      return row.label.toLowerCase().includes(needle) || children?.length
+        ? [{ ...row, children }]
+        : [];
+    });
+  };
   const flat: Array<{ row: HierRow; depth: number }> = [];
   const walk = (list: HierRow[], depth: number) => {
     for (const r of list) {
@@ -65,7 +81,7 @@ export function HierarchicalBreakdownTable({
       }
     }
   };
-  walk(rows, 0);
+  walk(filterRows(rows), 0);
 
   const handleExport = () => {
     const all: Array<{ row: HierRow; depth: number }> = [];
@@ -80,7 +96,7 @@ export function HierarchicalBreakdownTable({
       const s = String(v ?? "");
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
-    const header = [firstColHeader, ...columns.map((c) => c.header)];
+    const header = [firstColHeader, ...(exportColumns ?? columns).map((c) => c.header)];
     const lines = all.map(({ row, depth }) => {
       const vals =
         row.exportValues ??
@@ -99,12 +115,10 @@ export function HierarchicalBreakdownTable({
 
   return (
     <div className="rounded-lg border bg-card overflow-hidden">
-      {exportable ? (
-        <div className="flex justify-end border-b px-4 py-3">
-          <Button variant="outline" size="sm" onClick={handleExport} className="h-9">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
+      {exportable || searchable ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
+          {searchable ? <div className="relative w-full max-w-xs"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search geography..." className="h-9 pl-8" /></div> : <span />}
+          {exportable ? <Button variant="outline" size="sm" onClick={handleExport} className="h-9"><Download className="h-4 w-4" />Export</Button> : null}
         </div>
       ) : null}
       <div className="overflow-x-auto">

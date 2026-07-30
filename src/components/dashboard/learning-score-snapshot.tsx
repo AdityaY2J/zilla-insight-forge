@@ -14,8 +14,10 @@ export type LearningScoreSnapshot = {
  */
 export function LearningScoreSnapshots({
   snapshots,
+  averageLabel = "Average Score",
 }: {
   snapshots: LearningScoreSnapshot[];
+  averageLabel?: string;
 }) {
   return (
     <div className="overflow-hidden rounded-lg border bg-card divide-y">
@@ -26,7 +28,7 @@ export function LearningScoreSnapshots({
           </h3>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div>
-              <p className="text-sm text-muted-foreground">Average Score</p>
+              <p className="text-sm text-muted-foreground">{averageLabel}</p>
               <p className="mt-1 text-xl font-semibold tabular-nums text-foreground">
                 {snapshot.averageScore}%
               </p>

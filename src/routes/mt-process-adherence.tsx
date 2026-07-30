@@ -185,7 +185,7 @@ function MTProcessAdherenceDashboard() {
               value={mostDefaulting ? mostDefaulting.name : "—"}
               context={
                 mostDefaulting
-                  ? `${mostDefaulting.id} · ${mostDefaulting.pct}% of batches below benchmark`
+                  ? `${mostDefaulting.missed}/${filtered.length} batches below benchmark`
                   : "No batches in scope"
               }
               accent="critical"
@@ -250,12 +250,14 @@ function adherenceRow(batches: Batch[]): (string | number)[] {
 
 const ADHERENCE_COLUMNS = [
   { header: "No. of Batches", align: "right" as const },
-  ...Array.from({ length: 9 }).map((_, i) => ({
-    header: `${i}/8`,
-    align: "right" as const,
-  })),
+  ...Array.from({ length: 9 }).map((_, i) => ({ header: `${i}/8`, align: "right" as const })),
   { header: "Average Process Adherence", align: "right" as const },
 ];
+
+function adherenceExportRow(batches: Batch[]): (string | number)[] {
+  const n = batches.length;
+  return [n, ...Array.from({ length: 9 }).flatMap((_, i) => { const count = batches.filter((batch) => batch.processAdherence === i).length; return [count, n ? `${Math.round(count * 100 / n)}%` : "-"]; }), n ? `${(batches.reduce((sum, batch) => sum + batch.processAdherence, 0) / n).toFixed(1)}/8` : "-"];
+}
 
 function GeographyAdherenceTable({ rows }: { rows: Batch[] }) {
   const hier = useMemo<HierRow[]>(
@@ -271,12 +273,14 @@ function GeographyAdherenceTable({ rows }: { rows: Batch[] }) {
                 key: `${division}/${dist.name}/${tk}`,
                 label: tk,
                 values: adherenceRow(tBatches),
+                exportValues: adherenceExportRow(tBatches),
               };
             });
             return {
               key: `${division}/${dist.name}`,
               label: `${dist.name} (District)`,
               values: adherenceRow(dBatches),
+              exportValues: adherenceExportRow(dBatches),
               children: talukas,
             };
           },
@@ -285,6 +289,7 @@ function GeographyAdherenceTable({ rows }: { rows: Batch[] }) {
           key: division,
           label: `${division} (Division)`,
           values: adherenceRow(divBatches),
+          exportValues: adherenceExportRow(divBatches),
           children: districts,
         };
       }),
@@ -298,6 +303,11 @@ function GeographyAdherenceTable({ rows }: { rows: Batch[] }) {
       exportable
       exportFileName="geography-process-adherence.csv"
       columns={ADHERENCE_COLUMNS}
+      exportColumns={[
+        { header: "No. of Batches", align: "right" },
+        ...Array.from({ length: 9 }).flatMap((_, index) => [{ header: `${index}/8 Count`, align: "right" as const }, { header: `${index}/8 %`, align: "right" as const }]),
+        { header: "Average Process Adherence", align: "right" },
+      ]}
     />
   );
 }

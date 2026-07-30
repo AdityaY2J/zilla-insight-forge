@@ -29,6 +29,7 @@ import {
   type MasterTrainer,
 } from "@/data/capacity-building";
 import { DEPARTMENTS, DISTRICTS, DIVISIONS } from "@/data/geography";
+import { formatProgramAverage, programAverage } from "@/lib/program-average";
 
 export const Route = createFileRoute("/mt-certification")({
   head: () => ({
@@ -432,6 +433,14 @@ function CertDirectory() {
       ),
       sortValue: (r) => r.assessment2 ?? -1,
       exportValue: (r) => r.assessment2 ?? "",
+      align: "right",
+    },
+    {
+      key: "programAverage",
+      header: "Program Average",
+      accessor: (r) => <span className="tabular-nums">{formatProgramAverage(r.assessment1, r.assessment2)}</span>,
+      sortValue: (r) => programAverage(r.assessment1, r.assessment2) ?? -1,
+      exportValue: (r) => programAverage(r.assessment1, r.assessment2) ?? "",
       align: "right",
     },
     {
