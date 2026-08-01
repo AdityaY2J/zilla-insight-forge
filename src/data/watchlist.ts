@@ -247,7 +247,7 @@ export const TRAINER_RISK_ROWS: TrainerRiskRow[] = WATCHLIST_TRAINERS.map((train
     phone: trainer.phone,
     lastThree,
     riskCount,
-    riskStatus: riskCount >= 3 ? "Persistent" : riskCount === 2 ? "Repeat" : "Watch",
+    riskStatus: (riskCount >= 3 ? "Persistent" : riskCount === 2 ? "Repeat" : "Watch") as TrainerRiskRow["riskStatus"],
     dominantIssues: [...dominantIssues],
   };
 }).filter((row) => row.riskCount > 0);
