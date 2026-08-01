@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrainerUtilizationRouteImport } from './routes/trainer-utilization'
 import { Route as TrainerPerformanceRouteImport } from './routes/trainer-performance'
 import { Route as TrainerCombinationRouteImport } from './routes/trainer-combination'
+import { Route as TodaysWatchlistRouteImport } from './routes/todays-watchlist'
+import { Route as RepeatDefaultWatchlistRouteImport } from './routes/repeat-default-watchlist'
 import { Route as MtSelectionRouteImport } from './routes/mt-selection'
 import { Route as MtProcessAdherenceRouteImport } from './routes/mt-process-adherence'
 import { Route as MtLearningCognitiveRouteImport } from './routes/mt-learning-cognitive'
@@ -39,6 +41,16 @@ const TrainerPerformanceRoute = TrainerPerformanceRouteImport.update({
 const TrainerCombinationRoute = TrainerCombinationRouteImport.update({
   id: '/trainer-combination',
   path: '/trainer-combination',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TodaysWatchlistRoute = TodaysWatchlistRouteImport.update({
+  id: '/todays-watchlist',
+  path: '/todays-watchlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepeatDefaultWatchlistRoute = RepeatDefaultWatchlistRouteImport.update({
+  id: '/repeat-default-watchlist',
+  path: '/repeat-default-watchlist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MtSelectionRoute = MtSelectionRouteImport.update({
@@ -121,6 +133,8 @@ export interface FileRoutesByFullPath {
   '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
   '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
+  '/repeat-default-watchlist': typeof RepeatDefaultWatchlistRoute
+  '/todays-watchlist': typeof TodaysWatchlistRoute
   '/trainer-combination': typeof TrainerCombinationRoute
   '/trainer-performance': typeof TrainerPerformanceRoute
   '/trainer-utilization': typeof TrainerUtilizationRoute
@@ -139,6 +153,8 @@ export interface FileRoutesByTo {
   '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
   '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
+  '/repeat-default-watchlist': typeof RepeatDefaultWatchlistRoute
+  '/todays-watchlist': typeof TodaysWatchlistRoute
   '/trainer-combination': typeof TrainerCombinationRoute
   '/trainer-performance': typeof TrainerPerformanceRoute
   '/trainer-utilization': typeof TrainerUtilizationRoute
@@ -158,6 +174,8 @@ export interface FileRoutesById {
   '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
   '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
+  '/repeat-default-watchlist': typeof RepeatDefaultWatchlistRoute
+  '/todays-watchlist': typeof TodaysWatchlistRoute
   '/trainer-combination': typeof TrainerCombinationRoute
   '/trainer-performance': typeof TrainerPerformanceRoute
   '/trainer-utilization': typeof TrainerUtilizationRoute
@@ -178,6 +196,8 @@ export interface FileRouteTypes {
     | '/mt-learning-cognitive'
     | '/mt-process-adherence'
     | '/mt-selection'
+    | '/repeat-default-watchlist'
+    | '/todays-watchlist'
     | '/trainer-combination'
     | '/trainer-performance'
     | '/trainer-utilization'
@@ -196,6 +216,8 @@ export interface FileRouteTypes {
     | '/mt-learning-cognitive'
     | '/mt-process-adherence'
     | '/mt-selection'
+    | '/repeat-default-watchlist'
+    | '/todays-watchlist'
     | '/trainer-combination'
     | '/trainer-performance'
     | '/trainer-utilization'
@@ -214,6 +236,8 @@ export interface FileRouteTypes {
     | '/mt-learning-cognitive'
     | '/mt-process-adherence'
     | '/mt-selection'
+    | '/repeat-default-watchlist'
+    | '/todays-watchlist'
     | '/trainer-combination'
     | '/trainer-performance'
     | '/trainer-utilization'
@@ -233,6 +257,8 @@ export interface RootRouteChildren {
   MtLearningCognitiveRoute: typeof MtLearningCognitiveRoute
   MtProcessAdherenceRoute: typeof MtProcessAdherenceRoute
   MtSelectionRoute: typeof MtSelectionRoute
+  RepeatDefaultWatchlistRoute: typeof RepeatDefaultWatchlistRoute
+  TodaysWatchlistRoute: typeof TodaysWatchlistRoute
   TrainerCombinationRoute: typeof TrainerCombinationRoute
   TrainerPerformanceRoute: typeof TrainerPerformanceRoute
   TrainerUtilizationRoute: typeof TrainerUtilizationRoute
@@ -259,6 +285,20 @@ declare module '@tanstack/react-router' {
       path: '/trainer-combination'
       fullPath: '/trainer-combination'
       preLoaderRoute: typeof TrainerCombinationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/todays-watchlist': {
+      id: '/todays-watchlist'
+      path: '/todays-watchlist'
+      fullPath: '/todays-watchlist'
+      preLoaderRoute: typeof TodaysWatchlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repeat-default-watchlist': {
+      id: '/repeat-default-watchlist'
+      path: '/repeat-default-watchlist'
+      fullPath: '/repeat-default-watchlist'
+      preLoaderRoute: typeof RepeatDefaultWatchlistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mt-selection': {
@@ -369,6 +409,8 @@ const rootRouteChildren: RootRouteChildren = {
   MtLearningCognitiveRoute: MtLearningCognitiveRoute,
   MtProcessAdherenceRoute: MtProcessAdherenceRoute,
   MtSelectionRoute: MtSelectionRoute,
+  RepeatDefaultWatchlistRoute: RepeatDefaultWatchlistRoute,
+  TodaysWatchlistRoute: TodaysWatchlistRoute,
   TrainerCombinationRoute: TrainerCombinationRoute,
   TrainerPerformanceRoute: TrainerPerformanceRoute,
   TrainerUtilizationRoute: TrainerUtilizationRoute,

@@ -10,6 +10,9 @@ import {
   TrendingUp,
   GitCompareArrows,
   FileText,
+  Eye,
+  AlertTriangle,
+
 } from "lucide-react";
 
 import {
@@ -61,7 +64,15 @@ const NAV: { label: string; items: NavItem[] }[] = [
       { title: "Improvement Report Usage", url: "/improvement-report-usage", icon: FileText },
     ],
   },
+  {
+    label: "Watchlist",
+    items: [
+      { title: "Today's Watchlist", url: "/todays-watchlist", icon: Eye },
+      { title: "Repeat Default Watchlist", url: "/repeat-default-watchlist", icon: AlertTriangle },
+    ],
+  },
 ];
+
 
 export function AppSidebar() {
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
