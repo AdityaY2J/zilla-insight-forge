@@ -136,6 +136,8 @@ const DASHBOARD_NAMES: Record<string, string> = {
   "/trainer-performance": "Trainer Performance",
   "/trainer-combination": "Trainer Combination",
   "/improvement-report-usage": "Improvement Report Usage",
+  "/todays-watchlist": "Today's Watchlist",
+  "/repeat-default-watchlist": "Repeat Default Watchlist",
 };
 
 function HeaderBreadcrumb() {
@@ -144,7 +146,9 @@ function HeaderBreadcrumb() {
   return (
     <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
       <span className="text-muted-foreground">
-        {pathname.startsWith("/fs-") || pathname === "/batch-composition"
+        {pathname.endsWith("-watchlist")
+          ? "Watchlist"
+          : pathname.startsWith("/fs-") || pathname === "/batch-composition"
           ? "Deployment Rollout"
           : pathname.startsWith("/trainer-") || pathname === "/improvement-report-usage"
             ? "Trainer Performance Analytics"
