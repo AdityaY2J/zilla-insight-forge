@@ -164,6 +164,7 @@ function TodaysWatchlist() {
                 yFormat={(v) => String(v)}
                 labelFormat={(v) => String(v)}
                 yAxisTitle="No. of Registrations"
+                scrollable
               />
             </SectionCard>
             <SectionCard>
@@ -178,6 +179,7 @@ function TodaysWatchlist() {
                   { name: "Day 2", color: "var(--success)" },
                 ]}
                 yAxisTitle="No. of Assessment Submissions"
+                scrollable
               />
             </SectionCard>
           </div>

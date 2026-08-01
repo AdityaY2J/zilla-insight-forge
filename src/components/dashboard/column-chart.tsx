@@ -12,6 +12,8 @@ export function ColumnChart({
   height = 260,
   xAxisTitle,
   yAxisTitle,
+  scrollable = false,
+  minChartWidth = 760,
 }: {
   data: { label: string; value: number; labelText?: string }[];
   yFormat?: (v: number) => string;
@@ -20,12 +22,15 @@ export function ColumnChart({
   height?: number;
   xAxisTitle?: string;
   yAxisTitle?: string;
+  scrollable?: boolean;
+  minChartWidth?: number;
 }) {
   const max = Math.max(10, ...data.map((d) => d.value));
   const yMax = Math.ceil(max / 10) * 10;
   const gridLines = 5;
   return (
-    <div className="w-full">
+    <div className={cn("w-full", scrollable && "overflow-x-auto pb-1")}>
+      <div className={cn(scrollable ? "min-w-[760px]" : "w-full")} style={scrollable ? { minWidth: minChartWidth } : undefined}>
       <div className="flex">
         {yAxisTitle ? (
           <div className="flex items-center justify-center pr-1">
@@ -77,7 +82,7 @@ export function ColumnChart({
               <span
                 key={d.label}
                 className={cn(
-                  "flex-1 text-center text-[10px] text-muted-foreground truncate",
+                  "flex-1 text-center text-[10px] text-muted-foreground whitespace-nowrap",
                 )}
               >
                 {d.label}
@@ -90,6 +95,7 @@ export function ColumnChart({
             </p>
           ) : null}
         </div>
+      </div>
       </div>
     </div>
   );

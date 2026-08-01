@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 /**
  * Grouped (clustered) column chart with a legend — used by the Watchlist
  * "Assessment Submissions Past 14 Days" chart. Isolated from existing charts.
@@ -8,18 +10,23 @@ export function GroupedColumnChart({
   height = 260,
   yAxisTitle,
   xAxisTitle,
+  scrollable = false,
+  minChartWidth = 760,
 }: {
   data: { label: string; values: number[] }[];
   series: { name: string; color: string }[];
   height?: number;
   yAxisTitle?: string;
   xAxisTitle?: string;
+  scrollable?: boolean;
+  minChartWidth?: number;
 }) {
   const max = Math.max(10, ...data.flatMap((d) => d.values));
   const yMax = Math.ceil(max / 10) * 10;
   const gridLines = 5;
   return (
-    <div className="w-full">
+    <div className={cn("w-full", scrollable && "overflow-x-auto pb-1")}>
+      <div className={cn(scrollable ? "min-w-[760px]" : "w-full")} style={scrollable ? { minWidth: minChartWidth } : undefined}>
       <div className="flex items-center gap-4 mb-3 text-xs">
         {series.map((s) => (
           <span key={s.name} className="inline-flex items-center gap-1.5">
@@ -82,18 +89,19 @@ export function GroupedColumnChart({
             {data.map((d) => (
               <span
                 key={d.label}
-                className="flex-1 text-center text-[10px] text-muted-foreground truncate"
+              className="flex-1 text-center text-[10px] text-muted-foreground whitespace-nowrap"
               >
                 {d.label}
               </span>
             ))}
           </div>
-          {xAxisTitle ? (
+      {xAxisTitle ? (
             <p className="mt-2 text-center text-[11px] font-medium text-muted-foreground">
               {xAxisTitle}
             </p>
-          ) : null}
-        </div>
+      ) : null}
+      </div>
+    </div>
       </div>
     </div>
   );

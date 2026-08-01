@@ -193,7 +193,7 @@ export const PAST_14_DAYS = Array.from({ length: 15 }, (_, i) => {
   const seed = mulberry32(41000 + i);
   return {
     date,
-    label: formatWatchlistDate(date).slice(0, 5),
+    label: formatWatchlistDate(date).slice(0, 6) + formatWatchlistDate(date).slice(-2),
     registrations: 120 + Math.floor(seed() * 260),
     day1Submissions: 40 + Math.floor(seed() * 110),
     day2Submissions: 30 + Math.floor(seed() * 100),
