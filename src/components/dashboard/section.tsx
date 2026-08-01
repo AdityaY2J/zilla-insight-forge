@@ -9,7 +9,7 @@ export function Section({
   children,
   className,
 }: {
-  title: string;
+  title: ReactNode;
   description?: string;
   actions?: ReactNode;
   /** Optional layout class for the action wrapper. */

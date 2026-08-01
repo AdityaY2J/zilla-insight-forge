@@ -27,6 +27,8 @@ export function DataTable<T>({
   toolbar,
   getRowId,
   stickyHeader = true,
+  headerCase = "uppercase",
+  paginated = true,
 }: {
   data: T[];
   columns: Column<T>[];
@@ -38,6 +40,8 @@ export function DataTable<T>({
   toolbar?: ReactNode;
   getRowId?: (row: T, i: number) => string;
   stickyHeader?: boolean;
+  headerCase?: "uppercase" | "normal";
+  paginated?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
@@ -73,9 +77,9 @@ export function DataTable<T>({
     return copy;
   }, [filtered, sort, columns]);
 
-  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const totalPages = paginated ? Math.max(1, Math.ceil(sorted.length / pageSize)) : 1;
   const currentPage = Math.min(page, totalPages);
-  const paged = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const paged = paginated ? sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize) : sorted;
 
   const handleSort = (col: Column<T>) => {
     if (!col.sortValue) return;
@@ -138,7 +142,8 @@ export function DataTable<T>({
         <table className="w-full text-sm">
           <thead
             className={cn(
-              "bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground",
+              "bg-muted/40 text-xs tracking-wide text-muted-foreground",
+              headerCase === "uppercase" && "uppercase",
               stickyHeader && "sticky top-0 z-10",
             )}
           >
@@ -227,7 +232,7 @@ export function DataTable<T>({
           </tbody>
         </table>
       </div>
-      {sorted.length > pageSize ? (
+      {paginated && sorted.length > pageSize ? (
         <div className="flex items-center justify-between border-t px-4 py-3 text-xs text-muted-foreground">
           <span>
             Showing {(currentPage - 1) * pageSize + 1}–

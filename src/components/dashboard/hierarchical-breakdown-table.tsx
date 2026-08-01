@@ -35,6 +35,7 @@ export function HierarchicalBreakdownTable({
   defaultExpanded = false,
   exportable = false,
   searchable = false,
+  headerCase = "uppercase",
   exportFileName = "export.csv",
 }: {
   rows: HierRow[];
@@ -45,6 +46,7 @@ export function HierarchicalBreakdownTable({
   defaultExpanded?: boolean;
   exportable?: boolean;
   searchable?: boolean;
+  headerCase?: "uppercase" | "normal";
   exportFileName?: string;
 }) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
@@ -123,7 +125,7 @@ export function HierarchicalBreakdownTable({
       ) : null}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+          <thead className={cn("bg-muted/40 text-xs tracking-wide text-muted-foreground", headerCase === "uppercase" && "uppercase")}>
             <tr>
               <th className="px-4 py-2.5 text-left font-medium">{firstColHeader}</th>
               {columns.map((c, i) => (

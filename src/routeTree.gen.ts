@@ -15,12 +15,16 @@ import { Route as FsBatchPerformanceRouteImport } from './routes/fs-batch-perfor
 import { Route as FsCertificationRouteImport } from './routes/fs-certification'
 import { Route as FsLearningCognitiveRouteImport } from './routes/fs-learning-cognitive'
 import { Route as FsProcessAdherenceRouteImport } from './routes/fs-process-adherence'
+import { Route as ImprovementReportUsageRouteImport } from './routes/improvement-report-usage'
 import { Route as MtBatchPerformanceRouteImport } from './routes/mt-batch-performance'
 import { Route as MtCapacityFunnelRouteImport } from './routes/mt-capacity-funnel'
 import { Route as MtCertificationRouteImport } from './routes/mt-certification'
 import { Route as MtLearningCognitiveRouteImport } from './routes/mt-learning-cognitive'
 import { Route as MtProcessAdherenceRouteImport } from './routes/mt-process-adherence'
 import { Route as MtSelectionRouteImport } from './routes/mt-selection'
+import { Route as TrainerCombinationRouteImport } from './routes/trainer-combination'
+import { Route as TrainerPerformanceRouteImport } from './routes/trainer-performance'
+import { Route as TrainerUtilizationRouteImport } from './routes/trainer-utilization'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -50,6 +54,11 @@ const FsLearningCognitiveRoute = FsLearningCognitiveRouteImport.update({
 const FsProcessAdherenceRoute = FsProcessAdherenceRouteImport.update({
   id: '/fs-process-adherence',
   path: '/fs-process-adherence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImprovementReportUsageRoute = ImprovementReportUsageRouteImport.update({
+  id: '/improvement-report-usage',
+  path: '/improvement-report-usage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MtBatchPerformanceRoute = MtBatchPerformanceRouteImport.update({
@@ -82,6 +91,21 @@ const MtSelectionRoute = MtSelectionRouteImport.update({
   path: '/mt-selection',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrainerCombinationRoute = TrainerCombinationRouteImport.update({
+  id: '/trainer-combination',
+  path: '/trainer-combination',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrainerPerformanceRoute = TrainerPerformanceRouteImport.update({
+  id: '/trainer-performance',
+  path: '/trainer-performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrainerUtilizationRoute = TrainerUtilizationRouteImport.update({
+  id: '/trainer-utilization',
+  path: '/trainer-utilization',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -90,12 +114,16 @@ export interface FileRoutesByFullPath {
   '/fs-certification': typeof FsCertificationRoute
   '/fs-learning-cognitive': typeof FsLearningCognitiveRoute
   '/fs-process-adherence': typeof FsProcessAdherenceRoute
+  '/improvement-report-usage': typeof ImprovementReportUsageRoute
   '/mt-batch-performance': typeof MtBatchPerformanceRoute
   '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
   '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
   '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
+  '/trainer-combination': typeof TrainerCombinationRoute
+  '/trainer-performance': typeof TrainerPerformanceRoute
+  '/trainer-utilization': typeof TrainerUtilizationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,12 +132,16 @@ export interface FileRoutesByTo {
   '/fs-certification': typeof FsCertificationRoute
   '/fs-learning-cognitive': typeof FsLearningCognitiveRoute
   '/fs-process-adherence': typeof FsProcessAdherenceRoute
+  '/improvement-report-usage': typeof ImprovementReportUsageRoute
   '/mt-batch-performance': typeof MtBatchPerformanceRoute
   '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
   '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
   '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
+  '/trainer-combination': typeof TrainerCombinationRoute
+  '/trainer-performance': typeof TrainerPerformanceRoute
+  '/trainer-utilization': typeof TrainerUtilizationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -119,12 +151,16 @@ export interface FileRoutesById {
   '/fs-certification': typeof FsCertificationRoute
   '/fs-learning-cognitive': typeof FsLearningCognitiveRoute
   '/fs-process-adherence': typeof FsProcessAdherenceRoute
+  '/improvement-report-usage': typeof ImprovementReportUsageRoute
   '/mt-batch-performance': typeof MtBatchPerformanceRoute
   '/mt-capacity-funnel': typeof MtCapacityFunnelRoute
   '/mt-certification': typeof MtCertificationRoute
   '/mt-learning-cognitive': typeof MtLearningCognitiveRoute
   '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
+  '/trainer-combination': typeof TrainerCombinationRoute
+  '/trainer-performance': typeof TrainerPerformanceRoute
+  '/trainer-utilization': typeof TrainerUtilizationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -135,12 +171,16 @@ export interface FileRouteTypes {
     | '/fs-certification'
     | '/fs-learning-cognitive'
     | '/fs-process-adherence'
+    | '/improvement-report-usage'
     | '/mt-batch-performance'
     | '/mt-capacity-funnel'
     | '/mt-certification'
     | '/mt-learning-cognitive'
     | '/mt-process-adherence'
     | '/mt-selection'
+    | '/trainer-combination'
+    | '/trainer-performance'
+    | '/trainer-utilization'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -149,12 +189,16 @@ export interface FileRouteTypes {
     | '/fs-certification'
     | '/fs-learning-cognitive'
     | '/fs-process-adherence'
+    | '/improvement-report-usage'
     | '/mt-batch-performance'
     | '/mt-capacity-funnel'
     | '/mt-certification'
     | '/mt-learning-cognitive'
     | '/mt-process-adherence'
     | '/mt-selection'
+    | '/trainer-combination'
+    | '/trainer-performance'
+    | '/trainer-utilization'
   id:
     | '__root__'
     | '/'
@@ -163,12 +207,16 @@ export interface FileRouteTypes {
     | '/fs-certification'
     | '/fs-learning-cognitive'
     | '/fs-process-adherence'
+    | '/improvement-report-usage'
     | '/mt-batch-performance'
     | '/mt-capacity-funnel'
     | '/mt-certification'
     | '/mt-learning-cognitive'
     | '/mt-process-adherence'
     | '/mt-selection'
+    | '/trainer-combination'
+    | '/trainer-performance'
+    | '/trainer-utilization'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -178,12 +226,16 @@ export interface RootRouteChildren {
   FsCertificationRoute: typeof FsCertificationRoute
   FsLearningCognitiveRoute: typeof FsLearningCognitiveRoute
   FsProcessAdherenceRoute: typeof FsProcessAdherenceRoute
+  ImprovementReportUsageRoute: typeof ImprovementReportUsageRoute
   MtBatchPerformanceRoute: typeof MtBatchPerformanceRoute
   MtCapacityFunnelRoute: typeof MtCapacityFunnelRoute
   MtCertificationRoute: typeof MtCertificationRoute
   MtLearningCognitiveRoute: typeof MtLearningCognitiveRoute
   MtProcessAdherenceRoute: typeof MtProcessAdherenceRoute
   MtSelectionRoute: typeof MtSelectionRoute
+  TrainerCombinationRoute: typeof TrainerCombinationRoute
+  TrainerPerformanceRoute: typeof TrainerPerformanceRoute
+  TrainerUtilizationRoute: typeof TrainerUtilizationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -230,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FsProcessAdherenceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/improvement-report-usage': {
+      id: '/improvement-report-usage'
+      path: '/improvement-report-usage'
+      fullPath: '/improvement-report-usage'
+      preLoaderRoute: typeof ImprovementReportUsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mt-batch-performance': {
       id: '/mt-batch-performance'
       path: '/mt-batch-performance'
@@ -272,6 +331,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MtSelectionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trainer-combination': {
+      id: '/trainer-combination'
+      path: '/trainer-combination'
+      fullPath: '/trainer-combination'
+      preLoaderRoute: typeof TrainerCombinationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trainer-performance': {
+      id: '/trainer-performance'
+      path: '/trainer-performance'
+      fullPath: '/trainer-performance'
+      preLoaderRoute: typeof TrainerPerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trainer-utilization': {
+      id: '/trainer-utilization'
+      path: '/trainer-utilization'
+      fullPath: '/trainer-utilization'
+      preLoaderRoute: typeof TrainerUtilizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -282,12 +362,16 @@ const rootRouteChildren: RootRouteChildren = {
   FsCertificationRoute: FsCertificationRoute,
   FsLearningCognitiveRoute: FsLearningCognitiveRoute,
   FsProcessAdherenceRoute: FsProcessAdherenceRoute,
+  ImprovementReportUsageRoute: ImprovementReportUsageRoute,
   MtBatchPerformanceRoute: MtBatchPerformanceRoute,
   MtCapacityFunnelRoute: MtCapacityFunnelRoute,
   MtCertificationRoute: MtCertificationRoute,
   MtLearningCognitiveRoute: MtLearningCognitiveRoute,
   MtProcessAdherenceRoute: MtProcessAdherenceRoute,
   MtSelectionRoute: MtSelectionRoute,
+  TrainerCombinationRoute: TrainerCombinationRoute,
+  TrainerPerformanceRoute: TrainerPerformanceRoute,
+  TrainerUtilizationRoute: TrainerUtilizationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

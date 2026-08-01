@@ -90,7 +90,7 @@ function MTProcessAdherenceDashboard() {
       const pct = Math.round((count / total) * 100);
       const label =
         i === MODULES.length
-          ? "Maximum Modules"
+          ? "8 Modules"
           : `${i} Module${i === 1 ? "" : "s"}`;
       return { label, value: pct, labelText: `${count} (${pct}%)` };
     });
@@ -100,7 +100,7 @@ function MTProcessAdherenceDashboard() {
     () =>
       MODULES.map((m) => {
         const met = filtered.filter((b) => b.moduleMet[m.id]).length;
-        return { label: m.id, met, notMet: filtered.length - met };
+        return { label: `Module ${m.id.slice(1)}`, met, notMet: filtered.length - met };
       }),
     [filtered],
   );

@@ -6,6 +6,10 @@ import {
   ClipboardCheck,
   Brain,
   Filter,
+  Users,
+  TrendingUp,
+  GitCompareArrows,
+  FileText,
 } from "lucide-react";
 
 import {
@@ -48,6 +52,15 @@ const NAV: { label: string; items: NavItem[] }[] = [
       { title: "Batch Composition", url: "/batch-composition", icon: Filter },
     ],
   },
+  {
+    label: "Trainer Performance Analytics",
+    items: [
+      { title: "Trainer Utilization", url: "/trainer-utilization", icon: Users },
+      { title: "Trainer Performance", url: "/trainer-performance", icon: TrendingUp },
+      { title: "Trainer Combination", url: "/trainer-combination", icon: GitCompareArrows },
+      { title: "Improvement Report Usage", url: "/improvement-report-usage", icon: FileText },
+    ],
+  },
 ];
 
 export function AppSidebar() {
@@ -60,9 +73,10 @@ export function AppSidebar() {
         <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center shrink-0">
           <span className="text-primary-foreground text-xs font-bold">Z</span>
         </div>
-        <span className="text-sm font-semibold group-data-[collapsible=icon]:hidden">
-          Zilla Analytics
-        </span>
+        <div className="leading-tight group-data-[collapsible=icon]:hidden">
+          <span className="block text-sm font-semibold">Zilla Analytics</span>
+          <span className="block text-[9px] font-medium tracking-wide text-muted-foreground">FOR INTERNAL STAKEHOLDERS</span>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         {NAV.map((group) => (

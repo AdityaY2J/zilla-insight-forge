@@ -132,6 +132,10 @@ const DASHBOARD_NAMES: Record<string, string> = {
   "/fs-process-adherence": "Field Staff Process Adherence",
   "/fs-learning-cognitive": "Field Staff Learning & Cognitive",
   "/batch-composition": "Batch Composition",
+  "/trainer-utilization": "Trainer Utilization",
+  "/trainer-performance": "Trainer Performance",
+  "/trainer-combination": "Trainer Combination",
+  "/improvement-report-usage": "Improvement Report Usage",
 };
 
 function HeaderBreadcrumb() {
@@ -142,7 +146,9 @@ function HeaderBreadcrumb() {
       <span className="text-muted-foreground">
         {pathname.startsWith("/fs-") || pathname === "/batch-composition"
           ? "Deployment Rollout"
-          : "Capacity Building Stage"}
+          : pathname.startsWith("/trainer-") || pathname === "/improvement-report-usage"
+            ? "Trainer Performance Analytics"
+            : "Capacity Building Stage"}
       </span>
       {name ? (
         <>

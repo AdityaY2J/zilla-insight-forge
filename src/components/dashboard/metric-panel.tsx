@@ -23,7 +23,7 @@ export function MetricPanel({
   groups,
   className,
 }: {
-  title?: string;
+  title?: ReactNode;
   groups: MetricGroup[];
   className?: string;
 }) {
@@ -36,9 +36,9 @@ export function MetricPanel({
     >
       {title ? (
         <div className="px-5 py-3 border-b bg-muted/30">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {title}
-          </h3>
+          </div>
         </div>
       ) : null}
       <div className="flex-1 divide-y">
