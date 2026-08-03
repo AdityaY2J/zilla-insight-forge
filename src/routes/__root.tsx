@@ -148,7 +148,9 @@ function HeaderBreadcrumb() {
   return (
     <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
       <span className="text-muted-foreground">
-        {pathname.endsWith("-watchlist")
+        {pathname === "/audit-report"
+          ? "Audit Analytics"
+          : pathname.endsWith("-watchlist")
           ? "Watchlist"
           : pathname.startsWith("/fs-") || pathname === "/batch-composition"
           ? "Deployment Rollout"
