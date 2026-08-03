@@ -155,7 +155,15 @@ export function HierarchicalBreakdownTable({
               const hasChildren = allowExpand && !!row.children?.length;
               const isOpen = expanded[row.key];
               return (
-                <tr key={row.key} className="border-t hover:bg-muted/30 transition-colors">
+                <tr
+                  key={row.key}
+                  className={cn(
+                    "border-t transition-colors hover:brightness-95",
+                    depth === 0 && "bg-[#EDEDED]",
+                    depth === 1 && "bg-[#F6F6F6]",
+                    depth >= 2 && "bg-[#FFFFFF]",
+                  )}
+                >
                   <td className="px-4 py-2.5">
                     <div
                       className="flex items-center gap-1.5"

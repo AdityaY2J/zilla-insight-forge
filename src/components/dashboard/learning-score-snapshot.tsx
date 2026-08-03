@@ -1,4 +1,6 @@
 import { ScoreDistribution, ScoreDistributionBar } from "./score-distribution";
+import { Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export type LearningScoreSnapshot = {
   label: string;
@@ -34,7 +36,22 @@ export function LearningScoreSnapshots({
               </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Score Distribution</p>
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <span>Score Distribution</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" aria-label="About learning score distribution" className="transition-colors hover:text-foreground">
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-sm p-3 text-xs leading-relaxed">
+                    <p className="mb-1.5 font-semibold">Score Distribution</p>
+                    <p><strong>Red:</strong> Represents the percentage of participants scoring less than 60% in learning test.</p>
+                    <p className="mt-1"><strong>Orange:</strong> Represents the percentage of participants scoring between 60–80% in learning test.</p>
+                    <p className="mt-1"><strong>Green:</strong> Represents the percentage of participants scoring more than 80% in learning test.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <div className="mt-1.5">
                 <ScoreDistribution
                   red={snapshot.red}

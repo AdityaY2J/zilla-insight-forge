@@ -53,6 +53,7 @@ export type WatchlistBatch = {
   modulesDefaultedOf4: number;
   missedAssessment: boolean;
   avgLearningScore: number;
+  avgCognitivePostScore: number;
   flashpoints: OperationalFlashpoint[];
   status: "Critical" | "Moderate" | "Healthy";
   learningStatus: "Above Benchmark" | "Meets Benchmark" | "Below Benchmark";
@@ -104,6 +105,7 @@ function buildBatch(index: number, date: string, day: "Day 1" | "Day 2"): Watchl
   const modulesDefaultedOf4 = between(0, 3);
   const missedAssessment = rnd() < 0.14;
   const avgLearningScore = pick([62, 68, 71, 74, 76, 78, 80, 80, 82, 85, 88, 91]);
+  const avgCognitivePostScore = pick([2.6, 3.1, 3.5, 3.8, 4, 4, 4.3, 4.7, 5.2, 5.8, 6.4]);
 
   const flashpoints: OperationalFlashpoint[] = [];
   if (batchSize > 50) flashpoints.push("Batch Size > 50");
@@ -144,6 +146,7 @@ function buildBatch(index: number, date: string, day: "Day 1" | "Day 2"): Watchl
     modulesDefaultedOf4,
     missedAssessment,
     avgLearningScore,
+    avgCognitivePostScore,
     flashpoints,
     status,
     learningStatus,
@@ -216,6 +219,8 @@ export const TODAY_FLASHPOINT_SUMMARY = {
   learning: [
     { label: "Batches Meeting Learning Benchmark", value: countToday((b) => b.avgLearningScore >= 80) },
     { label: "Batches Below Learning Benchmark", value: countToday((b) => b.avgLearningScore < 80) },
+    { label: "Batches Below Cognitive Benchmark", value: countToday((b) => b.avgCognitivePostScore < 4) },
+    { label: "Batches Above Cognitive Benchmark", value: countToday((b) => b.avgCognitivePostScore >= 4) },
   ],
 };
 

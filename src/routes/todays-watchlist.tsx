@@ -44,6 +44,8 @@ const statusTone = (status: WatchlistBatch["status"]) =>
 const learningTone = (status: WatchlistBatch["learningStatus"]) =>
   status === "Above Benchmark" ? "success" : status === "Meets Benchmark" ? "neutral" : "critical";
 
+const cognitiveTone = (score: number) => (score >= 4 ? "success" : "critical");
+
 const identityColumns: Column<WatchlistBatch>[] = [
   { key: "id", header: "Batch Id", accessor: (r) => <span className="text-xs tabular-nums">{r.id}</span>, sortValue: (r) => r.id, exportValue: (r) => r.id },
   { key: "name", header: "Batch Name", accessor: (r) => <span className="font-medium">{r.name}</span>, sortValue: (r) => r.name, exportValue: (r) => r.name },
@@ -107,6 +109,29 @@ function TodaysWatchlist() {
       ),
       sortValue: (r) => r.learningStatus,
       exportValue: (r) => r.learningStatus,
+    },
+  ];
+
+  const cognitiveColumns: Column<WatchlistBatch>[] = [
+    ...identityColumns,
+    {
+      key: "cognitiveScore",
+      header: "Avg. Cog. Post Score",
+      accessor: (r) => <span className="tabular-nums font-medium">{r.avgCognitivePostScore.toFixed(1)} / 10</span>,
+      sortValue: (r) => r.avgCognitivePostScore,
+      exportValue: (r) => `${r.avgCognitivePostScore.toFixed(1)} / 10`,
+      align: "right",
+    },
+    {
+      key: "cognitiveStatus",
+      header: "Status",
+      accessor: (r) => (
+        <StatusPill tone={cognitiveTone(r.avgCognitivePostScore)}>
+          {r.avgCognitivePostScore >= 4 ? "Meeting Benchmark" : "Below Benchmark"}
+        </StatusPill>
+      ),
+      sortValue: (r) => r.avgCognitivePostScore >= 4 ? "Meeting Benchmark" : "Below Benchmark",
+      exportValue: (r) => r.avgCognitivePostScore >= 4 ? "Meeting Benchmark" : "Below Benchmark",
     },
   ];
 
@@ -234,6 +259,17 @@ function TodaysWatchlist() {
             searchKeys={["id", "name", "district"]}
             pageSize={15}
             getRowId={(r) => `ln-${r.id}`}
+          />
+        </Section>
+
+        <Section title="Cognitive Health Card">
+          <DataTable
+            data={TODAY_BATCHES}
+            columns={cognitiveColumns}
+            headerCase="normal"
+            searchKeys={["id", "name", "district"]}
+            pageSize={15}
+            getRowId={(r) => `cg-${r.id}`}
           />
         </Section>
       </div>

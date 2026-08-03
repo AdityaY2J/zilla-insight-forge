@@ -6,6 +6,7 @@ import { Section } from "@/components/dashboard/section";
 import { DataTable, type Column } from "@/components/dashboard/data-table";
 import { FilterSelect } from "@/components/dashboard/filter-bar";
 import { LearningScoreSnapshots } from "@/components/dashboard/learning-score-snapshot";
+import { LearningCognitiveAnalytics } from "@/components/dashboard/learning-cognitive-analytics";
 import {
   ViewSwitch,
   type SummaryView,
@@ -68,6 +69,10 @@ function Metric({ label, value }: { label: string; value: string }) {
 
 function MTLearningCognitiveDashboard() {
   const agg = useMemo(() => aggregateLearning(BATCHES), []);
+  const analyticsRows = useMemo(() => {
+    const departments = new Map(MASTER_TRAINERS.map((trainer) => [trainer.id, trainer.department]));
+    return BATCHES.map((batch) => ({ division: batch.division, district: batch.district, taluka: batch.taluka, department: departments.get(batch.coach1Id) ?? "Other", learningScore: Math.round((batch.day1AssessmentAvg + batch.day2AssessmentAvg) / 2), cognitivePostScore: batch.avgPostScore }));
+  }, []);
 
   const learningSnapshots = useMemo(
     () => [
@@ -104,7 +109,7 @@ function MTLearningCognitiveDashboard() {
       />
 
       <div className="px-8 pt-8 space-y-10">
-        <Section title="Snapshot">
+        <Section title={`Snapshot (based on ${(agg.d1Participants + agg.d2Participants).toLocaleString("en-IN")} participants)`}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
               <div className="px-5 py-3 border rounded-t-lg bg-muted/30">
@@ -147,6 +152,8 @@ function MTLearningCognitiveDashboard() {
             </div>
           </div>
         </Section>
+
+        <LearningCognitiveAnalytics rows={analyticsRows} />
 
         <GeographySection />
 
@@ -275,16 +282,16 @@ function learningRow(batches: Batch[]): (React.ReactNode | number | string)[] {
 }
 
 const LEARNING_SUMMARY_COLUMNS = [
-  { header: "D1 Part.", align: "right" as const },
-  { header: "D2 Part.", align: "right" as const },
-  { header: "D1 Avg.", align: "right" as const },
-  { header: "D2 Avg.", align: "right" as const },
+  { header: "Day 1 Part.", align: "right" as const },
+  { header: "Day 2 Part.", align: "right" as const },
+  { header: "Day 1 Avg.", align: "right" as const },
+  { header: "Day 2 Avg.", align: "right" as const },
   { header: "Program Average", align: "right" as const },
   { header: "Red %", align: "right" as const },
   { header: "Orange %", align: "right" as const },
   { header: "Green %", align: "right" as const },
-  { header: "Pre", align: "right" as const },
-  { header: "Post", align: "right" as const },
+  { header: "Avg. Pre", align: "right" as const },
+  { header: "Avg. Post", align: "right" as const },
   { header: "Disabling", align: "right" as const },
   { header: "Confused", align: "right" as const },
   { header: "Enabling", align: "right" as const },
@@ -369,16 +376,16 @@ function BatchLearningTable({ rows }: { rows: Batch[] }) {
     { key: "c2id", header: "Coach 2 ID", accessor: (r) => r.coach2Id, exportValue: (r) => r.coach2Id },
     { key: "c1", header: "Coach 1", accessor: (r) => r.coach1Name, exportValue: (r) => r.coach1Name },
     { key: "c2", header: "Coach 2", accessor: (r) => r.coach2Name, exportValue: (r) => r.coach2Name },
-    { key: "d1p", header: "D1 Part.", accessor: (r) => r.day1Participants, align: "right", sortValue: (r) => r.day1Participants, exportValue: (r) => r.day1Participants },
-    { key: "d2p", header: "D2 Part.", accessor: (r) => r.day2Participants, align: "right", sortValue: (r) => r.day2Participants, exportValue: (r) => r.day2Participants },
-    { key: "d1a", header: "D1 Avg.", accessor: (r) => `${r.day1AssessmentAvg}%`, align: "right", sortValue: (r) => r.day1AssessmentAvg, exportValue: (r) => r.day1AssessmentAvg },
-    { key: "d2a", header: "D2 Avg.", accessor: (r) => `${r.day2AssessmentAvg}%`, align: "right", sortValue: (r) => r.day2AssessmentAvg, exportValue: (r) => r.day2AssessmentAvg },
+    { key: "d1p", header: "Day 1 Part.", accessor: (r) => r.day1Participants, align: "right", sortValue: (r) => r.day1Participants, exportValue: (r) => r.day1Participants },
+    { key: "d2p", header: "Day 2 Part.", accessor: (r) => r.day2Participants, align: "right", sortValue: (r) => r.day2Participants, exportValue: (r) => r.day2Participants },
+    { key: "d1a", header: "Day 1 Avg.", accessor: (r) => `${r.day1AssessmentAvg}%`, align: "right", sortValue: (r) => r.day1AssessmentAvg, exportValue: (r) => r.day1AssessmentAvg },
+    { key: "d2a", header: "Day 2 Avg.", accessor: (r) => `${r.day2AssessmentAvg}%`, align: "right", sortValue: (r) => r.day2AssessmentAvg, exportValue: (r) => r.day2AssessmentAvg },
     { key: "programAverage", header: "Program Average", accessor: (r) => formatProgramAverage(r.day1AssessmentAvg, r.day2AssessmentAvg), align: "right", sortValue: (r) => programAverage(r.day1AssessmentAvg, r.day2AssessmentAvg) ?? -1, exportValue: (r) => programAverage(r.day1AssessmentAvg, r.day2AssessmentAvg) ?? "" },
     { key: "red", header: "Red %", accessor: (r) => <span className="text-critical tabular-nums">{r.redPct}%</span>, align: "right", sortValue: (r) => r.redPct, exportValue: (r) => r.redPct },
     { key: "orange", header: "Orange %", accessor: (r) => <span className="text-warning-foreground tabular-nums">{r.orangePct}%</span>, align: "right", sortValue: (r) => r.orangePct, exportValue: (r) => r.orangePct },
     { key: "green", header: "Green %", accessor: (r) => <span className="text-success tabular-nums">{r.greenPct}%</span>, align: "right", sortValue: (r) => r.greenPct, exportValue: (r) => r.greenPct },
-    { key: "pre", header: "Pre", accessor: (r) => <span className="tabular-nums">{r.avgPreScore.toFixed(1)}</span>, align: "right", sortValue: (r) => r.avgPreScore, exportValue: (r) => r.avgPreScore },
-    { key: "post", header: "Post", accessor: (r) => <span className="tabular-nums">{r.avgPostScore.toFixed(1)}</span>, align: "right", sortValue: (r) => r.avgPostScore, exportValue: (r) => r.avgPostScore },
+    { key: "pre", header: "Avg. Pre", accessor: (r) => <span className="tabular-nums">{r.avgPreScore.toFixed(1)}</span>, align: "right", sortValue: (r) => r.avgPreScore, exportValue: (r) => r.avgPreScore },
+    { key: "post", header: "Avg. Post", accessor: (r) => <span className="tabular-nums">{r.avgPostScore.toFixed(1)}</span>, align: "right", sortValue: (r) => r.avgPostScore, exportValue: (r) => r.avgPostScore },
     { key: "dis", header: "Disabling", accessor: (r) => signed(r.disablingShift), align: "right", sortValue: (r) => r.disablingShift, exportValue: (r) => r.disablingShift },
     { key: "conf", header: "Confused", accessor: (r) => signed(r.confusedShift), align: "right", sortValue: (r) => r.confusedShift, exportValue: (r) => r.confusedShift },
     { key: "ena", header: "Enabling", accessor: (r) => <span className="text-success">{signed(r.enablingShift)}</span>, align: "right", sortValue: (r) => r.enablingShift, exportValue: (r) => r.enablingShift },
@@ -405,7 +412,7 @@ function MTLearningTable({ rows }: { rows: MasterTrainer[] }) {
     { key: "tal", header: "Taluka", accessor: (r) => r.taluka, exportValue: (r) => r.taluka },
     {
       key: "d1",
-      header: "D1 Avg.",
+      header: "Day 1 Avg.",
       accessor: (r) => (
         <span className="tabular-nums">
           {r.assessment1 != null ? `${r.assessment1}%` : "—"}
@@ -417,7 +424,7 @@ function MTLearningTable({ rows }: { rows: MasterTrainer[] }) {
     },
     {
       key: "d2",
-      header: "D2 Avg.",
+      header: "Day 2 Avg.",
       accessor: (r) => (
         <span className="tabular-nums">
           {r.assessment2 != null ? `${r.assessment2}%` : "—"}
@@ -437,8 +444,8 @@ function MTLearningTable({ rows }: { rows: MasterTrainer[] }) {
     },
     // Pre/Post/Belief shifts are per-MT derived from their coached batches;
     // we surface placeholders here since per-MT rollups aren't formalised yet.
-    { key: "pre", header: "Pre", accessor: () => <span className="text-muted-foreground">—</span>, exportValue: () => "" },
-    { key: "post", header: "Post", accessor: () => <span className="text-muted-foreground">—</span>, exportValue: () => "" },
+    { key: "pre", header: "Avg. Pre", accessor: () => <span className="text-muted-foreground">—</span>, exportValue: () => "" },
+    { key: "post", header: "Avg. Post", accessor: () => <span className="text-muted-foreground">—</span>, exportValue: () => "" },
     { key: "dis", header: "Disabling", accessor: () => <span className="text-muted-foreground">—</span>, exportValue: () => "" },
     { key: "conf", header: "Confused", accessor: () => <span className="text-muted-foreground">—</span>, exportValue: () => "" },
     { key: "ena", header: "Enabling", accessor: () => <span className="text-muted-foreground">—</span>, exportValue: () => "" },
