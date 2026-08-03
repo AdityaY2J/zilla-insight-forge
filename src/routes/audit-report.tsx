@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -50,10 +51,71 @@ function AuditStatusCell({ status }: { status: AuditStatus }) {
   );
 }
 
+type AuditView = "all" | "active";
+
+function AuditViewSwitch({
+  value,
+  onChange,
+}: {
+  value: AuditView;
+  onChange: (value: AuditView) => void;
+}) {
+  return (
+    <div
+      className="inline-flex rounded-md border bg-muted/30 p-0.5"
+      role="group"
+      aria-label="Detailed view scope"
+    >
+      {([
+        ["all", "All"],
+        ["active", "Active Districts"],
+      ] as const).map(([option, label]) => (
+        <button
+          key={option}
+          type="button"
+          onClick={() => onChange(option)}
+          className={
+            "rounded px-3 py-1.5 text-xs font-medium transition-colors " +
+            (value === option
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground")
+          }
+          aria-pressed={value === option}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function AuditReport() {
   const s = auditSummary();
+  const [view, setView] = useState<AuditView>("all");
+
+  const rows = useMemo(
+    () =>
+      view === "active"
+        ? AUDIT_ROWS.filter((r) => r.activation === "Active")
+        : AUDIT_ROWS,
+    [view],
+  );
 
   const columns: Column<AuditRow>[] = [
+    {
+      key: "division",
+      header: "Division",
+      accessor: (r) => r.division,
+      sortValue: (r) => r.division,
+      exportValue: (r) => r.division,
+    },
+    {
+      key: "district",
+      header: "District",
+      accessor: (r) => r.district,
+      sortValue: (r) => r.district,
+      exportValue: (r) => r.district,
+    },
     {
       key: "taluka",
       header: "Taluka",
@@ -101,37 +163,7 @@ function AuditReport() {
       />
       <div className="px-8 pt-8 space-y-10">
         <Section title="Snapshot">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 [&_dt]:text-[13px]">
-            <MetricPanel
-              title="Program Snapshot"
-              groups={[
-                {
-                  items: [
-                    { label: "Talukas Active", value: s.active },
-                    { label: "Talukas Completed", value: s.completed },
-                    { label: "Talukas Yet to Start", value: s.yetToStart },
-                  ],
-                },
-              ]}
-            />
-            <MetricPanel
-              title="Active Taluka Snapshot"
-              groups={[
-                {
-                  items: [
-                    { label: "Talukas Active", value: s.active },
-                    {
-                      label: "Audit 1 Completed In",
-                      value: `${s.activeAudit1Completed} (${pct(s.activeAudit1Completed, s.active)})`,
-                    },
-                    {
-                      label: "Audit 2 Completed In",
-                      value: `${s.activeAudit2Completed} (${pct(s.activeAudit2Completed, s.active)})`,
-                    },
-                  ],
-                },
-              ]}
-            />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 [&_dt]:text-sm [&_dd_span]:text-lg">
             <MetricPanel
               title="State Snapshot"
               groups={[
@@ -159,12 +191,33 @@ function AuditReport() {
                 },
               ]}
             />
+            <MetricPanel
+              title="Active Taluka Snapshot"
+              groups={[
+                {
+                  items: [
+                    { label: "Talukas Active", value: s.active },
+                    {
+                      label: "Audit 1 Completed In",
+                      value: `${s.activeAudit1Completed} (${pct(s.activeAudit1Completed, s.active)})`,
+                    },
+                    {
+                      label: "Audit 2 Completed In",
+                      value: `${s.activeAudit2Completed} (${pct(s.activeAudit2Completed, s.active)})`,
+                    },
+                  ],
+                },
+              ]}
+            />
           </div>
         </Section>
 
-        <Section title="Detailed View">
+        <Section
+          title="Detailed View"
+          actions={<AuditViewSwitch value={view} onChange={setView} />}
+        >
           <DataTable
-            data={AUDIT_ROWS}
+            data={rows}
             columns={columns}
             headerCase="normal"
             searchKeys={["taluka", "district", "division"]}
