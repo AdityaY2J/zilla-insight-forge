@@ -138,7 +138,9 @@ const DASHBOARD_NAMES: Record<string, string> = {
   "/improvement-report-usage": "Improvement Report Usage",
   "/todays-watchlist": "Today's Watchlist",
   "/repeat-default-watchlist": "Repeat Default Watchlist",
+  "/audit-report": "Audit Report",
 };
+
 
 function HeaderBreadcrumb() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });

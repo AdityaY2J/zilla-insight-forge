@@ -26,6 +26,7 @@ import { Route as FsLearningCognitiveRouteImport } from './routes/fs-learning-co
 import { Route as FsCertificationRouteImport } from './routes/fs-certification'
 import { Route as FsBatchPerformanceRouteImport } from './routes/fs-batch-performance'
 import { Route as BatchCompositionRouteImport } from './routes/batch-composition'
+import { Route as AuditReportRouteImport } from './routes/audit-report'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TrainerUtilizationRoute = TrainerUtilizationRouteImport.update({
@@ -113,6 +114,11 @@ const BatchCompositionRoute = BatchCompositionRouteImport.update({
   path: '/batch-composition',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuditReportRoute = AuditReportRouteImport.update({
+  id: '/audit-report',
+  path: '/audit-report',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -121,6 +127,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/audit-report': typeof AuditReportRoute
   '/batch-composition': typeof BatchCompositionRoute
   '/fs-batch-performance': typeof FsBatchPerformanceRoute
   '/fs-certification': typeof FsCertificationRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/audit-report': typeof AuditReportRoute
   '/batch-composition': typeof BatchCompositionRoute
   '/fs-batch-performance': typeof FsBatchPerformanceRoute
   '/fs-certification': typeof FsCertificationRoute
@@ -162,6 +170,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/audit-report': typeof AuditReportRoute
   '/batch-composition': typeof BatchCompositionRoute
   '/fs-batch-performance': typeof FsBatchPerformanceRoute
   '/fs-certification': typeof FsCertificationRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/audit-report'
     | '/batch-composition'
     | '/fs-batch-performance'
     | '/fs-certification'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/audit-report'
     | '/batch-composition'
     | '/fs-batch-performance'
     | '/fs-certification'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/audit-report'
     | '/batch-composition'
     | '/fs-batch-performance'
     | '/fs-certification'
@@ -245,6 +257,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuditReportRoute: typeof AuditReportRoute
   BatchCompositionRoute: typeof BatchCompositionRoute
   FsBatchPerformanceRoute: typeof FsBatchPerformanceRoute
   FsCertificationRoute: typeof FsCertificationRoute
@@ -385,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BatchCompositionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/audit-report': {
+      id: '/audit-report'
+      path: '/audit-report'
+      fullPath: '/audit-report'
+      preLoaderRoute: typeof AuditReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -397,6 +417,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuditReportRoute: AuditReportRoute,
   BatchCompositionRoute: BatchCompositionRoute,
   FsBatchPerformanceRoute: FsBatchPerformanceRoute,
   FsCertificationRoute: FsCertificationRoute,
