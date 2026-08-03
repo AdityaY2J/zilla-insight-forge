@@ -122,10 +122,20 @@ function buildRows(): AuditRow[] {
 
     const totalAudits = (a1Completed ? 1 : 0) + (a2Completed ? 1 : 0);
 
+    const activation: Activation =
+      progress === "Yet to Start"
+        ? rnd() < 0.3
+          ? "Active"
+          : "Inactive"
+        : rnd() < 0.75
+          ? "Active"
+          : "Inactive";
+
     return {
       taluka,
       district,
       division,
+      activation,
       progress,
       batchesConducted,
       audit1,
