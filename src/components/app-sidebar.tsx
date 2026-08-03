@@ -12,6 +12,8 @@ import {
   FileText,
   Eye,
   AlertTriangle,
+  ShieldCheck,
+
 
 } from "lucide-react";
 
@@ -71,7 +73,12 @@ const NAV: { label: string; items: NavItem[] }[] = [
       { title: "Repeat Default Watchlist", url: "/repeat-default-watchlist", icon: AlertTriangle },
     ],
   },
+  {
+    label: "Audit Analytics",
+    items: [{ title: "Audit Report", url: "/audit-report", icon: ShieldCheck }],
+  },
 ];
+
 
 
 export function AppSidebar() {

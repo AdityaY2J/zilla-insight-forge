@@ -138,7 +138,9 @@ const DASHBOARD_NAMES: Record<string, string> = {
   "/improvement-report-usage": "Improvement Report Usage",
   "/todays-watchlist": "Today's Watchlist",
   "/repeat-default-watchlist": "Repeat Default Watchlist",
+  "/audit-report": "Audit Report",
 };
+
 
 function HeaderBreadcrumb() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -146,7 +148,9 @@ function HeaderBreadcrumb() {
   return (
     <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm">
       <span className="text-muted-foreground">
-        {pathname.endsWith("-watchlist")
+        {pathname === "/audit-report"
+          ? "Audit Analytics"
+          : pathname.endsWith("-watchlist")
           ? "Watchlist"
           : pathname.startsWith("/fs-") || pathname === "/batch-composition"
           ? "Deployment Rollout"
