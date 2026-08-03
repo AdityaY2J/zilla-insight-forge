@@ -23,10 +23,14 @@ export type AuditStatus = {
 
 export type TalukaProgress = "Active" | "Completed" | "Yet to Start";
 
+export type Activation = "Active" | "Inactive";
+
 export type AuditRow = {
   taluka: string;
   district: string;
   division: Division;
+  /** Internal/backend field — not shown in the frontend table. */
+  activation: Activation;
   progress: TalukaProgress;
   batchesConducted: number;
   audit1: AuditStatus;
