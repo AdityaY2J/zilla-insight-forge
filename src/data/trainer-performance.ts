@@ -99,8 +99,8 @@ export const TRAINER_GRADE_COMBINATIONS = GRADE_COMBINATIONS.map((combination) =
   };
 });
 
-const districtStatus = new Map(DISTRICTS.map((district, index) => [district.name, index % 7 === 0 ? "Yet to Start" : index % 5 === 0 ? "Inactive" : "Active"] as const));
-export type ImprovementReportRow = TrainerPerformanceRow & { averageReportUsage: number; usagePct: number; lastBatchDate: string; lastViewingDate: string; districtActivationStatus: "Yet to Start" | "Active" | "Inactive" };
+const districtStatus = new Map(DISTRICTS.map((district, index) => [district.name, index % 7 === 0 ? "Yet to Start" : index % 5 === 0 ? "Completed" : "Active"] as const));
+export type ImprovementReportRow = TrainerPerformanceRow & { averageReportUsage: number; usagePct: number; lastBatchDate: string; lastViewingDate: string; districtActivationStatus: "Yet to Start" | "Active" | "Completed" };
 export const IMPROVEMENT_REPORT_USAGE: ImprovementReportRow[] = TRAINER_PERFORMANCE.map((trainer, index) => {
   const random = mulberry32(92000 + index);
   const averageReportUsage = trainer.batches.length ? Math.floor(random() * (trainer.batches.length + 1)) : 0;
@@ -108,7 +108,7 @@ export const IMPROVEMENT_REPORT_USAGE: ImprovementReportRow[] = TRAINER_PERFORMA
   const lastViewing = latestBatch ? new Date(`${latestBatch}T00:00:00`) : null;
   if (lastViewing) lastViewing.setDate(lastViewing.getDate() + 2 + Math.floor(random() * 10));
   const date = (value: Date | null) => value ? `${String(value.getDate()).padStart(2, "0")}/${String(value.getMonth() + 1).padStart(2, "0")}/${value.getFullYear()}` : "–";
-  const districtActivationStatus = districtStatus.get(trainer.district) ?? "Inactive";
+  const districtActivationStatus = districtStatus.get(trainer.district) ?? "Completed";
   const unavailable = districtActivationStatus === "Yet to Start";
   return { ...trainer, averageReportUsage, usagePct: trainer.batches.length ? Math.round(averageReportUsage * 100 / trainer.batches.length) : 0, lastBatchDate: unavailable ? "-" : latestBatch ? latestBatch.split("-").reverse().join("/") : "-", lastViewingDate: unavailable ? "-" : date(lastViewing), districtActivationStatus };
 });

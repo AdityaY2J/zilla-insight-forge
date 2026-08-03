@@ -96,7 +96,7 @@ function AuditReport() {
   const rows = useMemo(
     () =>
       view === "active"
-        ? AUDIT_ROWS.filter((r) => r.activation === "Active")
+        ? AUDIT_ROWS.filter((r) => r.districtActivationStatus === "Active")
         : AUDIT_ROWS,
     [view],
   );
@@ -152,6 +152,13 @@ function AuditReport() {
       accessor: (r) => <span className="tabular-nums">{r.totalAudits}</span>,
       sortValue: (r) => r.totalAudits,
       exportValue: (r) => r.totalAudits,
+    },
+    {
+      key: "districtActivationStatus",
+      header: "District Activation Status",
+      accessor: (r) => r.districtActivationStatus,
+      sortValue: (r) => r.districtActivationStatus,
+      exportValue: (r) => r.districtActivationStatus,
     },
   ];
 

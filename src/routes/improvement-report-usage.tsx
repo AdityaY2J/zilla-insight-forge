@@ -13,7 +13,7 @@ const average = (values: number[]) => values.length ? Math.round(values.reduce((
 function ImprovementReportUsageDashboard() {
   const [view, setView] = useState<UsageView>("all");
   const rows = useMemo(() => {
-    const statusOrder = { Active: 0, Inactive: 1, "Yet to Start": 2 } as const;
+    const statusOrder = { Active: 0, Completed: 1, "Yet to Start": 2 } as const;
     const source = view === "all" ? IMPROVEMENT_REPORT_USAGE : IMPROVEMENT_REPORT_USAGE.filter((trainer) => trainer.districtActivationStatus === "Active");
     return [...source].sort((a, b) => statusOrder[a.districtActivationStatus] - statusOrder[b.districtActivationStatus]);
   }, [view]);

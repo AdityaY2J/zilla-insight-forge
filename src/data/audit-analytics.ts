@@ -21,17 +21,14 @@ export type AuditStatus = {
   date?: string;
 };
 
-export type TalukaProgress = "Active" | "Completed" | "Yet to Start";
-
-export type Activation = "Active" | "Inactive";
+export type DistrictActivationStatus = "Active" | "Completed" | "Yet to Start";
 
 export type AuditRow = {
   taluka: string;
   district: string;
   division: Division;
   /** Internal/backend field — not shown in the frontend table. */
-  activation: Activation;
-  progress: TalukaProgress;
+  districtActivationStatus: DistrictActivationStatus;
   batchesConducted: number;
   audit1: AuditStatus;
   audit2: AuditStatus;
@@ -73,13 +70,13 @@ function buildRows(): AuditRow[] {
 
   return talukaList().map(({ taluka, district, division }) => {
     const roll = rnd();
-    const progress: TalukaProgress =
+    const districtActivationStatus: DistrictActivationStatus =
       roll < 0.14 ? "Yet to Start" : roll < 0.78 ? "Active" : "Completed";
 
     let batchesConducted = 0;
-    if (progress === "Active") {
+    if (districtActivationStatus === "Active") {
       batchesConducted = 1 + Math.floor(rnd() * 7); // 1–7
-    } else if (progress === "Completed") {
+    } else if (districtActivationStatus === "Completed") {
       batchesConducted = 8 + Math.floor(rnd() * 2); // 8–9
     }
 
@@ -122,21 +119,11 @@ function buildRows(): AuditRow[] {
 
     const totalAudits = (a1Completed ? 1 : 0) + (a2Completed ? 1 : 0);
 
-    const activation: Activation =
-      progress === "Yet to Start"
-        ? rnd() < 0.3
-          ? "Active"
-          : "Inactive"
-        : rnd() < 0.75
-          ? "Active"
-          : "Inactive";
-
     return {
       taluka,
       district,
       division,
-      activation,
-      progress,
+      districtActivationStatus,
       batchesConducted,
       audit1,
       audit2,
@@ -160,9 +147,9 @@ export type AuditSummary = {
 };
 
 export function auditSummary(rows: AuditRow[] = AUDIT_ROWS): AuditSummary {
-  const active = rows.filter((r) => r.progress === "Active");
-  const completed = rows.filter((r) => r.progress === "Completed");
-  const yetToStart = rows.filter((r) => r.progress === "Yet to Start");
+  const active = rows.filter((r) => r.districtActivationStatus === "Active");
+  const completed = rows.filter((r) => r.districtActivationStatus === "Completed");
+  const yetToStart = rows.filter((r) => r.districtActivationStatus === "Yet to Start");
   const eligibleRows = [...active, ...completed];
 
   const isDone = (s: AuditStatus) => s.kind === "completed";
