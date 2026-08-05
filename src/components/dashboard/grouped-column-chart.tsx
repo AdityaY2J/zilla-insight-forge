@@ -12,6 +12,9 @@ export function GroupedColumnChart({
   xAxisTitle,
   scrollable = false,
   minChartWidth = 760,
+  barMaxWidth = 8,
+  alternateXAxisLabels = false,
+  rotateXAxisLabels = false,
 }: {
   data: { label: string; values: number[] }[];
   series: { name: string; color: string }[];
@@ -20,6 +23,9 @@ export function GroupedColumnChart({
   xAxisTitle?: string;
   scrollable?: boolean;
   minChartWidth?: number;
+  barMaxWidth?: number;
+  alternateXAxisLabels?: boolean;
+  rotateXAxisLabels?: boolean;
 }) {
   const max = Math.max(10, ...data.flatMap((d) => d.values));
   const yMax = Math.ceil(max / 10) * 10;
@@ -72,10 +78,11 @@ export function GroupedColumnChart({
                         <div
                           key={i}
                           title={`${series[i]?.name}: ${v}`}
-                          className="w-full max-w-[12px] rounded-t-sm"
+                          className="w-full rounded-t-sm"
                           style={{
                             height: `${(v / yMax) * 100}%`,
                             backgroundColor: series[i]?.color,
+                            maxWidth: barMaxWidth,
                           }}
                         />
                       ))}
@@ -85,13 +92,14 @@ export function GroupedColumnChart({
               </div>
             </div>
           </div>
-          <div className="flex justify-around gap-1.5 pl-8 pr-2 mt-1">
-            {data.map((d) => (
+          <div className={cn("flex justify-around gap-1.5 pl-8 pr-2 mt-1", rotateXAxisLabels && "h-10")}>
+            {data.map((d, index) => (
               <span
                 key={d.label}
-              className="flex-1 text-center text-[10px] text-muted-foreground whitespace-nowrap"
+              className={cn("flex-1 text-center text-[10px] text-muted-foreground whitespace-nowrap inline-block", rotateXAxisLabels && "origin-top-left")}
+              style={rotateXAxisLabels ? { transform: "rotate(-90deg) translateX(-100%)" } : undefined}
               >
-                {d.label}
+                {alternateXAxisLabels && index % 2 === 1 ? "\u00a0" : d.label}
               </span>
             ))}
           </div>

@@ -23,6 +23,13 @@ export function BatchPerformanceTable({ rows }: { rows: Batch[] }) {
       exportValue: (r) => r.name,
     },
     {
+      key: "date",
+      header: "Batch Date",
+      accessor: (r) => r.date.split("-").reverse().join("/"),
+      sortValue: (r) => r.date,
+      exportValue: (r) => r.date.split("-").reverse().join("/"),
+    },
+    {
       key: "division",
       header: "Division",
       accessor: (r) => r.division,

@@ -6,6 +6,7 @@ export function FieldStaffBatchPerformanceTable({ rows }: { rows: FieldStaffBatc
   const columns: Column<FieldStaffBatch>[] = [
     { key: "id", header: "Batch ID", accessor: (r) => r.id, exportValue: (r) => r.id },
     { key: "name", header: "Batch Name", accessor: (r) => <span className="font-medium">{r.name}</span>, exportValue: (r) => r.name },
+    { key: "date", header: "Batch Date", accessor: (r) => r.date.split("-").reverse().join("/"), sortValue: (r) => r.date, exportValue: (r) => r.date.split("-").reverse().join("/") },
     { key: "district", header: "District", accessor: (r) => r.district, exportValue: (r) => r.district },
     { key: "taluka", header: "Taluka", accessor: (r) => r.taluka, exportValue: (r) => r.taluka },
     { key: "c1id", header: "Coach 1 ID", accessor: (r) => r.coach1Id, exportValue: (r) => r.coach1Id },

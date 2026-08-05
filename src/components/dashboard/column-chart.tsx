@@ -14,6 +14,9 @@ export function ColumnChart({
   yAxisTitle,
   scrollable = false,
   minChartWidth = 760,
+  barMaxWidth = 40,
+  alternateXAxisLabels = false,
+  rotateXAxisLabels = false,
 }: {
   data: { label: string; value: number; labelText?: string }[];
   yFormat?: (v: number) => string;
@@ -24,6 +27,9 @@ export function ColumnChart({
   yAxisTitle?: string;
   scrollable?: boolean;
   minChartWidth?: number;
+  barMaxWidth?: number;
+  alternateXAxisLabels?: boolean;
+  rotateXAxisLabels?: boolean;
 }) {
   const max = Math.max(10, ...data.map((d) => d.value));
   const yMax = Math.ceil(max / 10) * 10;
@@ -67,8 +73,8 @@ export function ColumnChart({
                           {d.labelText ?? labelFormat(d.value)}
                         </span>
                         <div
-                          className="w-full max-w-[40px] rounded-t-sm transition-colors"
-                          style={{ height: `${h}%`, backgroundColor: barColor }}
+                          className="w-full rounded-t-sm transition-colors"
+                          style={{ height: `${h}%`, backgroundColor: barColor, maxWidth: barMaxWidth }}
                         />
                       </div>
                     );
@@ -77,15 +83,17 @@ export function ColumnChart({
               </div>
             </div>
           </div>
-          <div className="flex justify-around gap-2 pl-8 pr-3 mt-1">
-            {data.map((d) => (
+          <div className={cn("flex justify-around gap-2 pl-8 pr-3 mt-1", rotateXAxisLabels && "h-10")}>
+            {data.map((d, index) => (
               <span
                 key={d.label}
                 className={cn(
-                  "flex-1 text-center text-[10px] text-muted-foreground whitespace-nowrap",
+                  "flex-1 text-center text-[10px] text-muted-foreground whitespace-nowrap inline-block",
+                  rotateXAxisLabels && "origin-top-left",
                 )}
+                style={rotateXAxisLabels ? { transform: "rotate(-90deg) translateX(-100%)" } : undefined}
               >
-                {d.label}
+                {alternateXAxisLabels && index % 2 === 1 ? "\u00a0" : d.label}
               </span>
             ))}
           </div>

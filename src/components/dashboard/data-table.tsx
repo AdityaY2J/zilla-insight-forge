@@ -27,7 +27,7 @@ export function DataTable<T>({
   toolbar,
   getRowId,
   stickyHeader = true,
-  headerCase = "uppercase",
+  headerCase = "capitalize",
   paginated = true,
 }: {
   data: T[];
@@ -40,7 +40,7 @@ export function DataTable<T>({
   toolbar?: ReactNode;
   getRowId?: (row: T, i: number) => string;
   stickyHeader?: boolean;
-  headerCase?: "uppercase" | "normal";
+  headerCase?: "uppercase" | "normal" | "capitalize";
   paginated?: boolean;
 }) {
   const [query, setQuery] = useState("");
@@ -144,6 +144,7 @@ export function DataTable<T>({
             className={cn(
               "bg-muted/40 text-xs tracking-wide text-muted-foreground",
               headerCase === "uppercase" && "uppercase",
+              headerCase === "capitalize" && "capitalize",
               stickyHeader && "sticky top-0 z-10",
             )}
           >

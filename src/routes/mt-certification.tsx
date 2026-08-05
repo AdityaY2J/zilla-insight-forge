@@ -15,6 +15,7 @@ import {
   type ActiveDivisionEntry,
 } from "@/components/dashboard/division-status-panel";
 import { MetricPanel } from "@/components/dashboard/metric-panel";
+import { FilterSelect } from "@/components/dashboard/filter-bar";
 import {
   ViewSwitch,
   type SummaryView,
@@ -22,6 +23,7 @@ import {
 
 import {
   MASTER_TRAINERS,
+  BATCHES,
   TALUKA_TARGETS,
   bucketDivision,
   divisionLastDate,
@@ -48,14 +50,12 @@ export const Route = createFileRoute("/mt-certification")({
 type CertificationRecommendation =
   | "Recommended"
   | "Not Recommended"
-  | "Not Recommended-Pending"
   | "Pending";
 
 const CERT_TONE: Record<CertificationRecommendation, StatusTone> = {
   Pending: "neutral",
   Recommended: "success",
   "Not Recommended": "critical",
-  "Not Recommended-Pending": "warning",
 };
 
 function recommendationFor(
@@ -68,7 +68,7 @@ function recommendationFor(
     case "C":
       return "Not Recommended";
     case "D":
-      return "Not Recommended-Pending";
+      return "Not Recommended";
     default:
       return "Pending";
   }
@@ -123,7 +123,7 @@ function MTCertificationDashboard() {
                   {
                     items: [
                       {
-                        label: "Target",
+                        label: "Certification Target",
                         value: totals.target.toLocaleString("en-IN"),
                       },
                       {
@@ -227,12 +227,12 @@ const CERTIFICATION_SUMMARY_COLUMNS = [
   { header: "Certified", align: "right" as const },
   {
     header: "Certification Rate",
-    formula: "(Certified/Trained)",
+    formula: "Certified/Trained",
     align: "right" as const,
   },
   {
     header: "Target Completion",
-    formula: "(Certified/Target)",
+    formula: "Certified/Target",
     align: "right" as const,
   },
   { header: "Last Date", align: "right" as const },
@@ -350,11 +350,22 @@ function CertificationDepartmentTable() {
   );
 }
 
+function formatDate(value: string) {
+  const [year, month, day] = value.split("-");
+  return value ? `${day}/${month}/${year}` : "-";
+}
+
 function CertDirectory() {
-  const rows = useMemo(
-    () => MASTER_TRAINERS.filter((m) => m.selectionStatus === "Selected"),
-    [],
-  );
+  const [dateMode, setDateMode] = useState<"Overall" | "Single" | "Range">("Overall");
+  const [singleDate, setSingleDate] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const batchFor = (trainer: MasterTrainer) => BATCHES.find((batch) => batch.coach1Id === trainer.id || batch.coach2Id === trainer.id);
+  const rows = useMemo(() => MASTER_TRAINERS.filter((trainer) => {
+    if (trainer.selectionStatus !== "Selected") return false;
+    const batchDate = batchFor(trainer)?.date ?? "";
+    return dateMode === "Overall" || (dateMode === "Single" ? !singleDate || batchDate === singleDate : !fromDate || !toDate || (batchDate >= fromDate && batchDate <= toDate));
+  }), [dateMode, singleDate, fromDate, toDate]);
   const columns: Column<MasterTrainer>[] = [
     {
       key: "id",
@@ -411,6 +422,9 @@ function CertDirectory() {
       accessor: (r) => <span className="text-xs tabular-nums">{r.phone}</span>,
       exportValue: (r) => r.phone,
     },
+    { key: "certificationDate", header: "Certification Date", accessor: (r) => formatDate(batchFor(r)?.date ?? ""), sortValue: (r) => batchFor(r)?.date ?? "", exportValue: (r) => formatDate(batchFor(r)?.date ?? "") },
+    { key: "batchDate", header: "Batch Date", accessor: (r) => formatDate(batchFor(r)?.date ?? ""), sortValue: (r) => batchFor(r)?.date ?? "", exportValue: (r) => formatDate(batchFor(r)?.date ?? "") },
+    { key: "batchId", header: "Batch ID", accessor: (r) => batchFor(r)?.id ?? "-", sortValue: (r) => batchFor(r)?.id ?? "", exportValue: (r) => batchFor(r)?.id ?? "" },
     {
       key: "a1",
       header: "Assessment 1",
@@ -469,12 +483,9 @@ function CertDirectory() {
     },
   ];
   return (
-    <DataTable
-      data={rows}
-      columns={columns}
-      searchKeys={["name", "district", "taluka", "department", "designation"]}
-      pageSize={15}
-      getRowId={(r) => r.id}
-    />
+    <>
+      <div className="mb-4 flex flex-wrap items-end gap-3"><FilterSelect label="Date" value={dateMode} onChange={(value) => setDateMode(value as "Overall" | "Single" | "Range")} options={[{ label: "Overall", value: "Overall" }, { label: "Single Date", value: "Single" }, { label: "Date Range", value: "Range" }]} />{dateMode === "Single" ? <input className="h-9 rounded-md border px-2 text-sm" type="date" value={singleDate} onChange={(event) => setSingleDate(event.target.value)} /> : null}{dateMode === "Range" ? <><input className="h-9 rounded-md border px-2 text-sm" type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} /><input className="h-9 rounded-md border px-2 text-sm" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} /></> : null}</div>
+      <DataTable data={rows} columns={columns} searchKeys={["name", "district", "taluka", "department", "designation"]} pageSize={15} getRowId={(r) => r.id} />
+    </>
   );
 }

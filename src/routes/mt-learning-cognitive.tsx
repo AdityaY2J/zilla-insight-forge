@@ -335,6 +335,8 @@ function GeographyLearningTable({ rows }: { rows: Batch[] }) {
       rows={hier}
       firstColHeader="Geography"
       columns={LEARNING_SUMMARY_COLUMNS}
+      exportable
+      exportFileName="mt-learning-cognitive-geography.csv"
     />
   );
 }
@@ -363,6 +365,8 @@ function DepartmentLearningTable({ rows: scopedRows }: { rows: Batch[] }) {
       rows={rows}
       firstColHeader="Department"
       columns={LEARNING_SUMMARY_COLUMNS}
+      exportable
+      exportFileName="mt-learning-cognitive-department.csv"
     />
   );
 }
@@ -371,6 +375,7 @@ function BatchLearningTable({ rows }: { rows: Batch[] }) {
   const columns: Column<Batch>[] = [
     { key: "id", header: "Batch ID", accessor: (r) => r.id, sortValue: (r) => r.id, exportValue: (r) => r.id },
     { key: "name", header: "Batch Name", accessor: (r) => <span className="font-medium">{r.name}</span>, sortValue: (r) => r.name, exportValue: (r) => r.name },
+    { key: "date", header: "Batch Date", accessor: (r) => r.date.split("-").reverse().join("/"), sortValue: (r) => r.date, exportValue: (r) => r.date.split("-").reverse().join("/") },
     { key: "div", header: "Division", accessor: (r) => r.division, sortValue: (r) => r.division, exportValue: (r) => r.division },
     { key: "c1id", header: "Coach 1 ID", accessor: (r) => r.coach1Id, exportValue: (r) => r.coach1Id },
     { key: "c2id", header: "Coach 2 ID", accessor: (r) => r.coach2Id, exportValue: (r) => r.coach2Id },

@@ -9,69 +9,33 @@ import { DataTable, type Column } from "@/components/dashboard/data-table";
 import { HierarchicalBreakdownTable, type HierRow } from "@/components/dashboard/hierarchical-breakdown-table";
 import { StatusPill } from "@/components/dashboard/status-pill";
 import { ViewSwitch, type SummaryView } from "@/components/dashboard/view-switch";
-import { FIELD_STAFF, type FieldStaff } from "@/data/deployment-rollout";
+import { FilterSelect } from "@/components/dashboard/filter-bar";
+import { FIELD_STAFF, FIELD_STAFF_BATCHES, type FieldStaff } from "@/data/deployment-rollout";
 import { DEPARTMENTS, DISTRICTS, DIVISIONS } from "@/data/geography";
 import { formatProgramAverage, programAverage } from "@/lib/program-average";
 
 export const Route = createFileRoute("/fs-certification")({ component: FieldStaffCertificationDashboard });
-
-const lastDateFor = (rows: FieldStaff[]) => rows.length
-  ? `${String(10 + (rows.length % 18)).padStart(2, "0")}/${String(4 + (rows.length % 5)).padStart(2, "0")}/2026`
-  : "–";
+type DateMode = "Overall" | "Single" | "Range";
+const formatDate = (value: string) => value ? value.split("-").reverse().join("/") : "-";
+const lastDateFor = (rows: FieldStaff[]) => rows.length ? `${String(10 + rows.length % 18).padStart(2, "0")}/${String(4 + rows.length % 5).padStart(2, "0")}/2026` : "-";
 
 function FieldStaffCertificationDashboard() {
   const [view, setView] = useState<SummaryView>("geography");
   const totals = useMemo(() => ({ trained: FIELD_STAFF.filter((row) => row.trained).length, certified: FIELD_STAFF.filter((row) => row.certificationStatus === "Certified").length, target: FIELD_STAFF.length }), []);
-  const divisions = useMemo(() => DIVISIONS.map((division) => {
-    const rows = FIELD_STAFF.filter((row) => row.division === division);
-    const certified = rows.filter((row) => row.certificationStatus === "Certified").length;
-    return { division, target: rows.length, certified, trained: rows.filter((row) => row.trained).length, completion: rows.length ? Math.round(certified * 100 / rows.length) : 0, lastDate: lastDateFor(rows) };
-  }), []);
+  const divisions = useMemo(() => DIVISIONS.map((division) => { const rows = FIELD_STAFF.filter((row) => row.division === division); const certified = rows.filter((row) => row.certificationStatus === "Certified").length; return { division, target: rows.length, certified, trained: rows.filter((row) => row.trained).length, completion: rows.length ? Math.round(certified * 100 / rows.length) : 0, lastDate: lastDateFor(rows) }; }), []);
   const active = divisions.filter((row) => row.completion > 0 && row.completion < 100).map((row) => ({ division: row.division, target: row.target, achieved: row.certified, completion: row.completion, lastDate: row.lastDate }));
-  return <div className="pb-16"><PageHeader title="Field Staff Certification" description="Certification progress across Field Staff and geographies." /><div className="px-8 pt-8 space-y-10">
-    <Section title="Snapshot"><SplitSnapshotPanel left={<MetricPanel title="Overall" groups={[{ items: [{ label: "Target", value: totals.target }, { label: "Trained", value: totals.trained }, { label: "Certified", value: totals.certified }, { label: "Target Completion", formula: "Certified/Target", value: `${Math.round(totals.certified * 100 / totals.target)}%` }] }]} />} rightTitle="Division Status" right={<DivisionStatusPanel achievedLabel="Certified" active={active} completed={divisions.filter((row) => row.completion >= 100).map((row) => row.division)} yetToStart={divisions.filter((row) => row.completion === 0).map((row) => row.division)} />} /></Section>
-    <Section title="Certification Summary" actions={<ViewSwitch value={view} onChange={setView} />}>{view === "geography" ? <GeographySummary /> : <DepartmentSummary />}</Section>
-    <Section title="Field Staff Certification Status" description="Individual Field Staff certification records."><FieldStaffDirectory /></Section>
-  </div></div>;
+  return <div className="pb-16"><PageHeader title="Field Staff Certification" description="Certification progress across Field Staff and geographies." /><div className="px-8 pt-8 space-y-10"><Section title="Snapshot"><SplitSnapshotPanel left={<MetricPanel title="Overall" groups={[{ items: [{ label: "Certification Target", value: totals.target }, { label: "Trained", value: totals.trained }, { label: "Certified", value: totals.certified }, { label: "Target Completion", formula: "Certified/Target", value: `${Math.round(totals.certified * 100 / totals.target)}%` }] }]} />} rightTitle="Division Status" right={<DivisionStatusPanel achievedLabel="Certified" active={active} completed={divisions.filter((row) => row.completion >= 100).map((row) => row.division)} yetToStart={divisions.filter((row) => row.completion === 0).map((row) => row.division)} />} /></Section><Section title="Certification Summary" actions={<ViewSwitch value={view} onChange={setView} />}>{view === "geography" ? <GeographySummary /> : <DepartmentSummary />}</Section><Section title="Field Staff Certification Status" description="Individual Field Staff certification records."><FieldStaffDirectory /></Section></div></div>;
 }
 
-function certificationValues(rows: FieldStaff[]): (React.ReactNode | number | string)[] {
-  const trained = rows.filter((row) => row.trained).length;
-  const certified = rows.filter((row) => row.certificationStatus === "Certified").length;
-  const target = rows.length;
-  return [<StatusPill key="status" tone={target ? "success" : "neutral"}>{target ? "Active" : "Not Active"}</StatusPill>, target || "–", trained || "–", certified || "–", trained ? `${Math.round(certified * 100 / trained)}%` : "–", target ? `${Math.round(certified * 100 / target)}%` : "–", lastDateFor(rows)];
-}
-
-const CERTIFICATION_COLUMNS = [
-  { header: "Activation Status" }, { header: "Target", align: "right" as const }, { header: "Trained", align: "right" as const }, { header: "Certified", align: "right" as const },
-  { header: "Certification Rate", formula: "Certified/Trained", align: "right" as const }, { header: "Target Completion", formula: "Certified/Target", align: "right" as const }, { header: "Last Date", align: "right" as const },
-];
-
-function GeographySummary() {
-  const rows = useMemo<HierRow[]>(() => DIVISIONS.map((division) => {
-    const divisionRows = FIELD_STAFF.filter((row) => row.division === division);
-    return { key: division, label: `${division} (Division)`, values: certificationValues(divisionRows), children: DISTRICTS.filter((district) => district.division === division).map((district) => {
-      const districtRows = divisionRows.filter((row) => row.district === district.name);
-      return { key: `${division}/${district.name}`, label: `${district.name} (District)`, values: certificationValues(districtRows), children: district.talukas.map((taluka) => {
-        const talukaRows = districtRows.filter((row) => row.taluka === taluka);
-        return { key: `${division}/${district.name}/${taluka}`, label: taluka, values: certificationValues(talukaRows) };
-      }) };
-    }) };
-  }), []);
-  return <HierarchicalBreakdownTable rows={rows} firstColHeader="Geography" columns={CERTIFICATION_COLUMNS} exportable exportFileName="field-staff-certification-summary.csv" />;
-}
-
-function DepartmentSummary() {
-  const rows = useMemo<HierRow[]>(() => DEPARTMENTS.map((department) => {
-    const staff = FIELD_STAFF.filter((row) => row.department === department);
-    return { key: department, label: department, values: certificationValues(staff) };
-  }), []);
-  return <HierarchicalBreakdownTable rows={rows} firstColHeader="Department" columns={CERTIFICATION_COLUMNS} exportable exportFileName="field-staff-certification-department-summary.csv" />;
-}
+function certificationValues(rows: FieldStaff[]): (React.ReactNode | number | string)[] { const trained = rows.filter((row) => row.trained).length; const certified = rows.filter((row) => row.certificationStatus === "Certified").length; const target = rows.length; return [<StatusPill key="status" tone={target ? "success" : "neutral"}>{target ? "Active" : "Not Active"}</StatusPill>, target || "-", trained || "-", certified || "-", trained ? `${Math.round(certified * 100 / trained)}%` : "-", target ? `${Math.round(certified * 100 / target)}%` : "-", lastDateFor(rows)]; }
+const CERTIFICATION_COLUMNS = [{ header: "Activation Status" }, { header: "Target", align: "right" as const }, { header: "Trained", align: "right" as const }, { header: "Certified", align: "right" as const }, { header: "Certification Rate", formula: "Certified/Trained", align: "right" as const }, { header: "Target Completion", formula: "Certified/Target", align: "right" as const }, { header: "Last Date", align: "right" as const }];
+function GeographySummary() { const rows = useMemo<HierRow[]>(() => DIVISIONS.map((division) => { const divisionRows = FIELD_STAFF.filter((row) => row.division === division); return { key: division, label: `${division} (Division)`, values: certificationValues(divisionRows), children: DISTRICTS.filter((district) => district.division === division).map((district) => { const districtRows = divisionRows.filter((row) => row.district === district.name); return { key: `${division}/${district.name}`, label: `${district.name} (District)`, values: certificationValues(districtRows), children: district.talukas.map((taluka) => ({ key: `${division}/${district.name}/${taluka}`, label: taluka, values: certificationValues(districtRows.filter((row) => row.taluka === taluka)) })) }; }) }; }), []); return <HierarchicalBreakdownTable rows={rows} firstColHeader="Geography" columns={CERTIFICATION_COLUMNS} exportable exportFileName="field-staff-certification-summary.csv" />; }
+function DepartmentSummary() { const rows = useMemo<HierRow[]>(() => DEPARTMENTS.map((department) => { const staff = FIELD_STAFF.filter((row) => row.department === department); return { key: department, label: department, values: certificationValues(staff) }; }), []); return <HierarchicalBreakdownTable rows={rows} firstColHeader="Department" columns={CERTIFICATION_COLUMNS} exportable exportFileName="field-staff-certification-department-summary.csv" />; }
 
 function FieldStaffDirectory() {
-  const columns: Column<FieldStaff>[] = [
-    { key: "id", header: "F ID", accessor: (r) => r.id, exportValue: (r) => r.id }, { key: "name", header: "FS Name", accessor: (r) => <span className="font-medium">{r.name}</span>, exportValue: (r) => r.name }, { key: "designation", header: "Designation", accessor: (r) => r.designation }, { key: "department", header: "Department", accessor: (r) => r.department }, { key: "division", header: "Division", accessor: (r) => r.division }, { key: "district", header: "District", accessor: (r) => r.district }, { key: "taluka", header: "Taluka", accessor: (r) => r.taluka }, { key: "phone", header: "Phone No.", accessor: (r) => r.phone }, { key: "a1", header: "Assessment 1", accessor: (r) => r.assessment1 != null ? `${r.assessment1}%` : "–", align: "right" }, { key: "a2", header: "Assessment 2", accessor: (r) => r.assessment2 != null ? `${r.assessment2}%` : "–", align: "right" }, { key: "programAverage", header: "Program Average", accessor: (r) => formatProgramAverage(r.assessment1, r.assessment2), sortValue: (r) => programAverage(r.assessment1, r.assessment2) ?? -1, align: "right" }, { key: "status", header: "Certification Status", accessor: (r) => <StatusPill tone={r.certificationStatus === "Certified" ? "success" : "neutral"}>{r.certificationStatus}</StatusPill> },
-  ];
-  return <DataTable data={FIELD_STAFF} columns={columns} searchKeys={["id", "name", "department", "district"]} pageSize={15} getRowId={(row) => row.id} />;
+  const [dateMode, setDateMode] = useState<DateMode>("Overall"); const [singleDate, setSingleDate] = useState(""); const [fromDate, setFromDate] = useState(""); const [toDate, setToDate] = useState("");
+  const batchFor = (staff: FieldStaff) => FIELD_STAFF_BATCHES.find((batch) => batch.taluka === staff.taluka);
+  const rows = useMemo(() => FIELD_STAFF.filter((staff) => { const date = batchFor(staff)?.date ?? ""; return dateMode === "Overall" || (dateMode === "Single" ? !singleDate || date === singleDate : !fromDate || !toDate || (date >= fromDate && date <= toDate)); }), [dateMode, singleDate, fromDate, toDate]);
+  const columns: Column<FieldStaff>[] = [{ key: "id", header: "Field Staff ID", accessor: (r) => r.id, exportValue: (r) => r.id }, { key: "name", header: "Field Staff Name", accessor: (r) => <span className="font-medium">{r.name}</span>, exportValue: (r) => r.name }, { key: "designation", header: "Designation", accessor: (r) => r.designation }, { key: "department", header: "Department", accessor: (r) => r.department }, { key: "division", header: "Division", accessor: (r) => r.division }, { key: "district", header: "District", accessor: (r) => r.district }, { key: "taluka", header: "Taluka", accessor: (r) => r.taluka }, { key: "phone", header: "Phone No.", accessor: (r) => r.phone }, { key: "a1", header: "Assessment 1", accessor: (r) => r.assessment1 != null ? `${r.assessment1}%` : "-", align: "right" }, { key: "a2", header: "Assessment 2", accessor: (r) => r.assessment2 != null ? `${r.assessment2}%` : "-", align: "right" }, { key: "programAverage", header: "Program Average", accessor: (r) => formatProgramAverage(r.assessment1, r.assessment2), sortValue: (r) => programAverage(r.assessment1, r.assessment2) ?? -1, align: "right" }, { key: "status", header: "Certification Status", accessor: (r) => <StatusPill tone={r.certificationStatus === "Certified" ? "success" : "neutral"}>{r.certificationStatus}</StatusPill> }, { key: "certificationDate", header: "Certification Date", accessor: (r) => formatDate(batchFor(r)?.date ?? ""), exportValue: (r) => formatDate(batchFor(r)?.date ?? "") }, { key: "batchDate", header: "Batch Date", accessor: (r) => formatDate(batchFor(r)?.date ?? ""), exportValue: (r) => formatDate(batchFor(r)?.date ?? "") }, { key: "batchId", header: "Batch ID", accessor: (r) => batchFor(r)?.id ?? "-", exportValue: (r) => batchFor(r)?.id ?? "" }];
+  return <><div className="mb-4 flex flex-wrap items-end gap-3"><FilterSelect label="Date" value={dateMode} onChange={(value) => setDateMode(value as DateMode)} options={[{ label: "Overall", value: "Overall" }, { label: "Single Date", value: "Single" }, { label: "Date Range", value: "Range" }]} />{dateMode === "Single" ? <input className="h-9 rounded-md border px-2 text-sm" type="date" value={singleDate} onChange={(event) => setSingleDate(event.target.value)} /> : null}{dateMode === "Range" ? <><input className="h-9 rounded-md border px-2 text-sm" type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} /><input className="h-9 rounded-md border px-2 text-sm" type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} /></> : null}</div><DataTable data={rows} columns={columns} searchKeys={["id", "name", "department", "district"]} pageSize={15} getRowId={(row) => row.id} /></>;
 }

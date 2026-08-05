@@ -38,5 +38,5 @@ function UsageTable({ rows }: { rows: ImprovementReportRow[] }) {
     { key: "lastViewing", header: "Last Viewing Date", accessor: (r) => r.lastViewingDate },
     { key: "status", header: "District Activation Status", accessor: (r) => r.districtActivationStatus, sortValue: (r) => r.districtActivationStatus },
   ];
-  return <DataTable data={rows} columns={columns} headerCase="normal" searchKeys={["id", "name", "district", "taluka"]} pageSize={15} getRowId={(row) => row.id} />;
+  return <DataTable data={rows} columns={columns} headerCase="capitalize" searchKeys={["id", "name", "district", "taluka"]} pageSize={15} getRowId={(row) => row.id} />;
 }

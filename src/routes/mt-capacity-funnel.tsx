@@ -8,7 +8,6 @@ import {
   HierarchicalBreakdownTable,
   type HierRow,
 } from "@/components/dashboard/hierarchical-breakdown-table";
-import { AchievedTarget } from "@/components/dashboard/achieved-target";
 
 import {
   MASTER_TRAINERS,
@@ -40,14 +39,6 @@ export const Route = createFileRoute("/mt-capacity-funnel")({
 
 function CapacityFunnelDashboard() {
   const stages = useMemo<FunnelStage[]>(() => {
-    const requiredSelected = TALUKA_TARGETS.filter((t) => t.active).reduce(
-      (s, t) => s + t.targetSelected,
-      0,
-    );
-    const requiredCertified = TALUKA_TARGETS.filter((t) => t.active).reduce(
-      (s, t) => s + t.targetCertified,
-      0,
-    );
     return [
       { label: "Nominated", value: MASTER_TRAINERS.length },
       {
@@ -59,14 +50,12 @@ function CapacityFunnelDashboard() {
         label: "Selected",
         value: MASTER_TRAINERS.filter((m) => m.selectionStatus === "Selected")
           .length,
-        target: requiredSelected,
       },
       {
         label: "Certified",
         value: MASTER_TRAINERS.filter(
           (m) => m.certificationStatus === "Certified",
         ).length,
-        target: requiredCertified,
       },
     ];
   }, []);
@@ -83,7 +72,7 @@ function CapacityFunnelDashboard() {
           <FunnelChart stages={stages} />
         </Section>
 
-        <Section title="Geography-wise Capacity Building Summary">
+        <Section title="Geography-wise Capacity Building Funnel">
           <FunnelGeographyTable />
         </Section>
       </div>
@@ -95,8 +84,6 @@ function pipelineRow(
   targets: TalukaTarget[],
   trainers: MasterTrainer[],
 ): (React.ReactNode | number | string)[] {
-  const reqSel = targets.reduce((s, t) => s + (t.active ? t.targetSelected : 0), 0);
-  const reqCert = targets.reduce((s, t) => s + (t.active ? t.targetCertified : 0), 0);
   const nom = trainers.length;
   const asd = trainers.filter((m) => m.selectionStatus !== "Nominated").length;
   const sel = trainers.filter((m) => m.selectionStatus === "Selected").length;
@@ -104,8 +91,9 @@ function pipelineRow(
   return [
     nom,
     asd,
-    <AchievedTarget key="s" achieved={sel} target={reqSel || undefined} />,
-    <AchievedTarget key="c" achieved={cert} target={reqCert || undefined} />,
+    sel,
+    cert,
+    nom ? `${Math.round((cert / nom) * 100)}%` : "-",
   ];
 }
 
@@ -113,13 +101,12 @@ function exportRow(
   targets: TalukaTarget[],
   trainers: MasterTrainer[],
 ): (string | number)[] {
-  const reqSel = targets.reduce((s, t) => s + (t.active ? t.targetSelected : 0), 0);
-  const reqCert = targets.reduce((s, t) => s + (t.active ? t.targetCertified : 0), 0);
   return [
     trainers.length,
     trainers.filter((m) => m.selectionStatus !== "Nominated").length,
-    `${trainers.filter((m) => m.selectionStatus === "Selected").length}/${reqSel}`,
-    `${trainers.filter((m) => m.certificationStatus === "Certified").length}/${reqCert}`,
+    trainers.filter((m) => m.selectionStatus === "Selected").length,
+    trainers.filter((m) => m.certificationStatus === "Certified").length,
+    trainers.length ? `${Math.round((trainers.filter((m) => m.certificationStatus === "Certified").length / trainers.length) * 100)}%` : "-",
   ];
 }
 
@@ -178,8 +165,9 @@ function FunnelGeographyTable() {
       columns={[
         { header: "Nominated", align: "right" },
         { header: "Assessed", align: "right" },
-        { header: "Selected", formula: "Selected/Target", align: "right" },
-        { header: "Certified", formula: "Certified/Target", align: "right" },
+        { header: "Selected", align: "right" },
+        { header: "Certified", align: "right" },
+        { header: "Conversion %", formula: "Certified/Nominated", align: "right" },
       ]}
     />
   );

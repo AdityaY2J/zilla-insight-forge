@@ -226,7 +226,7 @@ function AuditReport() {
           <DataTable
             data={rows}
             columns={columns}
-            headerCase="normal"
+            headerCase="capitalize"
             searchKeys={["taluka", "district", "division"]}
             pageSize={15}
             getRowId={(r) => `${r.district}-${r.taluka}`}

@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -29,6 +30,8 @@ const riskTone = (status: TrainerRiskRow["riskStatus"]) =>
   status === "Persistent" ? "critical" : status === "Repeat" ? "critical" : "warning";
 
 function RepeatDefaultWatchlist() {
+  const [view, setView] = useState<"all" | "active">("all");
+  const rows = useMemo(() => view === "active" ? TRAINER_RISK_ROWS.filter((row) => row.districtActivationStatus === "Active") : TRAINER_RISK_ROWS, [view]);
   const columns: Column<TrainerRiskRow>[] = [
     { key: "id", header: "Trainer Id", accessor: (r) => <span className="text-xs tabular-nums">{r.id}</span>, sortValue: (r) => r.id, exportValue: (r) => r.id },
     { key: "name", header: "Trainer Name", accessor: (r) => <span className="font-medium">{r.name}</span>, sortValue: (r) => r.name, exportValue: (r) => r.name },
@@ -48,6 +51,7 @@ function RepeatDefaultWatchlist() {
       ),
       exportValue: (r) => r.lastThree.join(", "),
     },
+    { key: "lastBatchDate", header: "Last Batch Conducted Date", accessor: (r) => r.lastBatchConductedDate, sortValue: (r) => r.lastBatchConductedDate, exportValue: (r) => r.lastBatchConductedDate },
     {
       key: "risk",
       header: "Risk Status",
@@ -63,6 +67,7 @@ function RepeatDefaultWatchlist() {
       ),
       exportValue: (r) => r.dominantIssues.join(", "),
     },
+    { key: "districtActivation", header: "District Activation Status", accessor: (r) => r.districtActivationStatus, sortValue: (r) => r.districtActivationStatus, exportValue: (r) => r.districtActivationStatus },
   ];
 
   return (
@@ -72,11 +77,11 @@ function RepeatDefaultWatchlist() {
         description="Trainer risk status based on the last 3 batches"
       />
       <div className="px-8 pt-8 space-y-10">
-        <Section title="Trainer Risk Status">
+        <Section title="Trainer Risk Status" actions={<div className="inline-flex rounded-md border bg-muted/30 p-1"><button type="button" onClick={() => setView("all")} className={`rounded px-3 py-1.5 text-sm ${view === "all" ? "bg-background shadow-sm font-medium" : "text-muted-foreground"}`}>All</button><button type="button" onClick={() => setView("active")} className={`rounded px-3 py-1.5 text-sm ${view === "active" ? "bg-background shadow-sm font-medium" : "text-muted-foreground"}`}>Active Districts</button></div>}>
           <DataTable
-            data={TRAINER_RISK_ROWS}
+            data={rows}
             columns={columns}
-            headerCase="normal"
+            headerCase="capitalize"
             searchKeys={["id", "name", "phone"]}
             pageSize={15}
             getRowId={(r) => r.id}

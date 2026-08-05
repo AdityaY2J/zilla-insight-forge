@@ -37,7 +37,7 @@ type NavItem = {
 
 const NAV: { label: string; items: NavItem[] }[] = [
   {
-    label: "Phase 1 — Capacity Building",
+    label: "MT Capacity Building",
     items: [
       { title: "MT Selection", url: "/mt-selection", icon: UserCheck },
       { title: "MT Certification", url: "/mt-certification", icon: BadgeCheck },
@@ -48,7 +48,7 @@ const NAV: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Phase 2 — Deployment Rollout",
+    label: "Deployment Rollout",
     items: [
       { title: "Field Staff Certification", url: "/fs-certification", icon: BadgeCheck },
       { title: "Field Staff Batch Performance", url: "/fs-batch-performance", icon: CalendarRange },

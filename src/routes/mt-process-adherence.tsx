@@ -193,17 +193,17 @@ function MTProcessAdherenceDashboard() {
           </KpiGrid>
         </Section>
 
-        <Section title={`Process Adherence (N = ${filtered.length} Batches)`}>
+        <Section title={`Batch-wise Process Adherence (based on ${filtered.length} batches)`}>
           <SectionCard>
             <ColumnChart
               data={distribution}
-              xAxisTitle="No. of Modules Adhered To"
+              xAxisTitle="Modules with Process Adherence"
               yAxisTitle="% of batches"
             />
           </SectionCard>
         </Section>
 
-        <Section title={`Batch Benchmark Adherence by Module (N = ${filtered.length} Batches)`}>
+        <Section title={`Module-wise Process Adherence (based on ${filtered.length} batches)`}>
           <SectionCard>
             <StackedColumnChart100
               data={moduleBench}

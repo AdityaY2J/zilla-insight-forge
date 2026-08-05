@@ -41,8 +41,7 @@ const pct = (value: number, total: number) =>
 const statusTone = (status: WatchlistBatch["status"]) =>
   status === "Critical" ? "critical" : status === "Moderate" ? "warning" : "success";
 
-const learningTone = (status: WatchlistBatch["learningStatus"]) =>
-  status === "Above Benchmark" ? "success" : status === "Meets Benchmark" ? "neutral" : "critical";
+const learningTone = (score: number) => (score >= 80 ? "success" : "critical");
 
 const cognitiveTone = (score: number) => (score >= 4 ? "success" : "critical");
 
@@ -105,10 +104,10 @@ function TodaysWatchlist() {
       key: "lstatus",
       header: "Status",
       accessor: (r) => (
-        <StatusPill tone={learningTone(r.learningStatus)}>{r.learningStatus}</StatusPill>
+        <StatusPill tone={learningTone(r.avgLearningScore)}>{r.avgLearningScore >= 80 ? "Meeting Benchmark" : "Below Benchmark"}</StatusPill>
       ),
-      sortValue: (r) => r.learningStatus,
-      exportValue: (r) => r.learningStatus,
+      sortValue: (r) => r.avgLearningScore >= 80 ? "Meeting Benchmark" : "Below Benchmark",
+      exportValue: (r) => r.avgLearningScore >= 80 ? "Meeting Benchmark" : "Below Benchmark",
     },
   ];
 
@@ -127,11 +126,11 @@ function TodaysWatchlist() {
       header: "Status",
       accessor: (r) => (
         <StatusPill tone={cognitiveTone(r.avgCognitivePostScore)}>
-          {r.avgCognitivePostScore >= 4 ? "Meeting Benchmark" : "Below Benchmark"}
+          {r.avgCognitivePostScore >= 4 ? "Meets Benchmark" : "Below Benchmark"}
         </StatusPill>
       ),
-      sortValue: (r) => r.avgCognitivePostScore >= 4 ? "Meeting Benchmark" : "Below Benchmark",
-      exportValue: (r) => r.avgCognitivePostScore >= 4 ? "Meeting Benchmark" : "Below Benchmark",
+      sortValue: (r) => r.avgCognitivePostScore >= 4 ? "Meets Benchmark" : "Below Benchmark",
+      exportValue: (r) => r.avgCognitivePostScore >= 4 ? "Meets Benchmark" : "Below Benchmark",
     },
   ];
 
@@ -176,10 +175,10 @@ function TodaysWatchlist() {
           </div>
         </Section>
 
-        <Section title="Past 14 Days">
+        <Section title="Registration & Assessment Trend (past 14 days)">
           <div className="grid gap-4 lg:grid-cols-2">
             <SectionCard>
-              <h3 className="text-sm font-semibold mb-4">No. of Registrations Past 14 Days</h3>
+              <h3 className="text-sm font-semibold mb-4">Daily Registrations (last 14 days)</h3>
               <ColumnChart
                 data={PAST_14_DAYS.map((d) => ({
                   label: d.label,
@@ -189,11 +188,13 @@ function TodaysWatchlist() {
                 yFormat={(v) => String(v)}
                 labelFormat={(v) => String(v)}
                 yAxisTitle="No. of Registrations"
-                scrollable
+                barMaxWidth={16}
+                alternateXAxisLabels
+                rotateXAxisLabels
               />
             </SectionCard>
             <SectionCard>
-              <h3 className="text-sm font-semibold mb-4">Assessment Submissions Past 14 Days</h3>
+              <h3 className="text-sm font-semibold mb-4">Daily Assessment Submissions (last 14 days)</h3>
               <GroupedColumnChart
                 data={PAST_14_DAYS.map((d) => ({
                   label: d.label,
@@ -204,16 +205,15 @@ function TodaysWatchlist() {
                   { name: "Day 2", color: "var(--success)" },
                 ]}
                 yAxisTitle="No. of Assessment Submissions"
-                scrollable
+                barMaxWidth={6}
+                alternateXAxisLabels
+                rotateXAxisLabels
               />
             </SectionCard>
           </div>
         </Section>
 
-        <Section
-          title="Today's Flashpoint Summary"
-          description={`All percentages use today's ${total} active batches as the denominator.`}
-        >
+        <Section title={`Today's Flashpoint Summary (based on ${total} active batches)`}>
           <div className="grid gap-4 lg:grid-cols-2">
             <MetricPanel
               title="Operational Flashpoint Summary"
@@ -242,7 +242,7 @@ function TodaysWatchlist() {
 
         <Section title="Operational Health Card">
           <DataTable
-            data={TODAY_BATCHES}
+            data={[...TODAY_BATCHES].sort((a, b) => ({ Critical: 0, Moderate: 1, Healthy: 2 }[a.status] - { Critical: 0, Moderate: 1, Healthy: 2 }[b.status]))}
             columns={operationalColumns}
             headerCase="normal"
             searchKeys={["id", "name", "district"]}
@@ -253,7 +253,7 @@ function TodaysWatchlist() {
 
         <Section title="Learning Health Card">
           <DataTable
-            data={TODAY_BATCHES}
+            data={[...TODAY_BATCHES].sort((a, b) => (a.avgLearningScore < 80 ? 0 : 1) - (b.avgLearningScore < 80 ? 0 : 1))}
             columns={learningColumns}
             headerCase="normal"
             searchKeys={["id", "name", "district"]}
@@ -264,7 +264,7 @@ function TodaysWatchlist() {
 
         <Section title="Cognitive Health Card">
           <DataTable
-            data={TODAY_BATCHES}
+            data={[...TODAY_BATCHES].sort((a, b) => (a.avgCognitivePostScore < 4 ? 0 : 1) - (b.avgCognitivePostScore < 4 ? 0 : 1))}
             columns={cognitiveColumns}
             headerCase="normal"
             searchKeys={["id", "name", "district"]}

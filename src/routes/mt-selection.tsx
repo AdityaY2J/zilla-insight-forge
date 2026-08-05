@@ -117,7 +117,7 @@ function MTSelectionDashboard() {
                   {
                     items: [
                       {
-                        label: "Target",
+                        label: "Selection Target",
                         value: totals.target.toLocaleString("en-IN"),
                       },
                       {
@@ -133,8 +133,8 @@ function MTSelectionDashboard() {
                         value: totals.selected.toLocaleString("en-IN"),
                       },
                       {
-                        label: "Target Completion",
-                        formula: "Selected/Target",
+                        label: "Selection Completion %",
+                        formula: "Selected/Selection Target",
                         value: `${totals.completion}%`,
                       },
                     ],
@@ -224,6 +224,8 @@ function selectionRow(target: {
       "-",
       "-",
       "-",
+      "-",
+      "-",
       target.lastDate,
     ];
   }
@@ -238,9 +240,11 @@ function selectionRow(target: {
     <StatusPill key="s" tone="success">
       Active
     </StatusPill>,
-    <AchievedTarget key="n" achieved={nominated} target={target.targetNominated} />,
+    target.targetNominated,
+    target.targetSelected,
+    nominated,
     assessed,
-    <AchievedTarget key="sel" achieved={selected} target={target.targetSelected} />,
+    selected,
     `${selectionRate}%`,
     `${completion}%`,
     target.lastDate,
@@ -339,17 +343,19 @@ function SelectionSummaryTable() {
       exportFileName="mt-selection-summary"
       columns={[
         { header: "Activation Status" },
+        { header: "Nomination Target", align: "right" },
+        { header: "Selection Target", align: "right" },
         { header: "Nominated", align: "right" },
         { header: "Assessed", align: "right" },
         { header: "Selected", align: "right" },
         {
           header: "Selection Rate",
-          formula: "(Selected/Assessed)",
+          formula: "Selected/Assessed",
           align: "right",
         },
         {
-          header: "Target Completion",
-          formula: "(Selected/Target)",
+          header: "Selection Completion %",
+          formula: "Selected/Selection Target",
           align: "right",
         },
         { header: "Last Date", align: "right" },

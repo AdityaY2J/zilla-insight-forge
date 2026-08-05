@@ -34,7 +34,24 @@ function BenchmarkColumnChart({
 }) {
   const max = Math.max(10, benchmark, ...data.map((item) => item.value));
   const yMax = Math.ceil(max / 10) * 10;
-  return <SectionCard><div className="flex flex-wrap items-center justify-between gap-3"><h3 className="text-sm font-semibold">{title}</h3><span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"><span className="w-6 border-t-2 border-dashed border-foreground/60" />{benchmarkLabel}: {benchmark}{suffix}</span></div><div className="mt-5 overflow-x-auto"><div className="min-w-[620px]"><div className="relative h-56 border-l border-b"><div className="pointer-events-none absolute inset-0 flex flex-col justify-between"><span className="border-t border-dashed border-border/60" /><span className="border-t border-dashed border-border/60" /><span className="border-t border-dashed border-border/60" /><span className="border-t border-dashed border-border/60" /><span className="border-t border-dashed border-border/60" /></div><div className="pointer-events-none absolute inset-x-0 border-t-2 border-dashed border-foreground/60" style={{ bottom: `${(benchmark / yMax) * 100}%` }} /><div className="relative flex h-full items-end gap-3 px-4 pt-6">{data.map((item) => <div key={item.label} className="flex h-full min-w-[58px] flex-1 flex-col items-center justify-end"><span className="mb-1 text-xs font-medium tabular-nums">{item.value}{suffix}</span><div className="w-full max-w-10 rounded-t-sm" style={{ height: `${(item.value / yMax) * 100}%`, backgroundColor: color }} /></div>)}</div></div><div className="flex gap-3 px-4 pt-2">{data.map((item) => <span key={item.label} className="min-w-[58px] flex-1 text-center text-[10px] text-muted-foreground">{item.label}</span>)}</div></div></div></SectionCard>;
+  return (
+    <SectionCard>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold">{title}</h3>
+        <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"><span className="w-6 border-t-2 border-dashed border-foreground/60" />{benchmarkLabel}: {benchmark}{suffix}</span>
+      </div>
+      <div className="mt-5 overflow-x-auto">
+        <div className="min-w-[620px]">
+          <div className="relative h-56 border-l border-b">
+            <div className="pointer-events-none absolute inset-0 flex flex-col justify-between"><span className="border-t border-dashed border-border/60" /><span className="border-t border-dashed border-border/60" /><span className="border-t border-dashed border-border/60" /><span className="border-t border-dashed border-border/60" /><span className="border-t border-dashed border-border/60" /></div>
+            <div className="pointer-events-none absolute inset-x-0 border-t-2 border-dashed border-foreground/60" style={{ bottom: `${(benchmark / yMax) * 100}%` }} />
+            <div className="relative flex h-full items-end gap-3 px-4 pt-6">{data.map((item) => <div key={item.label} className="flex h-full min-w-[58px] flex-1 flex-col items-center justify-end"><span className="mb-1 text-xs font-medium tabular-nums">{item.value}{suffix}</span><div className="w-full max-w-10 rounded-t-sm" style={{ height: `${(item.value / yMax) * 100}%`, backgroundColor: color }} /></div>)}</div>
+          </div>
+          <div className="flex gap-3 px-4 pt-2">{data.map((item) => <span key={item.label} className="min-w-[58px] flex-1 text-center text-[10px] text-muted-foreground">{item.label}</span>)}</div>
+        </div>
+      </div>
+    </SectionCard>
+  );
 }
 
 export function LearningCognitiveAnalytics({ rows }: { rows: LearningCognitiveAnalyticsRow[] }) {
