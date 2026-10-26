@@ -367,7 +367,7 @@ export type GeographyComposition = {
 export function departmentComposition(
   level: ChartViewLevel,
   filters: { division?: string; district?: string; taluka?: string } = {},
-  participants: RolloutParticipant[] = ROLLOUT_PARTICANTS_ALIAS,
+  participants: RolloutParticipant[] = ROLLOUT_PARTICIPANTS,
 ): GeographyComposition[] {
   const scoped = participants.filter((p) => {
     if (filters.division && filters.division !== "All" && p.division !== filters.division)
