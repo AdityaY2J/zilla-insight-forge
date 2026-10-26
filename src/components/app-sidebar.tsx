@@ -6,6 +6,7 @@ import {
   ClipboardCheck,
   Brain,
   Filter,
+  Rocket,
   Users,
   TrendingUp,
   GitCompareArrows,
@@ -50,6 +51,7 @@ const NAV: { label: string; items: NavItem[] }[] = [
   {
     label: "Deployment Rollout",
     items: [
+      { title: "Rollout Readiness", url: "/rollout-readiness", icon: Rocket },
       { title: "Field Staff Certification", url: "/fs-certification", icon: BadgeCheck },
       { title: "Field Staff Batch Performance", url: "/fs-batch-performance", icon: CalendarRange },
       { title: "Field Staff Process Adherence", url: "/fs-process-adherence", icon: ClipboardCheck },

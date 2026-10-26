@@ -139,6 +139,7 @@ const DASHBOARD_NAMES: Record<string, string> = {
   "/todays-watchlist": "Today's Watchlist",
   "/repeat-default-watchlist": "Repeat Default Watchlist",
   "/audit-report": "Audit Report",
+  "/rollout-readiness": "Rollout Readiness",
 };
 
 
@@ -152,7 +153,9 @@ function HeaderBreadcrumb() {
           ? "Audit Analytics"
           : pathname.endsWith("-watchlist")
           ? "Watchlist"
-          : pathname.startsWith("/fs-") || pathname === "/batch-composition"
+          : pathname.startsWith("/fs-") ||
+            pathname === "/batch-composition" ||
+            pathname === "/rollout-readiness"
           ? "Deployment Rollout"
           : pathname.startsWith("/trainer-") || pathname === "/improvement-report-usage"
             ? "Trainer Performance Analytics"

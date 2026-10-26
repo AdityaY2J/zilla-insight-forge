@@ -13,6 +13,7 @@ import { Route as TrainerUtilizationRouteImport } from './routes/trainer-utiliza
 import { Route as TrainerPerformanceRouteImport } from './routes/trainer-performance'
 import { Route as TrainerCombinationRouteImport } from './routes/trainer-combination'
 import { Route as TodaysWatchlistRouteImport } from './routes/todays-watchlist'
+import { Route as RolloutReadinessRouteImport } from './routes/rollout-readiness'
 import { Route as RepeatDefaultWatchlistRouteImport } from './routes/repeat-default-watchlist'
 import { Route as MtSelectionRouteImport } from './routes/mt-selection'
 import { Route as MtProcessAdherenceRouteImport } from './routes/mt-process-adherence'
@@ -47,6 +48,11 @@ const TrainerCombinationRoute = TrainerCombinationRouteImport.update({
 const TodaysWatchlistRoute = TodaysWatchlistRouteImport.update({
   id: '/todays-watchlist',
   path: '/todays-watchlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RolloutReadinessRoute = RolloutReadinessRouteImport.update({
+  id: '/rollout-readiness',
+  path: '/rollout-readiness',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RepeatDefaultWatchlistRoute = RepeatDefaultWatchlistRouteImport.update({
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
   '/repeat-default-watchlist': typeof RepeatDefaultWatchlistRoute
+  '/rollout-readiness': typeof RolloutReadinessRoute
   '/todays-watchlist': typeof TodaysWatchlistRoute
   '/trainer-combination': typeof TrainerCombinationRoute
   '/trainer-performance': typeof TrainerPerformanceRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
   '/repeat-default-watchlist': typeof RepeatDefaultWatchlistRoute
+  '/rollout-readiness': typeof RolloutReadinessRoute
   '/todays-watchlist': typeof TodaysWatchlistRoute
   '/trainer-combination': typeof TrainerCombinationRoute
   '/trainer-performance': typeof TrainerPerformanceRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/mt-process-adherence': typeof MtProcessAdherenceRoute
   '/mt-selection': typeof MtSelectionRoute
   '/repeat-default-watchlist': typeof RepeatDefaultWatchlistRoute
+  '/rollout-readiness': typeof RolloutReadinessRoute
   '/todays-watchlist': typeof TodaysWatchlistRoute
   '/trainer-combination': typeof TrainerCombinationRoute
   '/trainer-performance': typeof TrainerPerformanceRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/mt-process-adherence'
     | '/mt-selection'
     | '/repeat-default-watchlist'
+    | '/rollout-readiness'
     | '/todays-watchlist'
     | '/trainer-combination'
     | '/trainer-performance'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/mt-process-adherence'
     | '/mt-selection'
     | '/repeat-default-watchlist'
+    | '/rollout-readiness'
     | '/todays-watchlist'
     | '/trainer-combination'
     | '/trainer-performance'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/mt-process-adherence'
     | '/mt-selection'
     | '/repeat-default-watchlist'
+    | '/rollout-readiness'
     | '/todays-watchlist'
     | '/trainer-combination'
     | '/trainer-performance'
@@ -271,6 +283,7 @@ export interface RootRouteChildren {
   MtProcessAdherenceRoute: typeof MtProcessAdherenceRoute
   MtSelectionRoute: typeof MtSelectionRoute
   RepeatDefaultWatchlistRoute: typeof RepeatDefaultWatchlistRoute
+  RolloutReadinessRoute: typeof RolloutReadinessRoute
   TodaysWatchlistRoute: typeof TodaysWatchlistRoute
   TrainerCombinationRoute: typeof TrainerCombinationRoute
   TrainerPerformanceRoute: typeof TrainerPerformanceRoute
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       path: '/todays-watchlist'
       fullPath: '/todays-watchlist'
       preLoaderRoute: typeof TodaysWatchlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rollout-readiness': {
+      id: '/rollout-readiness'
+      path: '/rollout-readiness'
+      fullPath: '/rollout-readiness'
+      preLoaderRoute: typeof RolloutReadinessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/repeat-default-watchlist': {
@@ -431,6 +451,7 @@ const rootRouteChildren: RootRouteChildren = {
   MtProcessAdherenceRoute: MtProcessAdherenceRoute,
   MtSelectionRoute: MtSelectionRoute,
   RepeatDefaultWatchlistRoute: RepeatDefaultWatchlistRoute,
+  RolloutReadinessRoute: RolloutReadinessRoute,
   TodaysWatchlistRoute: TodaysWatchlistRoute,
   TrainerCombinationRoute: TrainerCombinationRoute,
   TrainerPerformanceRoute: TrainerPerformanceRoute,
