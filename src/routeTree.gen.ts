@@ -9,115 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TrainerUtilizationRouteImport } from './routes/trainer-utilization'
-import { Route as TrainerPerformanceRouteImport } from './routes/trainer-performance'
-import { Route as TrainerCombinationRouteImport } from './routes/trainer-combination'
-import { Route as TodaysWatchlistRouteImport } from './routes/todays-watchlist'
-import { Route as RolloutReadinessRouteImport } from './routes/rollout-readiness'
-import { Route as RepeatDefaultWatchlistRouteImport } from './routes/repeat-default-watchlist'
-import { Route as MtSelectionRouteImport } from './routes/mt-selection'
-import { Route as MtProcessAdherenceRouteImport } from './routes/mt-process-adherence'
-import { Route as MtLearningCognitiveRouteImport } from './routes/mt-learning-cognitive'
-import { Route as MtCertificationRouteImport } from './routes/mt-certification'
-import { Route as MtCapacityFunnelRouteImport } from './routes/mt-capacity-funnel'
-import { Route as MtBatchPerformanceRouteImport } from './routes/mt-batch-performance'
-import { Route as ImprovementReportUsageRouteImport } from './routes/improvement-report-usage'
-import { Route as FsProcessAdherenceRouteImport } from './routes/fs-process-adherence'
-import { Route as FsLearningCognitiveRouteImport } from './routes/fs-learning-cognitive'
-import { Route as FsCertificationRouteImport } from './routes/fs-certification'
-import { Route as FsBatchPerformanceRouteImport } from './routes/fs-batch-performance'
-import { Route as BatchCompositionRouteImport } from './routes/batch-composition'
-import { Route as AuditReportRouteImport } from './routes/audit-report'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuditReportRouteImport } from './routes/audit-report'
+import { Route as BatchCompositionRouteImport } from './routes/batch-composition'
+import { Route as FsBatchPerformanceRouteImport } from './routes/fs-batch-performance'
+import { Route as FsCertificationRouteImport } from './routes/fs-certification'
+import { Route as FsLearningCognitiveRouteImport } from './routes/fs-learning-cognitive'
+import { Route as FsProcessAdherenceRouteImport } from './routes/fs-process-adherence'
+import { Route as ImprovementReportUsageRouteImport } from './routes/improvement-report-usage'
+import { Route as MtBatchPerformanceRouteImport } from './routes/mt-batch-performance'
+import { Route as MtCapacityFunnelRouteImport } from './routes/mt-capacity-funnel'
+import { Route as MtCertificationRouteImport } from './routes/mt-certification'
+import { Route as MtLearningCognitiveRouteImport } from './routes/mt-learning-cognitive'
+import { Route as MtProcessAdherenceRouteImport } from './routes/mt-process-adherence'
+import { Route as MtSelectionRouteImport } from './routes/mt-selection'
+import { Route as RepeatDefaultWatchlistRouteImport } from './routes/repeat-default-watchlist'
+import { Route as RolloutReadinessRouteImport } from './routes/rollout-readiness'
+import { Route as TodaysWatchlistRouteImport } from './routes/todays-watchlist'
+import { Route as TrainerCombinationRouteImport } from './routes/trainer-combination'
+import { Route as TrainerPerformanceRouteImport } from './routes/trainer-performance'
+import { Route as TrainerUtilizationRouteImport } from './routes/trainer-utilization'
 
-const TrainerUtilizationRoute = TrainerUtilizationRouteImport.update({
-  id: '/trainer-utilization',
-  path: '/trainer-utilization',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TrainerPerformanceRoute = TrainerPerformanceRouteImport.update({
-  id: '/trainer-performance',
-  path: '/trainer-performance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TrainerCombinationRoute = TrainerCombinationRouteImport.update({
-  id: '/trainer-combination',
-  path: '/trainer-combination',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TodaysWatchlistRoute = TodaysWatchlistRouteImport.update({
-  id: '/todays-watchlist',
-  path: '/todays-watchlist',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RolloutReadinessRoute = RolloutReadinessRouteImport.update({
-  id: '/rollout-readiness',
-  path: '/rollout-readiness',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RepeatDefaultWatchlistRoute = RepeatDefaultWatchlistRouteImport.update({
-  id: '/repeat-default-watchlist',
-  path: '/repeat-default-watchlist',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MtSelectionRoute = MtSelectionRouteImport.update({
-  id: '/mt-selection',
-  path: '/mt-selection',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MtProcessAdherenceRoute = MtProcessAdherenceRouteImport.update({
-  id: '/mt-process-adherence',
-  path: '/mt-process-adherence',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MtLearningCognitiveRoute = MtLearningCognitiveRouteImport.update({
-  id: '/mt-learning-cognitive',
-  path: '/mt-learning-cognitive',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MtCertificationRoute = MtCertificationRouteImport.update({
-  id: '/mt-certification',
-  path: '/mt-certification',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MtCapacityFunnelRoute = MtCapacityFunnelRouteImport.update({
-  id: '/mt-capacity-funnel',
-  path: '/mt-capacity-funnel',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MtBatchPerformanceRoute = MtBatchPerformanceRouteImport.update({
-  id: '/mt-batch-performance',
-  path: '/mt-batch-performance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ImprovementReportUsageRoute = ImprovementReportUsageRouteImport.update({
-  id: '/improvement-report-usage',
-  path: '/improvement-report-usage',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FsProcessAdherenceRoute = FsProcessAdherenceRouteImport.update({
-  id: '/fs-process-adherence',
-  path: '/fs-process-adherence',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FsLearningCognitiveRoute = FsLearningCognitiveRouteImport.update({
-  id: '/fs-learning-cognitive',
-  path: '/fs-learning-cognitive',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FsCertificationRoute = FsCertificationRouteImport.update({
-  id: '/fs-certification',
-  path: '/fs-certification',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FsBatchPerformanceRoute = FsBatchPerformanceRouteImport.update({
-  id: '/fs-batch-performance',
-  path: '/fs-batch-performance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BatchCompositionRoute = BatchCompositionRouteImport.update({
-  id: '/batch-composition',
-  path: '/batch-composition',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuditReportRoute = AuditReportRouteImport.update({
@@ -125,9 +40,94 @@ const AuditReportRoute = AuditReportRouteImport.update({
   path: '/audit-report',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const BatchCompositionRoute = BatchCompositionRouteImport.update({
+  id: '/batch-composition',
+  path: '/batch-composition',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FsBatchPerformanceRoute = FsBatchPerformanceRouteImport.update({
+  id: '/fs-batch-performance',
+  path: '/fs-batch-performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FsCertificationRoute = FsCertificationRouteImport.update({
+  id: '/fs-certification',
+  path: '/fs-certification',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FsLearningCognitiveRoute = FsLearningCognitiveRouteImport.update({
+  id: '/fs-learning-cognitive',
+  path: '/fs-learning-cognitive',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FsProcessAdherenceRoute = FsProcessAdherenceRouteImport.update({
+  id: '/fs-process-adherence',
+  path: '/fs-process-adherence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImprovementReportUsageRoute = ImprovementReportUsageRouteImport.update({
+  id: '/improvement-report-usage',
+  path: '/improvement-report-usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtBatchPerformanceRoute = MtBatchPerformanceRouteImport.update({
+  id: '/mt-batch-performance',
+  path: '/mt-batch-performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtCapacityFunnelRoute = MtCapacityFunnelRouteImport.update({
+  id: '/mt-capacity-funnel',
+  path: '/mt-capacity-funnel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtCertificationRoute = MtCertificationRouteImport.update({
+  id: '/mt-certification',
+  path: '/mt-certification',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtLearningCognitiveRoute = MtLearningCognitiveRouteImport.update({
+  id: '/mt-learning-cognitive',
+  path: '/mt-learning-cognitive',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtProcessAdherenceRoute = MtProcessAdherenceRouteImport.update({
+  id: '/mt-process-adherence',
+  path: '/mt-process-adherence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtSelectionRoute = MtSelectionRouteImport.update({
+  id: '/mt-selection',
+  path: '/mt-selection',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepeatDefaultWatchlistRoute = RepeatDefaultWatchlistRouteImport.update({
+  id: '/repeat-default-watchlist',
+  path: '/repeat-default-watchlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RolloutReadinessRoute = RolloutReadinessRouteImport.update({
+  id: '/rollout-readiness',
+  path: '/rollout-readiness',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TodaysWatchlistRoute = TodaysWatchlistRouteImport.update({
+  id: '/todays-watchlist',
+  path: '/todays-watchlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrainerCombinationRoute = TrainerCombinationRouteImport.update({
+  id: '/trainer-combination',
+  path: '/trainer-combination',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrainerPerformanceRoute = TrainerPerformanceRouteImport.update({
+  id: '/trainer-performance',
+  path: '/trainer-performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrainerUtilizationRoute = TrainerUtilizationRouteImport.update({
+  id: '/trainer-utilization',
+  path: '/trainer-utilization',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -292,130 +292,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/trainer-utilization': {
-      id: '/trainer-utilization'
-      path: '/trainer-utilization'
-      fullPath: '/trainer-utilization'
-      preLoaderRoute: typeof TrainerUtilizationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/trainer-performance': {
-      id: '/trainer-performance'
-      path: '/trainer-performance'
-      fullPath: '/trainer-performance'
-      preLoaderRoute: typeof TrainerPerformanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/trainer-combination': {
-      id: '/trainer-combination'
-      path: '/trainer-combination'
-      fullPath: '/trainer-combination'
-      preLoaderRoute: typeof TrainerCombinationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/todays-watchlist': {
-      id: '/todays-watchlist'
-      path: '/todays-watchlist'
-      fullPath: '/todays-watchlist'
-      preLoaderRoute: typeof TodaysWatchlistRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rollout-readiness': {
-      id: '/rollout-readiness'
-      path: '/rollout-readiness'
-      fullPath: '/rollout-readiness'
-      preLoaderRoute: typeof RolloutReadinessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/repeat-default-watchlist': {
-      id: '/repeat-default-watchlist'
-      path: '/repeat-default-watchlist'
-      fullPath: '/repeat-default-watchlist'
-      preLoaderRoute: typeof RepeatDefaultWatchlistRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mt-selection': {
-      id: '/mt-selection'
-      path: '/mt-selection'
-      fullPath: '/mt-selection'
-      preLoaderRoute: typeof MtSelectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mt-process-adherence': {
-      id: '/mt-process-adherence'
-      path: '/mt-process-adherence'
-      fullPath: '/mt-process-adherence'
-      preLoaderRoute: typeof MtProcessAdherenceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mt-learning-cognitive': {
-      id: '/mt-learning-cognitive'
-      path: '/mt-learning-cognitive'
-      fullPath: '/mt-learning-cognitive'
-      preLoaderRoute: typeof MtLearningCognitiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mt-certification': {
-      id: '/mt-certification'
-      path: '/mt-certification'
-      fullPath: '/mt-certification'
-      preLoaderRoute: typeof MtCertificationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mt-capacity-funnel': {
-      id: '/mt-capacity-funnel'
-      path: '/mt-capacity-funnel'
-      fullPath: '/mt-capacity-funnel'
-      preLoaderRoute: typeof MtCapacityFunnelRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mt-batch-performance': {
-      id: '/mt-batch-performance'
-      path: '/mt-batch-performance'
-      fullPath: '/mt-batch-performance'
-      preLoaderRoute: typeof MtBatchPerformanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/improvement-report-usage': {
-      id: '/improvement-report-usage'
-      path: '/improvement-report-usage'
-      fullPath: '/improvement-report-usage'
-      preLoaderRoute: typeof ImprovementReportUsageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fs-process-adherence': {
-      id: '/fs-process-adherence'
-      path: '/fs-process-adherence'
-      fullPath: '/fs-process-adherence'
-      preLoaderRoute: typeof FsProcessAdherenceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fs-learning-cognitive': {
-      id: '/fs-learning-cognitive'
-      path: '/fs-learning-cognitive'
-      fullPath: '/fs-learning-cognitive'
-      preLoaderRoute: typeof FsLearningCognitiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fs-certification': {
-      id: '/fs-certification'
-      path: '/fs-certification'
-      fullPath: '/fs-certification'
-      preLoaderRoute: typeof FsCertificationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fs-batch-performance': {
-      id: '/fs-batch-performance'
-      path: '/fs-batch-performance'
-      fullPath: '/fs-batch-performance'
-      preLoaderRoute: typeof FsBatchPerformanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/batch-composition': {
-      id: '/batch-composition'
-      path: '/batch-composition'
-      fullPath: '/batch-composition'
-      preLoaderRoute: typeof BatchCompositionRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/audit-report': {
@@ -425,11 +306,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuditReportRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/batch-composition': {
+      id: '/batch-composition'
+      path: '/batch-composition'
+      fullPath: '/batch-composition'
+      preLoaderRoute: typeof BatchCompositionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fs-batch-performance': {
+      id: '/fs-batch-performance'
+      path: '/fs-batch-performance'
+      fullPath: '/fs-batch-performance'
+      preLoaderRoute: typeof FsBatchPerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fs-certification': {
+      id: '/fs-certification'
+      path: '/fs-certification'
+      fullPath: '/fs-certification'
+      preLoaderRoute: typeof FsCertificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fs-learning-cognitive': {
+      id: '/fs-learning-cognitive'
+      path: '/fs-learning-cognitive'
+      fullPath: '/fs-learning-cognitive'
+      preLoaderRoute: typeof FsLearningCognitiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fs-process-adherence': {
+      id: '/fs-process-adherence'
+      path: '/fs-process-adherence'
+      fullPath: '/fs-process-adherence'
+      preLoaderRoute: typeof FsProcessAdherenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/improvement-report-usage': {
+      id: '/improvement-report-usage'
+      path: '/improvement-report-usage'
+      fullPath: '/improvement-report-usage'
+      preLoaderRoute: typeof ImprovementReportUsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-batch-performance': {
+      id: '/mt-batch-performance'
+      path: '/mt-batch-performance'
+      fullPath: '/mt-batch-performance'
+      preLoaderRoute: typeof MtBatchPerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-capacity-funnel': {
+      id: '/mt-capacity-funnel'
+      path: '/mt-capacity-funnel'
+      fullPath: '/mt-capacity-funnel'
+      preLoaderRoute: typeof MtCapacityFunnelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-certification': {
+      id: '/mt-certification'
+      path: '/mt-certification'
+      fullPath: '/mt-certification'
+      preLoaderRoute: typeof MtCertificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-learning-cognitive': {
+      id: '/mt-learning-cognitive'
+      path: '/mt-learning-cognitive'
+      fullPath: '/mt-learning-cognitive'
+      preLoaderRoute: typeof MtLearningCognitiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-process-adherence': {
+      id: '/mt-process-adherence'
+      path: '/mt-process-adherence'
+      fullPath: '/mt-process-adherence'
+      preLoaderRoute: typeof MtProcessAdherenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mt-selection': {
+      id: '/mt-selection'
+      path: '/mt-selection'
+      fullPath: '/mt-selection'
+      preLoaderRoute: typeof MtSelectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repeat-default-watchlist': {
+      id: '/repeat-default-watchlist'
+      path: '/repeat-default-watchlist'
+      fullPath: '/repeat-default-watchlist'
+      preLoaderRoute: typeof RepeatDefaultWatchlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rollout-readiness': {
+      id: '/rollout-readiness'
+      path: '/rollout-readiness'
+      fullPath: '/rollout-readiness'
+      preLoaderRoute: typeof RolloutReadinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/todays-watchlist': {
+      id: '/todays-watchlist'
+      path: '/todays-watchlist'
+      fullPath: '/todays-watchlist'
+      preLoaderRoute: typeof TodaysWatchlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trainer-combination': {
+      id: '/trainer-combination'
+      path: '/trainer-combination'
+      fullPath: '/trainer-combination'
+      preLoaderRoute: typeof TrainerCombinationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trainer-performance': {
+      id: '/trainer-performance'
+      path: '/trainer-performance'
+      fullPath: '/trainer-performance'
+      preLoaderRoute: typeof TrainerPerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trainer-utilization': {
+      id: '/trainer-utilization'
+      path: '/trainer-utilization'
+      fullPath: '/trainer-utilization'
+      preLoaderRoute: typeof TrainerUtilizationRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
