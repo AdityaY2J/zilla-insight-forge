@@ -12,6 +12,7 @@ import {
   DEPARTMENTS,
   DESIGNATIONS,
   DISTRICTS,
+  DIVISIONS,
   mulberry32,
   personName,
   phoneNumber,

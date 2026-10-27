@@ -257,8 +257,8 @@ export const TRAINER_RISK_ROWS: TrainerRiskRow[] = WATCHLIST_TRAINERS.map((train
     riskStatus: (riskCount >= 3 ? "Persistent" : riskCount === 2 ? "Repeat" : "Watch") as TrainerRiskRow["riskStatus"],
     dominantIssues: [...dominantIssues],
     lastBatchConductedDate: batches[0] ? formatWatchlistDate(batches[0].date) : "-",
-    districtActivationStatus: TODAY_BATCHES.some((batch) => batch.district === trainer.district)
+    districtActivationStatus: (TODAY_BATCHES.some((batch) => batch.district === trainer.district)
       ? "Active"
-      : "Completed",
+      : "Completed") as TrainerRiskRow["districtActivationStatus"],
   };
 }).filter((row) => row.riskCount > 0);
