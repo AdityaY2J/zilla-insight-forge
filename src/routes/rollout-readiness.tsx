@@ -3,7 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Section, SectionCard } from "@/components/dashboard/section";
-import { KpiCard, KpiGrid } from "@/components/dashboard/kpi-card";
+import { SplitSnapshotPanel } from "@/components/dashboard/split-snapshot-panel";
+import { MetricPanel } from "@/components/dashboard/metric-panel";
 import { StatusPill } from "@/components/dashboard/status-pill";
 import { DataTable, type Column } from "@/components/dashboard/data-table";
 import { FilterSelect } from "@/components/dashboard/filter-bar";
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 import {
   PLANNED_TALUKAS,
+  activeDistrictNames,
   ROLLOUT_BATCHES,
   ROLLOUT_BATCH_BY_ID,
   ROLLOUT_PARTICIPANTS,
@@ -55,6 +57,7 @@ type DetailTab = "participants" | "batches";
 function RolloutReadinessDashboard() {
   const snapshot = useMemo(() => computeSnapshot(), []);
   const summaryRows = useMemo<HierRow[]>(() => buildRolloutSummaryRows(), []);
+  const activeDistricts = useMemo(() => activeDistrictNames(), []);
 
   // Department diversity chart controls
   const [chartView, setChartView] = useState<ChartViewLevel>("division");
@@ -78,29 +81,64 @@ function RolloutReadinessDashboard() {
     <div className="pb-16">
       <PageHeader
         title="Rollout Readiness"
-        description="Deployment Rollout stage readiness — participant uploads, batch scheduling and department mix across geographies."
+        description="Deployment Rollout stage readiness — Field Staff uploads, batch scheduling and department mix across geographies."
       />
 
       <div className="px-8 pt-8 space-y-10">
         {/* Section 1 — Snapshot */}
         <Section title="Snapshot">
-          <KpiGrid cols={3}>
-            <KpiCard
-              title="Talukas Active"
-              value={snapshot.activeTalukas.toLocaleString("en-IN")}
-              context={`of ${snapshot.totalPlannedTalukas.toLocaleString("en-IN")} planned talukas — at least one uploaded participant or Scheduled batch`}
-            />
-            <KpiCard
-              title="No. of Participants Uploaded"
-              value={snapshot.participantsUploaded.toLocaleString("en-IN")}
-              context="Distinct Field Staff IDs, assigned to a batch or not"
-            />
-            <KpiCard
-              title="No. of Batches Scheduled"
-              value={snapshot.batchesScheduled.toLocaleString("en-IN")}
-              context="Distinct batch IDs with status Scheduled; Draft does not count"
-            />
-          </KpiGrid>
+          <SplitSnapshotPanel
+            left={
+              <MetricPanel
+                title="Overall"
+                groups={[
+                  {
+                    items: [
+                      {
+                        label: "Districts Active",
+                        value: snapshot.districtsActive.toLocaleString("en-IN"),
+                        sub: (
+                          <span className="text-[10px] text-muted-foreground">
+                            of {snapshot.totalDistricts.toLocaleString("en-IN")}{" "}
+                            planned districts
+                          </span>
+                        ),
+                      },
+                      {
+                        label: "Field Staff Required",
+                        value: snapshot.fieldStaffRequired.toLocaleString(
+                          "en-IN",
+                        ),
+                      },
+                      {
+                        label: "Field Staff Uploaded",
+                        value: snapshot.participantsUploaded.toLocaleString(
+                          "en-IN",
+                        ),
+                        sub: (
+                          <span className="text-[10px] text-muted-foreground">
+                            Distinct Field Staff IDs, assigned to a batch or not
+                          </span>
+                        ),
+                      },
+                      {
+                        label: "Batches Scheduled",
+                        value: snapshot.batchesScheduled.toLocaleString("en-IN"),
+                        sub: (
+                          <span className="text-[10px] text-muted-foreground">
+                            Distinct batch IDs with status Scheduled; Draft does
+                            not count
+                          </span>
+                        ),
+                      },
+                    ],
+                  },
+                ]}
+              />
+            }
+            rightTitle="District Status"
+            right={<ActiveDistrictsPanel districts={activeDistricts} />}
+          />
         </Section>
 
         {/* Section 2 — Rollout Readiness Summary */}
@@ -111,8 +149,8 @@ function RolloutReadinessDashboard() {
             exportable
             exportFileName="rollout-readiness-summary.csv"
             columns={[
-              { header: "Participants Required", align: "right" },
-              { header: "Participants Uploaded", align: "right" },
+              { header: "Field Staff Required", align: "right" },
+              { header: "Field Staff Uploaded", align: "right" },
               { header: "Batches Required", align: "right" },
               { header: "Batches Scheduled", align: "right" },
             ]}
