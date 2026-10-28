@@ -97,12 +97,6 @@ function RolloutReadinessDashboard() {
                       {
                         label: "Districts Active",
                         value: snapshot.districtsActive.toLocaleString("en-IN"),
-                        sub: (
-                          <span className="text-[10px] text-muted-foreground">
-                            of {snapshot.totalDistricts.toLocaleString("en-IN")}{" "}
-                            planned districts
-                          </span>
-                        ),
                       },
                       {
                         label: "Field Staff Required",
