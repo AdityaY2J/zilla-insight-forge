@@ -109,21 +109,10 @@ function RolloutReadinessDashboard() {
                         value: snapshot.participantsUploaded.toLocaleString(
                           "en-IN",
                         ),
-                        sub: (
-                          <span className="text-[10px] text-muted-foreground">
-                            Distinct Field Staff IDs, assigned to a batch or not
-                          </span>
-                        ),
                       },
                       {
                         label: "Batches Scheduled",
                         value: snapshot.batchesScheduled.toLocaleString("en-IN"),
-                        sub: (
-                          <span className="text-[10px] text-muted-foreground">
-                            Distinct batch IDs with status Scheduled; Draft does
-                            not count
-                          </span>
-                        ),
                       },
                     ],
                   },

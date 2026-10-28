@@ -70,7 +70,7 @@ export function DepartmentDiversityChart({
           );
         })}
       </div>
-      <div className="max-h-[520px] space-y-3 overflow-y-auto pr-1">
+      <div className="max-h-[620px] space-y-5 overflow-y-auto pr-1">
         {columns.map((col) => (
           <Row key={col.key} column={col} colorFor={colorFor} />
         ))}
@@ -105,7 +105,7 @@ function Row({
           ({column.total})
         </span>
       </span>
-      <div className="h-8 min-w-0 flex-1">
+      <div className="h-10 min-w-0 flex-1">
         {column.total === 0 ? (
           <div className="flex h-full w-full items-center justify-center rounded-sm border border-dashed border-border/70">
             <span className="px-1 text-[9px] leading-tight text-muted-foreground">
@@ -126,7 +126,8 @@ function Row({
                     isLast && "rounded-r-sm",
                   )}
                   style={{
-                    width: `${pct}%`,
+                    flexBasis: 0,
+                    flexGrow: seg.count,
                     backgroundColor: style.bg,
                     color: style.fg,
                   }}
