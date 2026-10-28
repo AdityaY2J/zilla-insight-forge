@@ -1,10 +1,9 @@
 import { cn } from "@/lib/utils";
 
 /**
- * 100% stacked column chart showing the department composition of uploaded
- * participants per geography. Visual language matches the module-wise
- * process-adherence stacked chart, extended to N departments with per-column
- * hover tooltips and an explicit zero state for geographies with no uploads.
+ * Horizontal 100% stacked bar chart showing the department composition of
+ * uploaded Field Staff per geography — one row per geography, with the total
+ * surfaced in the axis label itself, e.g. "Konkan (570)".
  */
 
 export type CompositionSegment = { department: string; count: number };
@@ -41,16 +40,12 @@ const SEGMENT_STYLES = [
 export function DepartmentDiversityChart({
   columns,
   departments,
-  height = 260,
   xAxisTitle,
 }: {
   columns: CompositionColumn[];
   departments: string[];
-  height?: number;
   xAxisTitle?: string;
 }) {
-  const minWidth = 52;
-  const scrollable = columns.length > 12;
   const colorFor = (department: string) => {
     const index = departments.indexOf(department);
     return SEGMENT_STYLES[(index >= 0 ? index : 0) % SEGMENT_STYLES.length];
@@ -75,20 +70,10 @@ export function DepartmentDiversityChart({
           );
         })}
       </div>
-      <div className={cn("w-full", scrollable && "overflow-x-auto pb-1")}>
-        <div
-          className="flex gap-1 px-2"
-          style={scrollable ? { minWidth: columns.length * minWidth + 16 } : undefined}
-        >
-          {columns.map((col) => (
-            <Column
-              key={col.key}
-              column={col}
-              height={height}
-              colorFor={colorFor}
-            />
-          ))}
-        </div>
+      <div className="max-h-[520px] space-y-1.5 overflow-y-auto pr-1">
+        {columns.map((col) => (
+          <Row key={col.key} column={col} colorFor={colorFor} />
+        ))}
       </div>
       {xAxisTitle ? (
         <p className="mt-2 text-center text-[11px] font-medium text-muted-foreground">
@@ -99,72 +84,69 @@ export function DepartmentDiversityChart({
   );
 }
 
-function Column({
+function Row({
   column,
-  height,
   colorFor,
 }: {
   column: CompositionColumn;
-  height: number;
   colorFor: (department: string) => { bg: string; fg: string };
 }) {
   const fullLabel = column.subLabel
     ? `${column.label} — ${column.subLabel}`
     : column.label;
   return (
-    <div
-      className="group/col relative flex min-w-[52px] flex-1 flex-col items-center"
-      style={{ height }}
-    >
-      <span className="mb-1 text-[10px] font-medium tabular-nums text-foreground">
-        {column.total}
+    <div className="group/row relative flex items-center gap-3">
+      <span
+        className="w-48 shrink-0 truncate text-right text-[11px] text-muted-foreground"
+        title={`${fullLabel} (${column.total})`}
+      >
+        {fullLabel}
+        <span className="ml-1 font-medium tabular-nums text-foreground">
+          ({column.total})
+        </span>
       </span>
-      <div className="flex w-full flex-1 flex-col-reverse border-b border-l">
+      <div className="h-6 min-w-0 flex-1">
         {column.total === 0 ? (
-          <div className="flex h-full items-center justify-center rounded-t-sm border border-dashed border-border/70">
-            <span className="px-1 text-center text-[9px] leading-tight text-muted-foreground">
+          <div className="flex h-full w-full items-center justify-center rounded-sm border border-dashed border-border/70">
+            <span className="px-1 text-[9px] leading-tight text-muted-foreground">
               No participants
             </span>
           </div>
         ) : (
-          column.segments.map((seg, j) => {
-            const style = colorFor(seg.department);
-            const pct = Math.round((seg.count / column.total) * 100);
-            const isTop = j === column.segments.length - 1;
-            return (
-              <div
-                key={seg.department}
-                className={cn(
-                  "flex items-center justify-center",
-                  isTop && "rounded-t-sm",
-                )}
-                style={{
-                  height: `${pct}%`,
-                  backgroundColor: style.bg,
-                  color: style.fg,
-                }}
-              >
-                {pct >= 12 ? (
-                  <span className="text-[9px] font-medium tabular-nums whitespace-nowrap">
-                    {seg.count} ({pct}%)
-                  </span>
-                ) : null}
-              </div>
-            );
-          })
+          <div className="flex h-full w-full overflow-hidden rounded-sm">
+            {column.segments.map((seg, j) => {
+              const style = colorFor(seg.department);
+              const pct = Math.round((seg.count / column.total) * 100);
+              const isLast = j === column.segments.length - 1;
+              return (
+                <div
+                  key={seg.department}
+                  className={cn(
+                    "flex items-center justify-center overflow-hidden whitespace-nowrap",
+                    isLast && "rounded-r-sm",
+                  )}
+                  style={{
+                    width: `${pct}%`,
+                    backgroundColor: style.bg,
+                    color: style.fg,
+                  }}
+                >
+                  {pct >= 25 ? (
+                    <span className="px-1 text-[10px] font-medium tabular-nums">
+                      {seg.count} ({pct}%)
+                    </span>
+                  ) : pct >= 10 ? (
+                    <span className="px-1 text-[10px] tabular-nums">
+                      {pct}%
+                    </span>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
-      <div className="mt-1 w-full min-w-0 text-center">
-        <span className="block truncate text-[10px] text-muted-foreground">
-          {column.label}
-        </span>
-        {column.subLabel ? (
-          <span className="block truncate text-[9px] text-muted-foreground/70">
-            {column.subLabel}
-          </span>
-        ) : null}
-      </div>
-      <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1 hidden w-48 -translate-x-1/2 rounded-md border bg-popover p-2.5 text-left shadow-md group-hover/col:block">
+      <div className="pointer-events-none absolute bottom-full left-52 z-20 mb-1 hidden w-56 -translate-x-1/2 rounded-md border bg-popover p-2.5 text-left shadow-md group-hover/row:block">
         <p className="text-[11px] font-semibold text-foreground">{fullLabel}</p>
         {column.total === 0 ? (
           <p className="mt-1 text-[10px] text-muted-foreground">

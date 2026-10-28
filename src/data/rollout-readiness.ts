@@ -209,8 +209,9 @@ export const ROLLOUT_BATCH_BY_ID: Map<string, RolloutBatch> = new Map(
 export type TalukaGeo = { division: Division; district: string; taluka: string };
 
 export type RolloutSnapshot = {
-  activeTalukas: number;
-  totalPlannedTalukas: number;
+  districtsActive: number;
+  totalDistricts: number;
+  fieldStaffRequired: number;
   participantsUploaded: number;
   batchesScheduled: number;
 };
@@ -241,11 +242,21 @@ export function computeSnapshot(
   participants: RolloutParticipant[] = ROLLOUT_PARTICIPANTS,
   batches: RolloutBatch[] = ROLLOUT_BATCHES,
 ): RolloutSnapshot {
+  const activeDistrictKeys = new Set(
+    PLANNED_TALUKAS.filter((g) => talukaIsActive(g, participants, batches)).map(
+      (g) => `${g.division}|${g.district}`,
+    ),
+  );
   return {
-    activeTalukas: PLANNED_TALUKAS.filter((g) =>
-      talukaIsActive(g, participants, batches),
-    ).length,
-    totalPlannedTalukas: PLANNED_TALUKAS.length,
+    // A district is Active when at least one of its talukas is Active.
+    districtsActive: activeDistrictKeys.size,
+    totalDistricts: new Set(DISTRICTS.map((d) => `${d.division}|${d.name}`))
+      .size,
+    // Sum of geography-level Field Staff planning targets.
+    fieldStaffRequired: PLANNED_TALUKAS.reduce(
+      (s, t) => s + t.participantsRequired,
+      0,
+    ),
     // Distinct Field Staff IDs, assigned or not.
     participantsUploaded: new Set(participants.map((p) => p.id)).size,
     // Distinct batch IDs with status Scheduled; Draft does not count.
@@ -253,6 +264,23 @@ export function computeSnapshot(
       batches.filter((b) => b.status === "Scheduled").map((b) => b.id),
     ).size,
   };
+}
+
+/** Names of districts with at least one Active taluka, in canonical order. */
+export function activeDistrictNames(
+  participants: RolloutParticipant[] = ROLLOUT_PARTICIPANTS,
+  batches: RolloutBatch[] = ROLLOUT_BATCHES,
+): string[] {
+  const active = new Set(
+    PLANNED_TALUKAS.filter((g) => talukaIsActive(g, participants, batches)).map(
+      (g) => `${g.division}|${g.district}`,
+    ),
+  );
+  return DIVISIONS.flatMap((division) =>
+    DISTRICTS.filter(
+      (d) => d.division === division && active.has(`${division}|${d.name}`),
+    ).map((d) => d.name),
+  );
 }
 
 // ---------------------------------------------------------------------------
