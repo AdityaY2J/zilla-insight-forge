@@ -615,3 +615,31 @@ function BatchesDetail() {
     </div>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Snapshot RHS — districts with at least one Active taluka
+// ---------------------------------------------------------------------------
+
+function ActiveDistrictsPanel({ districts }: { districts: string[] }) {
+  return (
+    <div className="text-sm">
+      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        Active
+      </h4>
+      {districts.length === 0 ? (
+        <p className="text-xs text-muted-foreground">None.</p>
+      ) : (
+        <ul className="flex flex-wrap gap-1.5">
+          {districts.map((d) => (
+            <li
+              key={d}
+              className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs text-primary ring-1 ring-inset ring-primary/20"
+            >
+              {d}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
